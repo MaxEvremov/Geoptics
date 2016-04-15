@@ -19,11 +19,13 @@ let bundle = () => {
     b.bundle()
 	.pipe(fs.createWriteStream("./static/build/js/index.js"))
 
-    fs.copy("./static/src/index.html", "./static/build/index.html", () => {})
+    fs.copySync("./static/src/index.html", "./static/build/index.html")
+    fs.copySync("./static/src/css", "./static/build/css")
+    fs.copySync("./static/src/fonts", "./static/build/fonts")
 }
 
 b.on("update", bundle)
-bundle()
-
 b.on("log", console.log)
-b.on("error", console.error)
+b.on("error", console.log)
+
+bundle()

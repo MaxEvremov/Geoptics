@@ -4,39 +4,45 @@
 <head>
 	<meta charset="utf-8">
 
-	<title>The HTML5 Herald</title>
-	<meta name="description" content="The HTML5 Herald">
-	<meta name="author" content="SitePoint">
+	<title>Geoptics</title>
+	<meta name="description" content="Geoptics">
 
-    <style type="text/css">
-    body {
-        font: 10px sans-serif;
-    }
-
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-    }
-
-    .line {
-        fill: none;
-        stroke: steelblue;
-        stroke-width: 1.5px;
-    }
-
-    .brush .extent {
-        stroke: #fff;
-        fill-opacity: .125;
-        shape-rendering: crispEdges;
-    }
-    </style>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-	<script src="js/index.js"></script>
-    <div id="main">
+    <div class="container">
+        <div class="col-md-8">
+            <div id="avg">
+            </div>
+
+            <div id="main">
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- ko ifnot: annotations().length === 0 -->
+            <table class="table" data-bind="foreach: annotations">
+                <tr>
+                    <td data-bind="text: $index() + 1"></td>
+                    <td data-bind="
+                        text: moment(x).format('DD-MM-YYYY HH:mm:ss')">
+                    </td>
+                    <td>
+                        <button data-bind="click: removePoint">
+                            Удалить
+                        </button>
+                    </td>
+                </tr>
+            </table>
+            <!-- /ko -->
+
+            <!-- ko if: annotations().length === 0 -->
+            Выберите одну или больше точек на графике времени
+            <!-- /ko -->
+        </div>
     </div>
+
+    <script src="js/index.js"></script>
 </body>
 </html>

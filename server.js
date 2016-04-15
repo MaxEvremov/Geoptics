@@ -17,6 +17,61 @@ let isDateValid = (date) => (!date || moment(date).isValid())
 let isLengthValid = (length) => (!length || !isNaN(parseFloat(length)))
 
 api.post(
+    "/init",
+    (req, res, next) => {
+        let query = knex.select(knex.raw("avg(temp) as temp, date"))
+            .from("measurements")
+            .groupBy("date")
+            .orderBy("date")
+
+        pg.connect(
+            config.postgres_con,
+            (err, client, release) => {
+                if(err) {
+                    console.error(err)
+
+                    if(client) {
+                        release(client)
+                    }
+
+                    return res.json({
+                        err: "db_err"
+                    })
+                }
+
+                client.query(
+                    query.toString(),
+                    (err, result) => {
+                        if(err) {
+                            console.error(err)
+
+                            if(client) {
+                                release(client)
+                            }
+
+                            return res.json({
+                                err: "db_err"
+                            })
+                        }
+
+                        let data = _.chain(result.rows)
+                            .map(v => [new Date(v.date), v.temp])
+                            .value()
+
+                        return res.json({
+                            err: null,
+                            result: {
+                                data: data
+                            }
+                        })
+                    }
+                )
+            }
+        )
+    }
+)
+
+api.post(
     "/measurements",
     (req, res, next) => {
         let date_start = req.body.date_start
@@ -67,12 +122,12 @@ api.post(
             {
                 field: "date",
                 op: ">=",
-                value: date_start
+                value: moment(date_start).format("YYYY-MM-DD HH:mm:ss")
             },
             {
                 field: "date",
                 op: "<=",
-                value: date_end
+                value: moment(date_end).format("YYYY-MM-DD HH:mm:ss")
             },
             {
                 field: "length",
@@ -138,11 +193,11 @@ api.post(
                         .value()
 
                     let total = data[0].length - 1
-                    let colors = []
-
-                    for(let i = 0; i < total; i++) {
-                        colors.push(`rgba(${Math.floor(i / total * 255)},0,${255 - Math.floor(i / total * 255)}, 0.2)`)
-                    }
+                    // let colors = []
+                    //
+                    // for(let i = 0; i < total; i++) {
+                    //     colors.push(`rgba(${Math.floor(i / total * 255)},0,${255 - Math.floor(i / total * 255)}, 0.2)`)
+                    // }
 
                     console.timeEnd("filter")
 
@@ -150,7 +205,7 @@ api.post(
                         err: null,
                         result: {
                             data: data,
-                            colors: colors
+                            // colors: colors
                         }
                     })
                 }

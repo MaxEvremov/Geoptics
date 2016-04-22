@@ -20,7 +20,7 @@ api.post(
     "/init",
     (req, res, next) => {
         let query = knex.select(knex.raw("avg(temp) as temp, date"))
-            .from("measurements")
+            .from("t_measurements")
             .groupBy("date")
             .orderBy("date")
 
@@ -53,6 +53,8 @@ api.post(
                                 err: "db_err"
                             })
                         }
+
+                        release()
 
                         let data = _.chain(result.rows)
                             .map(v => [new Date(v.date), v.temp])
@@ -101,7 +103,7 @@ api.post(
         let query = knex.select(
             knex.raw(select)
         )
-        .from("measurements")
+        .from("t_measurements")
 
         let is_first_condition = true
 
@@ -193,19 +195,13 @@ api.post(
                         .value()
 
                     let total = data[0].length - 1
-                    // let colors = []
-                    //
-                    // for(let i = 0; i < total; i++) {
-                    //     colors.push(`rgba(${Math.floor(i / total * 255)},0,${255 - Math.floor(i / total * 255)}, 0.2)`)
-                    // }
 
                     console.timeEnd("filter")
 
                     return res.json({
                         err: null,
                         result: {
-                            data: data,
-                            // colors: colors
+                            data: data
                         }
                     })
                 }

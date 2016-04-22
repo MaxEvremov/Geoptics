@@ -7,16 +7,20 @@ import $ from "jquery"
 import _ from "lodash"
 import ko from "knockout"
 import moment from "moment"
+import Pager from "pagerjs"
+
+import * as lib from "./lib"
 
 // view model
 
-window.vm = {
+let vm = {
+    current_page: ko.observable(),
     selected_points: ko.observableArray()
 }
 
-window.moment = moment
+vm.moment = moment
 
-window.removePoint = (data, event) => {
+vm.removePoint = (data, event) => {
     vm.selected_points.remove(function(item) {
         return item === data.x
     })
@@ -69,118 +73,129 @@ vm.annotations = ko.computed(() => {
 // init
 
 $(document).ready(() => {
-    let avg = document.getElementById("avg")
-    let main = document.getElementById("main")
+    let pager = new Pager($, ko)
 
-    let graph_avg = new Dygraph(
-        avg,
-        [[0, 0]],
-        {
-            height: 200,
-            labels: ["Date", "Temperature"],
-            clickCallback: (e, x, points) => {
-                let selected_date = points[0].xval
+    pager.Href.hash = "#!/"
+    pager.extendWithPage(vm)
 
-                if(vm.selected_points.indexOf(selected_date) !== -1) {
-                    return
-                }
+    ko.applyBindings(vm)
+    pager.start()
 
-                if(plots.hasOwnProperty(selected_date)) {
-                    return vm.selected_points.push(selected_date)
-                }
+    $(window).bind("hashchange", function() {
+        console.log(pager.page)
+        vm.current_page(pager.page.route[0])
+    })
 
-                $.ajax({
-                    url: "http://localhost:7777/api/measurements",
-                    type: "post",
-                    data: JSON.stringify({
-                        date_start: selected_date,
-                        date_end: selected_date
-                    }),
-                    dataType: "JSON",
-                    contentType: "application/json",
-                    success: (answer, code) => {
-                        let err = answer.err
-                        let result = answer.result
+    vm.current_page(pager.page.route[0])
 
-                        let data = result.data
+    let createDygraphs = () => {
+        let avg = document.getElementById("avg")
+        let main = document.getElementById("main")
 
-                        plots[selected_date] = data
+        let graph_avg = new Dygraph(
+            avg,
+            [[0, 0]],
+            {
+                height: 200,
+                labels: ["Date", "Temperature"],
+                clickCallback: (e, x, points) => {
+                    let selected_date = points[0].xval
 
-                        vm.selected_points.push(selected_date)
-                    },
-                    error: () => {
-                        console.error("error")
+                    if(vm.selected_points.indexOf(selected_date) !== -1) {
+                        return
                     }
-                })
-            }
-        }
-    )
 
-    vm.annotations.subscribe(value => {
-        graph_avg.setAnnotations(vm.annotations())
-    })
+                    if(plots.hasOwnProperty(selected_date)) {
+                        return vm.selected_points.push(selected_date)
+                    }
 
-    vm.annotations.subscribe(value => {
-        let annotations = vm.annotations()
+                    lib.makeAJAXRequest(
+                        "/api/measurements",
+                        "post",
+                        {
+                            date_start: selected_date,
+                            date_end: selected_date
+                        },
+                        (err, result) => {
+                            if(err) {
+                                return console.error(err)
+                            }
 
-        if(annotations.length === 0) {
-            plot_data = [[0, 0]]
-            plot_labels = ["X", "Y1"]
-        } else {
-            let dates = _.map(annotations, v => v.x)
-            plot_labels = ["Length"].concat(_.map(dates,
-                v => moment(v).format("DD-MM-YYYY HH:mm:ss")))
-            plot_data = _.map(plots[dates[0]], v => [v[0]])
+                            let data = result.data
 
-            for(let i = 0; i < dates.length; i++) {
-                let date = dates[i]
-
-                for(let j = 0; j < plots[date].length; j++) {
-                    let plot = plots[date]
-                    plot_data[j].push(plot[j][1])
+                            plots[selected_date] = data
+                            vm.selected_points.push(selected_date)
+                        }
+                    )
                 }
             }
-        }
+        )
 
-        graph_main.updateOptions({
-            file: plot_data,
-            labels: plot_labels,
-            colors: plot_colors
-        })
-    })
+        vm.annotations.subscribe(value => {
+            let annotations = vm.annotations()
 
-    let graph_main = new Dygraph(
-        main,
-        [[0,0]],
-        {
-            height: 640,
-            title: "Temperature",
-            ylabel: "Temperature (C)",
-            xlabel: "Length"
-        }
-    )
+            graph_avg.setAnnotations(vm.annotations())
 
-    $.ajax({
-        url: "http://localhost:7777/api/init",
-        type: "post",
-        dataType: "JSON",
-        contentType: "application/json",
-        success: (answer, code) => {
-            console.timeEnd("request")
+            if(annotations.length === 0) {
+                plot_data = [[0, 0]]
+                plot_labels = ["X", "Y1"]
+            } else {
+                let dates = _.map(annotations, v => v.x)
+                plot_labels = ["Length"].concat(_.map(dates,
+                    v => moment(v).format("DD-MM-YYYY HH:mm:ss")))
+                plot_data = _.map(plots[dates[0]], v => [v[0]])
 
-            let err = answer.err
-            let result = answer.result
+                for(let i = 0; i < dates.length; i++) {
+                    let date = dates[i]
 
-            let data = _.map(result.data, v => [new Date(v[0]), v[1]])
+                    for(let j = 0; j < plots[date].length; j++) {
+                        let plot = plots[date]
+                        plot_data[j].push(plot[j][1])
+                    }
+                }
+            }
 
-            graph_avg.updateOptions({
-                file: data
+            graph_main.updateOptions({
+                file: plot_data,
+                labels: plot_labels,
+                colors: plot_colors
             })
-        },
-        error: () => {
-            console.error("error")
-        }
-    })
+        })
 
-    ko.applyBindings(window.vm)
+        let graph_main = new Dygraph(
+            main,
+            [[0,0]],
+            {
+                height: 500,
+                ylabel: "Temperature (C)",
+                xlabel: "Length"
+            }
+        )
+
+        $.ajax({
+            url: "http://localhost:7777/api/init",
+            type: "post",
+            dataType: "JSON",
+            contentType: "application/json",
+            success: (answer, code) => {
+                console.timeEnd("request")
+
+                let err = answer.err
+                let result = answer.result
+
+                let data = _.map(result.data, v => [new Date(v[0]), v[1]])
+
+                graph_avg.updateOptions({
+                    file: data
+                })
+            },
+            error: () => {
+                console.error("error")
+            }
+        })
+    }
+
+    // TODO: заставить pager.js кидать событие после завершения инита и ориентироваться на него
+    setTimeout(() => createDygraphs(), 0)
+
 })

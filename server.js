@@ -221,5 +221,9 @@ app.use(compression())
 app.use("/api", api)
 app.use("/static", express.static("static/build"))
 
+app.all("/*", function(req, res) {
+    res.sendfile("index.html", { root: __dirname + "/static/build" })
+})
+
 app.listen(config.port)
 console.log("Server running on port", config.port)

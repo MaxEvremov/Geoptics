@@ -7,9 +7,15 @@ import $ from "jquery"
 import _ from "lodash"
 import ko from "knockout"
 import moment from "moment"
-import Pager from "pagerjs"
 
-import * as lib from "./lib"
+import Pager from "./lib/pager.js"
+
+import * as helpers from "./helpers"
+
+// здесь подключаются старые библиотеки, которые не умеют в common.js
+
+import "./lib/history.js"
+import "./lib/history.adapter.native.js"
 
 // view model
 
@@ -75,14 +81,16 @@ vm.annotations = ko.computed(() => {
 $(document).ready(() => {
     let pager = new Pager($, ko)
 
-    pager.Href.hash = "#!/"
+    pager.useHTML5history = true
+    pager.Href5.history = History
     pager.extendWithPage(vm)
 
-    ko.applyBindings(vm)
-    pager.start()
+    vm.logIn = () => pager.navigate("plots")
 
-    $(window).bind("hashchange", function() {
-        console.log(pager.page)
+    ko.applyBindings(vm)
+    pager.startHistoryJs()
+
+    History.Adapter.bind(window, "statechange", function() {
         vm.current_page(pager.page.route[0])
     })
 
@@ -109,7 +117,7 @@ $(document).ready(() => {
                         return vm.selected_points.push(selected_date)
                     }
 
-                    lib.makeAJAXRequest(
+                    helpers.makeAJAXRequest(
                         "/api/measurements",
                         "post",
                         {
@@ -196,6 +204,5 @@ $(document).ready(() => {
     }
 
     // TODO: заставить pager.js кидать событие после завершения инита и ориентироваться на него
-    setTimeout(() => createDygraphs(), 0)
-
+    setTimeout(createDygraphs, 0)
 })

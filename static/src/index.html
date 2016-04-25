@@ -9,6 +9,8 @@
 
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+
+    <base href="http://localhost:7777/static/"/>
 </head>
 
 <body>
@@ -17,18 +19,22 @@
         <div class="container">
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li data-bind="css: { active: current_page() === 'start' }">
-                        <a>Графики</a>
+                    <li data-bind="
+                        css: { active: current_page() === 'plots' }
+                    ">
+                        <a data-bind="'page-href': '/plots'">Графики</a>
                     </li>
 
-                    <li data-bind="css: { active: current_page() === 'favorites' }">
-                        <a>Избранное</a>
+                    <li data-bind="
+                        css: { active: current_page() === 'favorites' }
+                    ">
+                        <a data-bind="'page-href': '/favorites'">Избранное</a>
                     </li>
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <a>Выход</a>
+                        <a data-bind="'page-href': '/login'">Выход</a>
                     </li>
                 </ul>
             </div>
@@ -38,13 +44,13 @@
 
     <div class="container">
         <div data-bind="page: {
-            id: 'start', source: 'pages/plots.html'
+            id: 'plots', role: 'start', sourceOnShow: 'pages/plots.html'
         }"></div>
         <div data-bind="page: {
-            id: 'login', source: 'pages/login.html'
+            id: 'login', sourceOnShow: 'pages/login.html'
         }"></div>
         <div data-bind="page: {
-            id: 'favorites', source: 'pages/favorites.html'
+            id: 'favorites', sourceOnShow: 'pages/favorites.html'
         }"></div>
     </div>
 

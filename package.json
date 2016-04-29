@@ -12,6 +12,8 @@
   "dependencies": {
     "async": "^1.5.2",
     "body-parser": "^1.15.0",
+    "bookshelf": "^0.9.4",
+    "bookshelf-modelbase": "^2.10.0",
     "chokidar": "^1.4.3",
     "compression": "^1.6.1",
     "dygraphs": "^1.1.1",
@@ -20,11 +22,13 @@
     "jquery": "^2.2.3",
     "knex": "^0.10.0",
     "knockout": "^3.4.0",
+    "knockout-mapping": "^2.6.0",
     "lodash": "^4.6.0",
     "moment": "^2.11.2",
     "pg": "^4.5.1",
     "pg-native": "^1.10.0",
     "serve-static": "^1.10.2",
+    "validator": "^5.2.0",
     "xml2js": "^0.4.16"
   },
   "devDependencies": {

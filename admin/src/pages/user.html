@@ -1,0 +1,37 @@
+<section class="content-header">
+    <h1>
+        Пользователь
+    </h1>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-body">
+                    <form role="form" data-bind="with: current_user">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label for="email">E-mail</label>
+                                <input type="email" class="form-control" id="email" placeholder="E-mail" data-bind="textInput: email">
+                            </div>
+                            <div class="form-group">
+                                <label for="name">Имя</label>
+                                <input class="form-control" id="name" placeholder="Имя" data-bind="textInput: name">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Пароль</label>
+                                <input type="password" class="form-control" id="password" placeholder="Пароль" data-bind="textInput: password">
+                            </div>
+                        </div>
+
+                        <div class="box-footer">
+                            <button type="submit" class="btn btn-primary" data-bind="click: $parent.save">Сохранить</button>
+                            <button type="submit" class="btn btn-default" data-bind="click: $parent.cancel">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

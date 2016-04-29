@@ -1,0 +1,76 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>Geoptics</title>
+	<meta name="description" content="Geoptics">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/AdminLTE.min.css" rel="stylesheet">
+    <link href="css/skin-black.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+
+    <script type="text/javascript">
+        document.write("<base href='" + document.location.origin + "/admin/' />")
+    </script>
+</head>
+
+<body class="skin-black">
+    <div data-bind="page: {
+        id: 'login',
+        role: 'start',
+        with: login,
+        sourceOnShow: 'pages/login.html'
+    }"></div>
+
+    <!-- ko ifnot: current_page() === 'login' -->
+    <div class="wrapper">
+        <header class="main-header">
+            <nav class="navbar navbar-static-top" role="navigation">
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <aside class="main-sidebar">
+            <section class="sidebar">
+                <ul class="sidebar-menu">
+                    <li data-bind="css: { active: current_page() === 'users' }">
+                        <a data-bind="'page-href': '/users'">
+                            <i class="fa fa-user"></i> <span>Пользователи</span>
+                        </a>
+                    </li>
+                    <li data-bind="css: { active: current_page() === 'wells' }">
+                        <a data-bind="'page-href': '/wells'">
+                            <i class="fa fa-cog"></i> <span>Скважины</span>
+                        </a>
+                    </li>
+                </ul>
+            </section>
+        </aside>
+
+        <div class="content-wrapper" style="min-height: 780px;">
+            <div data-bind="page: {
+                id: 'users',
+                sourceOnShow: 'pages/users.html',
+                with: users,
+                beforeShow: users.onShow
+            }"></div>
+
+            <div data-bind="page: {
+                id: 'wells',
+                sourceOnShow: 'pages/wells.html',
+                with: wells,
+                beforeShow: wells.onShow
+            }"></div>
+        </div>
+    </div>
+    <!-- /ko -->
+
+    <script src="js/index.js"></script>
+</body>
+</html>

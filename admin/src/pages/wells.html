@@ -1,0 +1,54 @@
+<!-- ko ifnot: current_well -->
+<section class="content-header">
+    <h1>
+        Скважины
+    </h1>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-body">
+                    <!-- ko ifnot: wells().length === 0 -->
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+
+                        <tbody data-bind="foreach: wells">
+                            <tr>
+                                <td data-bind="text: name"></td>
+                                <td>
+                                    <button type="button" class="btn btn-block btn-default" data-bind="click: $parent.edit">
+                                        Редактировать
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- /ko -->
+
+                    <!-- ko if: wells().length === 0 -->
+                    Не найдено
+                    <!-- /ko -->
+                </div>
+
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary" data-bind="click: create">Создать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /ko -->
+
+<div data-bind="page: {
+    id: '?',
+    nameParam: well_id,
+    beforeShow: onWellShow,
+    sourceOnShow: 'pages/well.html'
+}"></div>

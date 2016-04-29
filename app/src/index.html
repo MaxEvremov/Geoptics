@@ -10,7 +10,9 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 
-    <base href="http://localhost:7777/static/"/>
+    <script type="text/javascript">
+        document.write("<base href='" + document.location.origin + "/app/' />")
+    </script>
 </head>
 
 <body>

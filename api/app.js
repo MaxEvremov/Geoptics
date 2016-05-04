@@ -1,25 +1,50 @@
 "use strict"
 
+// imports
+
 const express = require("express")
 const knex = require("knex")({ client: "pg" })
 const _ = require("lodash")
 const moment = require("moment")
 const pg = require("pg").native
 
+const helpers = require("./helpers")
+
 const config = require("../config")
 
-let api = express()
+// validators
 
 let isDateValid = (date) => (!date || moment(date).isValid())
 let isLengthValid = (length) => (!length || !isNaN(parseFloat(length)))
 
+let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ss")
+
+// main
+
+let api = express()
+
 api.post(
     "/init",
+    helpers.validateRequestData({
+        date_start: isDateValid,
+        date_end: isDateValid
+    }),
     (req, res, next) => {
+        let date_start = req.body.date_start
+        let date_end = req.body.date_end
+
         let query = knex.select(knex.raw("avg(temp) as temp, date"))
             .from("t_measurements")
             .groupBy("date")
             .orderBy("date")
+            .where("date", ">=", date_start
+                ? formatDate(date_start)
+                : "-infinity"
+            )
+            .andWhere("date", "<=", date_end
+                ? formatDate(date_end)
+                : "infinity"
+            )
 
         pg.connect(
             config.postgres_con,
@@ -211,5 +236,7 @@ api.post(
         )
     }
 )
+
+// exports
 
 module.exports = api

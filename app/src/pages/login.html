@@ -1,16 +1,24 @@
-<form class="form-signin">
-    <h2 class="form-signin-heading">Авторизация</h2>
-    <label for="inputEmail" class="sr-only">E-mail</label>
-    <input type="email" id="inputEmail" class="form-control" placeholder="E-mail" required="" autofocus="">
-    <label for="inputPassword" class="sr-only">Пароль</label>
-    <input type="password" id="inputPassword" class="form-control" placeholder="Пароль" required="">
-    <div class="checkbox">
-        <label>
-            <input type="checkbox" value="remember-me"> Запомнить вас?
-        </label>
+<div class="login-box">
+    <div class="login-logo">
+        <span>Geoptics</span>
     </div>
-    <button class="btn btn-lg btn-primary btn-block" type="submit"
-        data-bind="click: logIn">
-        Войти
-    </button>
-</form>
+    <div class="login-box-body">
+        <form>
+            <div class="form-group has-feedback">
+                <input type="email" class="form-control" placeholder="E-mail" data-bind="textInput: email">
+                <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+            </div>
+            <div class="form-group has-feedback">
+                <input type="password" class="form-control" placeholder="Пароль" data-bind="textInput: password">
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
+            <div class="row">
+                <div class="col-xs-8">
+                </div>
+                <div class="col-xs-4">
+                    <button class="btn btn-primary btn-block btn-flat" data-bind="click: logIn">Войти</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -18,6 +18,9 @@ let vm = {
     selected_points: ko.observableArray()
 }
 
+vm.graph_avg = null
+vm.graph_main = null
+
 vm.moment = moment
 
 vm.removePoint = (data, event) => {
@@ -26,7 +29,43 @@ vm.removePoint = (data, event) => {
     })
 }
 
+let formatDate = (date) => moment(date).format("DD-MM-YYYY HH:mm:ss")
+
+vm.saveFavorite = () => {
+    let x_avg = graph_avg.xAxisRange()
+    let y_avg = graph_avg.yAxisRange()
+    let x_main = graph_main.xAxisRange()
+    let y_main = graph_main.yAxisRange()
+
+    let points = mapping.toJS(vm.selected_points())
+    points = points.map(formatDate)
+
+    helpers.makeAJAXRequest(
+        "/api/app/favorites",
+        "post",
+        {
+            name: "Favorite",
+            user_id: 2,
+            points: points,
+            zoom_avg_left: x_avg[0],
+            zoom_avg_right: x_avg[1],
+            zoom_avg_low: y_avg[0],
+            zoom_avg_high: y_avg[1],
+            zoom_main_left: x_main[0],
+            zoom_main_right: x_main[1],
+            zoom_main_low: y_main[0],
+            zoom_main_high: y_main[1]
+        },
+        (err, result) => {
+            if(err) {
+                return console.error(err)
+            }
+        }
+    )
+}
+
 let plots = {}
+vm.plots = plots
 
 let plot_data = [[0, 0]]
 let plot_colors = [
@@ -70,6 +109,8 @@ vm.annotations = ko.computed(() => {
     return result
 })
 
+// avg graph params
+
 vm.avg_options = {
     height: 150,
     labels: ["Date", "Temperature"],
@@ -88,17 +129,14 @@ vm.avg_options = {
             "/api/app/measurements",
             "post",
             {
-                date_start: selected_date,
-                date_end: selected_date
+                dates: formatDate(selected_date)
             },
             (err, result) => {
                 if(err) {
                     return console.error(err)
                 }
 
-                let data = result.data
-
-                plots[selected_date] = data
+                plots[selected_date] = result[0].values
                 vm.selected_points.push(selected_date)
             }
         )
@@ -106,7 +144,12 @@ vm.avg_options = {
 }
 
 vm.avg_done = (err, graph) => {
-    vm.annotations.subscribe(value => graph.setAnnotations(value))
+    vm.graph_avg = graph
+
+    vm.annotations.subscribe(value => {
+        console.log("avg subscribe", value)
+        graph.setAnnotations(value)
+    })
 
     helpers.makeAJAXRequest(
         "/api/app/init",
@@ -129,13 +172,17 @@ vm.avg_done = (err, graph) => {
     )
 }
 
+// main graph params
+
 vm.main_options = {
-    height: 400,
+    height: 300,
     ylabel: "Temperature (C)",
     xlabel: "Length"
 }
 
 vm.main_done = (err, graph) => {
+    vm.graph_main = graph
+
     vm.annotations.subscribe(value => {
         let annotations = value
 

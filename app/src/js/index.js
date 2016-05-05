@@ -12,6 +12,7 @@ import * as bindingHandlers from "./ko-binding-handlers"
 
 import login from "./login"
 import plots from "./plots"
+import favorites from "./favorites"
 
 // view model
 
@@ -21,6 +22,7 @@ let vm = {
 
 vm.login = login
 vm.plots = plots
+vm.favorites = favorites
 
 // init
 

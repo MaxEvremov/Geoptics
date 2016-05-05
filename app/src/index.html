@@ -69,12 +69,14 @@
             <div data-bind="page: {
                 id: 'plots',
                 with: plots,
-                sourceOnShow: 'pages/plots.html'
+                source: 'pages/plots.html'
             }"></div>
 
             <div data-bind="page: {
                 id: 'favorites',
-                sourceOnShow: 'pages/favorites.html'
+                with: favorites,
+                beforeShow: favorites.onShow,
+                source: 'pages/favorites.html'
             }"></div>
         </div>
     </div>

@@ -12,6 +12,8 @@ const helpers = require("./helpers")
 
 const config = require("../config")
 
+const favorites = require("./favorites")
+
 // validators
 
 let isDateValid = (date) => (!date || moment(date).isValid())
@@ -22,6 +24,8 @@ let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ss")
 // main
 
 let api = express()
+
+api.use("/favorites", favorites)
 
 api.post(
     "/init",
@@ -97,77 +101,19 @@ api.post(
 
 api.post(
     "/measurements",
+    helpers.validateRequestData({
+        dates: true
+    }),
     (req, res, next) => {
-        let date_start = req.body.date_start
-        let date_end = req.body.date_end
+        let dates = req.body.dates
 
-        let length_start = req.body.length_start
-        let length_end = req.body.length_end
-
-        let avg = !!req.body.avg
-
-        if(!isDateValid(date_start) || !isDateValid(date_end)) {
-            return res.json({
-                err: "invalid_date"
-            })
+        if(!_.isArray(dates)) {
+            dates = [dates]
         }
 
-        if(!isLengthValid(length_start) || !isLengthValid(length_end)) {
-            return res.json({
-                err: "invalid_length"
-            })
-        }
-
-        let select = avg
-            ? "avg(temp) as temp, length"
-            : "to_char(date, 'DD-MM-YYYY HH24:MI:SS') as date, length, temp"
-
-        let query = knex.select(
-            knex.raw(select)
-        )
+        let query = knex.select()
         .from("t_measurements")
-
-        let is_first_condition = true
-
-        let addConditionToClause = (c) => {
-            if(!c.value) {
-                return
-            }
-
-            if(is_first_condition) {
-                query.where(c.field, c.op, c.value)
-            }
-            else {
-                query.andWhere(c.field, c.op, c.value)
-            }
-        }
-
-        [
-            {
-                field: "date",
-                op: ">=",
-                value: moment(date_start).format("YYYY-MM-DD HH:mm:ss")
-            },
-            {
-                field: "date",
-                op: "<=",
-                value: moment(date_end).format("YYYY-MM-DD HH:mm:ss")
-            },
-            {
-                field: "length",
-                op: ">=",
-                value: parseFloat(length_start)
-            },
-            {
-                field: "length",
-                op: "<=",
-                value: parseFloat(length_end)
-            }
-        ].forEach(addConditionToClause)
-
-        if(avg) {
-            query.groupBy("length").orderBy("length")
-        }
+        .whereIn("date", dates)
 
         console.log(query.toString())
 
@@ -206,25 +152,32 @@ api.post(
 
                     console.time("filter")
 
+                    console.log(result.rows)
+
                     let data = _.chain(result.rows)
-                        .groupBy("length")
+                        .groupBy("date")
                         .map((row, key) => {
-                            let result = [parseFloat(key)]
-                            _.each(row, v => result.push(v.temp))
-                            return result
+                            console.log(row)
+
+                            let values = _.chain(row)
+                                .map(v => [v.length, v.temp])
+                                .sortBy(v => v[0])
+                                .value()
+
+                            return {
+                                date: moment(key).valueOf(),
+                                values: values
+                            }
                         })
-                        .sortBy(v => v[0])
                         .value()
 
-                    let total = data[0].length - 1
+                    console.log(data)
 
                     console.timeEnd("filter")
 
                     return res.json({
                         err: null,
-                        result: {
-                            data: data
-                        }
+                        result: data
                     })
                 }
             )

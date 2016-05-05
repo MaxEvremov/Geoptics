@@ -1,12 +1,17 @@
 "use strict"
 
 import $ from "jquery"
+import _ from "lodash"
 
 export let makeAJAXRequest = (url, method, data, done) => {
-    $.ajax({
+    if(_.isFunction(data) && _.isUndefined(done)) {
+        done = data
+        data = {}
+    }
+
+    let params = {
         url: url,
         type: method,
-        data: JSON.stringify(data),
         dataType: "JSON",
         contentType: "application/json",
         success: (answer, code) => {
@@ -22,5 +27,11 @@ export let makeAJAXRequest = (url, method, data, done) => {
         error: () => {
             return done("network_err")
         }
-    })
+    }
+
+    if(method !== "get") {
+        params.data = JSON.stringify(data)
+    }
+
+    $.ajax(params)
 }

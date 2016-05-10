@@ -76,8 +76,25 @@ passport.use(new LocalStrategy(
     }
 ))
 
+
+// static files
+
+app.use("/app", express.static("app/build"))
+app.use("/admin", express.static("admin/build"))
+
+app.all("/app/*", (req, res) => {
+    res.sendFile("index.html", { root: __dirname + "/app/build" })
+})
+
+app.all("/admin/*", (req, res) => {
+    res.sendFile("index.html", { root: __dirname + "/admin/build" })
+})
+
+// middlewares
+
 app.use(compression())
 app.use(body_parser.json())
+app.use(body_parser.urlencoded({ extended: true }))
 app.use(cookie_parser(config.session_secret))
 app.use(session({
     cookie: {
@@ -104,18 +121,6 @@ app.use("/api/app", require("./api/app"))
 app.use("/api/admin", require("./api/admin"))
 // app.use(passport.authenticate("remember-me"))
 
-// static files
-
-app.use("/app", express.static("app/build"))
-app.use("/admin", express.static("admin/build"))
-
-app.all("/app/*", (req, res) => {
-    res.sendFile("index.html", { root: __dirname + "/app/build" })
-})
-
-app.all("/admin/*", (req, res) => {
-    res.sendFile("index.html", { root: __dirname + "/admin/build" })
-})
 
 // run server
 

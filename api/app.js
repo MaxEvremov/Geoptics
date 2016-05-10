@@ -13,6 +13,7 @@ const helpers = require("./helpers")
 const config = require("../config")
 
 const favorites = require("./favorites")
+const auth = require("./auth")
 
 // validators
 
@@ -26,6 +27,7 @@ let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ss")
 let api = express()
 
 api.use("/favorites", favorites)
+api.use("/auth", auth)
 
 api.post(
     "/init",
@@ -152,13 +154,9 @@ api.post(
 
                     console.time("filter")
 
-                    console.log(result.rows)
-
                     let data = _.chain(result.rows)
                         .groupBy("date")
                         .map((row, key) => {
-                            console.log(row)
-
                             let values = _.chain(row)
                                 .map(v => [v.length, v.temp])
                                 .sortBy(v => v[0])
@@ -170,8 +168,6 @@ api.post(
                             }
                         })
                         .value()
-
-                    console.log(data)
 
                     console.timeEnd("filter")
 

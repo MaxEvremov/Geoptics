@@ -8,6 +8,8 @@ const _ = require("lodash")
 
 module.exports = {
     validateRequestData: fields => (req, res, next) => {
+        let is_valid = true
+
         _.forOwn(fields, (value, key) => {
             if(value === true) {
                 if(!req.body[key]) {
@@ -16,6 +18,7 @@ module.exports = {
                         field: key
                     })
 
+                    is_valid = false
                     return false
                 }
             }
@@ -29,11 +32,14 @@ module.exports = {
                         field: key
                     })
 
+                    is_valid = false
                     return false
                 }
             }
         })
 
-        return next()
+        if(is_valid) {
+            return next()
+        }
     }
 }

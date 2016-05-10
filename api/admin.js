@@ -4,6 +4,7 @@
 
 const express = require("express")
 
+const auth = require("./auth")
 const users = require("./users")
 const wells = require("./wells")
 
@@ -11,6 +12,7 @@ const wells = require("./wells")
 
 let api = express()
 
+api.use("/auth", auth)
 api.use("/users", users)
 api.use("/wells", wells)
 

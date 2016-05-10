@@ -13,6 +13,7 @@ import * as bindingHandlers from "./ko-binding-handlers"
 import login from "./login"
 import plots from "./plots"
 import favorites from "./favorites"
+import state from "./state"
 
 // view model
 
@@ -23,6 +24,7 @@ let vm = {
 vm.login = login
 vm.plots = plots
 vm.favorites = favorites
+vm.state = state
 
 // init
 
@@ -34,9 +36,24 @@ $(document).ready(() => {
     ko.applyBindings(vm)
     pager.startHistoryJs()
 
-    History.Adapter.bind(window, "statechange", function() {
+    History.Adapter.bind(window, "statechange", () => {
         vm.current_page(pager.page.route[0])
     })
 
     vm.current_page(pager.page.route[0])
+
+    helpers.makeAJAXRequest(
+        "/api/app/auth/init",
+        "get",
+        (err, result) => {
+            if(!result) {
+                vm.state.user(null)
+                pager.navigate("login")
+                return
+            }
+
+            vm.state.user(result)
+            pager.navigate("plots")
+        }
+    )
 })

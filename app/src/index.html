@@ -21,12 +21,12 @@
 <body class="skin-black">
     <div data-bind="page: {
         id: 'login',
-        role: 'start',
         with: login,
-        sourceOnShow: 'pages/login.html'
+        source: 'pages/login.html'
     }"></div>
 
     <div class="wrapper" data-bind="visible: current_page() !== 'login'">
+        <!-- ko if: state.user -->
         <header class="main-header">
             <span class="logo">
                 Geoptics
@@ -35,10 +35,10 @@
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
                         <li>
-                            <a>Добро пожаловать, Администратор</a>
+                            <a>Добро пожаловать, <span data-bind="text: state.user().name"></span></a>
                         </li>
                         <li>
-                            <a data-bind="'page-href': '/login'">
+                            <a data-bind="click: login.logOut">
                                 <i class="fa fa-sign-out"></i> <span>Выход</span>
                             </a>
                         </li>
@@ -46,6 +46,7 @@
                 </div>
             </nav>
         </header>
+        <!-- /ko -->
 
         <aside class="main-sidebar">
             <section class="sidebar">

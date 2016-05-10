@@ -147,7 +147,6 @@ vm.avg_done = (err, graph) => {
     vm.graph_avg = graph
 
     vm.annotations.subscribe(value => {
-        console.log("avg subscribe", value)
         graph.setAnnotations(value)
     })
 

@@ -38,12 +38,12 @@ vm.load = (data, event) => {
              })
 
              plots.graph_main.updateOptions({
-                 valueRange: [data.zoom_main_low, data.zoom_main_high],
+                //  valueRange: [data.zoom_main_low, data.zoom_main_high],
                  dateWindow: [data.zoom_main_left, data.zoom_main_right]
              })
 
              plots.graph_avg.updateOptions({
-                 valueRange: [data.zoom_avg_low, data.zoom_avg_high],
+                //  valueRange: [data.zoom_avg_low, data.zoom_avg_high],
                  dateWindow: [data.zoom_avg_left, data.zoom_avg_right]
              })
 

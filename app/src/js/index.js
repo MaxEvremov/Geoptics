@@ -30,11 +30,13 @@ vm.state = state
 
 ko.bindingHandlers.dygraph = bindingHandlers.dygraph
 
-$(document).ready(() => {
+$(document).ready(function() {
     pager.extendWithPage(vm)
 
     ko.applyBindings(vm)
     pager.startHistoryJs()
+	
+	window.pager = pager
 
     History.Adapter.bind(window, "statechange", () => {
         vm.current_page(pager.page.route[0])
@@ -48,12 +50,12 @@ $(document).ready(() => {
         (err, result) => {
             if(!result) {
                 vm.state.user(null)
-                pager.navigate("login")
+//                pager.navigate("login")
                 return
             }
 
             vm.state.user(result)
-            pager.navigate("plots")
+//            pager.navigate("plots")
         }
     )
 })

@@ -9,6 +9,14 @@ const chokidar = require("chokidar")
 
 // build app
 
+if(!fs.existsSync("./app/build")) {
+	fs.mkdirSync("./app/build")
+	fs.mkdirSync("./app/build/js")
+	fs.mkdirSync("./app/build/css")
+	fs.mkdirSync("./app/build/pages")
+	fs.mkdirSync("./app/build/fonts")
+}
+
 let b_app = browserify({
     entries: ["./app/src/js/index.js"],
     debug: true,
@@ -43,6 +51,14 @@ bundle_app()
 copyStatic_app()
 
 // build admin
+
+if(!fs.existsSync("./admin/build")) {
+	fs.mkdirSync("./admin/build")
+	fs.mkdirSync("./admin/build/js")
+	fs.mkdirSync("./admin/build/css")
+	fs.mkdirSync("./admin/build/pages")
+	fs.mkdirSync("./admin/build/fonts")
+}
 
 let b_admin = browserify({
     entries: ["./admin/src/js/index.js"],

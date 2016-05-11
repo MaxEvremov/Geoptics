@@ -12,6 +12,7 @@ export let makeAJAXRequest = (url, method, data, done) => {
 
 	let params = {
 		url: rootURL + url,
+        url: url,
 		type: method,
 		dataType: "JSON",
 		contentType: "application/json",
@@ -25,6 +26,9 @@ export let makeAJAXRequest = (url, method, data, done) => {
 
 			return done(null, result)
 		},
+        xhrFields: {
+            withCredentials: true
+        },
 		error: () => {
 			return done("network_err")
 		}

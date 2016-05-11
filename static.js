@@ -9,10 +9,10 @@ const config = require("./config")
 
 let app = express()
 
-app.use("/app", express.static("app/build"))
+app.use("/", express.static("app/build"))
 app.use("/admin", express.static("admin/build"))
 
-app.all("/app/*", (req, res) => {
+app.all("/*", (req, res) => {
     res.sendFile("index.html", { root: __dirname + "/app/build" })
 })
 

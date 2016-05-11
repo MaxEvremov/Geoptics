@@ -7,7 +7,6 @@ import mapping from "knockout-mapping"
 import moment from "moment"
 
 import * as helpers from "./helpers"
-import pager from "./pager"
 
 import plots from "./plots"
 

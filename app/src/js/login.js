@@ -6,7 +6,6 @@ import ko from "knockout"
 import mapping from "knockout-mapping"
 
 import * as helpers from "./helpers"
-import pager from "./pager"
 
 import state from "./state"
 

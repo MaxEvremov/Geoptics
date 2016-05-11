@@ -10,7 +10,6 @@ import $ from "jquery"
 import _ from "lodash"
 
 import * as helpers from "./helpers"
-import pager from "./pager"
 
 // main
 

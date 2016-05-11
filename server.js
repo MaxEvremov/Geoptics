@@ -11,6 +11,7 @@ const session = require("express-session")
 const pg_session = require("connect-pg-simple")(session)
 const pg = require("pg").native
 const cookie_parser = require("cookie-parser")
+const cors = require("cors")
 
 const config = require("./config")
 
@@ -77,21 +78,13 @@ passport.use(new LocalStrategy(
 ))
 
 
-// static files
 
-app.use("/app", express.static("app/build"))
-app.use("/admin", express.static("admin/build"))
-
-app.all("/app/*", (req, res) => {
-    res.sendFile("index.html", { root: __dirname + "/app/build" })
-})
-
-app.all("/admin/*", (req, res) => {
-    res.sendFile("index.html", { root: __dirname + "/admin/build" })
-})
 
 // middlewares
 
+app.use(cors({
+    origin: true
+}))
 app.use(compression())
 app.use(body_parser.json())
 app.use(body_parser.urlencoded({ extended: true }))
@@ -121,6 +114,18 @@ app.use("/api/app", require("./api/app"))
 app.use("/api/admin", require("./api/admin"))
 // app.use(passport.authenticate("remember-me"))
 
+// static files
+
+app.use("/", express.static("app/build"))
+app.use("/admin", express.static("admin/build"))
+
+app.all("/*", (req, res) => {
+    res.sendFile("index.html", { root: __dirname + "/app/build" })
+})
+
+app.all("/admin/*", (req, res) => {
+    res.sendFile("index.html", { root: __dirname + "/admin/build" })
+})
 
 // run server
 

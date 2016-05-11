@@ -4,8 +4,7 @@
 
 import $ from "jquery"
 import ko from "knockout"
-
-import pager from "./pager"
+import Pager from "./lib/pager.js"
 
 import * as helpers from "./helpers"
 import * as bindingHandlers from "./ko-binding-handlers"
@@ -14,6 +13,9 @@ import login from "./login"
 import plots from "./plots"
 import favorites from "./favorites"
 import state from "./state"
+
+import "./lib/history.js"
+import "./lib/history.adapter.native.js"
 
 // view model
 
@@ -30,19 +32,25 @@ vm.state = state
 
 ko.bindingHandlers.dygraph = bindingHandlers.dygraph
 
-$(document).ready(function() {
+$(document).ready(() => {
+    let pager = new Pager($, ko)
+
+    pager.useHTML5history = true
+    pager.Href5.history = History
+
     pager.extendWithPage(vm)
 
     ko.applyBindings(vm)
     pager.startHistoryJs()
-	
+
 	window.pager = pager
+    window.vm = vm
 
     History.Adapter.bind(window, "statechange", () => {
-        vm.current_page(pager.page.route[0])
+        vm.current_page(pager.activePage$().currentId)
     })
 
-    vm.current_page(pager.page.route[0])
+    vm.current_page(pager.activePage$().currentId)
 
     helpers.makeAJAXRequest(
         "/api/app/auth/init",
@@ -50,12 +58,11 @@ $(document).ready(function() {
         (err, result) => {
             if(!result) {
                 vm.state.user(null)
-//                pager.navigate("login")
+                pager.navigate("login")
                 return
             }
 
             vm.state.user(result)
-//            pager.navigate("plots")
         }
     )
 })

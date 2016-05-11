@@ -25,6 +25,7 @@ let b_app = browserify({
 })
 
 b_app.transform(babelify, { presets: ["es2015"] })
+.on("error", console.log)
 
 let bundle_app = () => {
     console.time("build_js_app")
@@ -68,6 +69,7 @@ let b_admin = browserify({
 })
 
 b_admin.transform(babelify, { presets: ["es2015"] })
+.on("error", console.log)
 
 let bundle_admin = () => {
     console.time("build_js_admin")

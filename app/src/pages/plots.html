@@ -1,80 +1,150 @@
+<style>
+	.just-padding {
+		padding: 15px;
+	}
+	
+	.list-group.list-group-root {
+		padding: 0;
+		overflow: hidden;
+	}
+	
+	.list-group.list-group-root .list-group {
+		margin-bottom: 0;
+	}
+	
+	.list-group.list-group-root .list-group-item {
+		border-radius: 0;
+		border-width: 1px 0 0 0;
+	}
+	
+	.list-group.list-group-root > .list-group-item:first-child {
+		border-top-width: 0;
+	}
+	
+	.list-group.list-group-root > .list-group > .list-group-item {
+		padding-left: 30px;
+	}
+	
+	.list-group.list-group-root > .list-group > .list-group > .list-group-item {
+		padding-left: 45px;
+	}
+	
+	.list-group-item .glyphicon {
+		margin-right: 5px;
+	}
+	
+	.dygraph-legend {
+		padding: 10px;
+		border: 1px solid #999;
+		border-radius: 3px;
+	}
+	
+	.dygraph-legend >* {
+		display: block;
+	}
+	
+	.dygraphDefaultAnnotation {
+		line-height: 14px;
+		border: 0;
+		box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.37);
+	}
+	
+	.plotpoints {}
+	
+	.plotpoints td.clickable {
+/*		visibility: hidden*/
+		opacity: 0
+	}
+	
+	.plotpoints tr td.clickable:hover {
+/*		visibility: visible*/
+		opacity: 1
+	}
+</style>
 <section class="content-header">
-    <h1>
-        Скважины
+	<h1>
+        Скважина №4
     </h1>
 </section>
 
 <section class="content">
-    <div class="col-md-6">
-        <div class="row">
-            <div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">Средние значения</h3>
-                </div>
+	<div class="row">
+		<div class="col-md-10">
 
-                <div class="box-body">
-                    <div data-bind="dygraph: { options: avg_options, done: avg_done }">
-                    </div>
-                </div>
-            </div>
-        </div>
+			<div class="box box-info">
+				<div class="box-header">
+					<h3 class="box-title">t°cредн.</h3>
+				</div>
 
-        <div class="row">
-            <div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">Графики</h3>
-                </div>
+				<div class="box-body">
+					<div data-bind="dygraph: { options: avg_options, done: avg_done }">
+					</div>
+				</div>
+			</div>
 
-                <div class="box-body">
-                    <div data-bind="dygraph: { options: main_options, done: main_done }">
-                    </div>
-                </div>
 
-                <div class="box-footer">
-                    <a class="btn btn-app btn-sm" data-bind="click: saveFavorite">
-                        <i class="fa fa-star"></i> <span>Добавить в Избранное</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+			<div class="box box-danger">
+				<div class="box-header">
+					<h3 class="box-title">Графики</h3>
+				</div>
 
-    <div class="col-md-3">
-        <div class="box">
-            <div class="box-header">
-                <h3 class="box-title">Точки</h3>
-            </div>
+				<div class="box-body">
+					<div data-bind="dygraph: { options: main_options, done: main_done }">
+					</div>
+				</div>
 
-            <div class="box-body">
-                <!-- ko ifnot: annotations().length === 0 -->
-                <table class="table">
+				<div class="box-footer">
+					<a class="btn btn-1app btn-sm btn-danger" data-bind="click: saveFavorite">
+						<i class="fa fa-star"></i> <span>Добавить в Избранное</span>
+					</a>
+				</div>
+
+			</div>
+		</div>
+
+
+		<div class="col-md-2">
+			<div class="box box-info">
+				<div class="box-header">
+					<h3 class="box-title">Точки</h3>
+				</div>
+
+				<div class="box-body">
+					<!-- ko ifnot: annotations().length === 0 -->
+					<table class="table plotpoints" style="    font-size: 0.8em;">
+						<!--
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Время</th>
-                            <th>Действия</th>
+                            <th></th>
                         </tr>
                     </thead>
-                    <tbody data-bind="foreach: annotations">
-                        <tr>
-                            <td data-bind="text: $index() + 1"></td>
-                            <td data-bind="
-                                text: $parent.moment(x).format('DD-MM-YYYY HH:mm:ss')">
-                            </td>
-                            <td>
+-->
+						<tbody data-bind="foreach: annotations">
+							<tr>
+								<td data-bind="text: $index() + 1"></td>
+								<td 1class="clickable">
+									<span data-bind="text: $parent.moment(x).format('DD.MM.YYYY HH:mm')"></span>
+								</td>
+								<td class="clickable" data-bind="click: $parent.removePoint">
+									<!--
                                 <button class="btn btn-block btn-default" data-bind="click: $parent.removePoint">
                                     Удалить
                                 </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <!-- /ko -->
+-->
+									<i class="fa fa-times"></i>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<!-- /ko -->
 
-                <!-- ko if: annotations().length === 0 -->
-                <p>Выберите хотя бы одну точку на графике средних значений</p>
-                <!-- /ko -->
-            </div>
-        </div>
-    </div>
+					<!-- ko if: annotations().length === 0 -->
+					<p style="    font-size: 0.8em;    color: #999;">Выберите хотя бы одну точку на графике средних значений</p>
+					<!-- /ko -->
+				</div>
+			</div>
+		</div>
+	</div>
 </section>

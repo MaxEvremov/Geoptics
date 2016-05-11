@@ -12,7 +12,6 @@ export let makeAJAXRequest = (url, method, data, done) => {
 
 	let params = {
 		url: rootURL + url,
-        url: url,
 		type: method,
 		dataType: "JSON",
 		contentType: "application/json",

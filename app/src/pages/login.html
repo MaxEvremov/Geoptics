@@ -1,25 +1,67 @@
+<style>
+	.form-signin {
+		max-width: 330px;
+		padding: 15px;
+		margin: 0 auto;
+	}
+	
+	.form-signin .form-signin-heading,
+	.form-signin .checkbox {
+		margin-bottom: 10px;
+	}
+	
+	.form-signin .checkbox {
+		font-weight: normal;
+	}
+	
+	.form-signin .form-control {
+		position: relative;
+		height: auto;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+		padding: 10px;
+		font-size: 16px;
+	}
+	
+	.form-signin .form-control:focus {
+		z-index: 2;
+	}
+	
+	.form-signin input[type="email"] {
+		margin-bottom: -1px;
+		border-bottom-right-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+	
+	.form-signin input[type="password"] {
+		margin-bottom: 10px;
+		border-top-left-radius: 0;
+		border-top-right-radius: 0;
+	}
+</style>
 <div class="login-box">
-    <div class="login-logo">
-        <span>Geoptics</span>
-    </div>
-    <div class="login-box-body">
-        <form>
-            <div class="form-group has-feedback">
-                <input type="email" class="form-control" placeholder="E-mail" data-bind="textInput: email">
-                <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-            </div>
-            <div class="form-group has-feedback">
-                <input type="password" class="form-control" placeholder="Пароль" data-bind="textInput: password">
-                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-            </div>
-            <div class="row">
-                <div class="col-xs-8">
-                    <p class="text-red" data-bind="text: err"></p>
-                </div>
-                <div class="col-xs-4">
-                    <button class="btn btn-primary btn-block btn-flat" data-bind="click: logIn">Войти</button>
-                </div>
-            </div>
-        </form>
-    </div>
+	<div class="login-logo">
+		<span>Geoptics</span>
+	</div>
+	<div class="login-box-body">
+		<form>
+			<div class="form-group has-feedback">
+				<input type="email" class="form-control" placeholder="E-mail" data-bind="textInput: email">
+				<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+			</div>
+			<div class="form-group has-feedback">
+				<input type="password" class="form-control" placeholder="Пароль" data-bind="textInput: password">
+				<span class="glyphicon glyphicon-lock form-control-feedback"></span>
+			</div>
+			<div class="row">
+				<div class="col-xs-8">
+					<p class="text-red" data-bind="text: err"></p>
+				</div>
+				<div class="col-xs-4">
+					<button class="btn btn-primary btn-block btn-flat" data-bind="click: logIn">Войти</button>
+				</div>
+			</div>
+		</form>
+	</div>
 </div>

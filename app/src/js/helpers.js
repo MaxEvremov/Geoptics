@@ -3,7 +3,8 @@
 import $ from "jquery"
 import _ from "lodash"
 
-var rootURL = "http://10.66.80.132:7777";
+const SERVER_URL = "http://10.66.80.132:7777"
+
 export let makeAJAXRequest = (url, method, data, done) => {
 	if (_.isFunction(data) && _.isUndefined(done)) {
 		done = data
@@ -11,7 +12,7 @@ export let makeAJAXRequest = (url, method, data, done) => {
 	}
 
 	let params = {
-		url: rootURL + url,
+		url: SERVER_URL + url,
 		type: method,
 		dataType: "JSON",
 		contentType: "application/json",

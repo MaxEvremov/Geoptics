@@ -32,7 +32,6 @@ api.post(
     }),
     (req, res, next) => {
         passport.authenticate("local", (err, user, info) => {
-            console.log("req.user", req.user)
             if(err) {
                 console.error(err)
                 return res.json({

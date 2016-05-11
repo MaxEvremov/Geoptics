@@ -204,9 +204,11 @@
             this.hideChild = function () {
                 var currentChild = me.currentChildO();
                 if (currentChild) {
-                    currentChild.hidePage(function () {
-                    });
-                    me.currentChildO(null);
+                    if (!currentChild.isStartPage()) {
+                        currentChild.hidePage(function () {
+                        });
+                        me.currentChildO(null);
+                    }
                 }
             };
 
@@ -229,7 +231,7 @@
                 $.each(children(), function (childIndex, child) {
                     if (!match) {
                         var id = child.getId();
-                        if (((pager.ignoreRouteCase && ((id || "").toLowerCase() === (currentRoute || "").toLowerCase())) || id === currentRoute) ||
+                        if (id === currentRoute ||
                             ((currentRoute === '' || currentRoute == null) && child.isStartPage())) {
                             match = true;
                             currentChild = child;
@@ -291,39 +293,20 @@
                     fire(me.page, 'onNoMatch', {route: route});
                 };
 
-              var showCurrentChild = function() {
-                fire(me.page, 'onMatch', {
-                  route: route
-                });
-
-                var fired = 0;
-                var guard = _ko.value(currentChild.getValue().guard);
-
-                // If there is more than one guard for the route.
-                if (guard && $.isArray(guard)) {
-                  $.each(guard, function(_, guard) {
-                    guard(currentChild, route, function() {
-                      fired++;
-                      // Allow route change only if all callbacks were fired.
-                      if (fired === guard.length - 1) {
-                        if (me.timeStamp === timeStamp) {
-                          currentChild.showPage(route.slice(1), currentRoutePair, route[0]);
-                        }
-                      }
-                    }, oldCurrentChild);
-                  });
-                }
-                // There is only one guard.
-                else if (guard) {
-                  guard(currentChild, route, function() {
-                    if (me.timeStamp === timeStamp) {
-                      currentChild.showPage(route.slice(1), currentRoutePair, route[0]);
+                var showCurrentChild = function () {
+                    fire(me.page, 'onMatch', {route: route});
+                    var guard = _ko.value(currentChild.getValue().guard);
+                    if (guard) {
+                        guard(currentChild, route, function () {
+                            if (me.timeStamp === timeStamp) {
+                                currentChild.showPage(route.slice(1), currentRoutePair, route[0]);
+                            }
+                        }, oldCurrentChild);
+                    } else {
+                        currentChild.showPage(route.slice(1), currentRoutePair, route[0]);
                     }
-                  }, oldCurrentChild);
-                } else {
-                  currentChild.showPage(route.slice(1), currentRoutePair, route[0]);
-                }
-              };
+                };
+
                 if (oldCurrentChild && oldCurrentChild === currentChild) {
                     showCurrentChild();
                 } else if (oldCurrentChild) {
@@ -345,8 +328,6 @@
         /**
          *
          * @class pager.Page
-         *
-         * @constructor
          *
          * @param {Node} element
          * @param {Object} valueAccessor
@@ -504,14 +485,6 @@
             return makeComputed(this.find, this)(key);
         };
 
-        var absolutePathToRealPath = function (path) {
-            if (pager.useHTML5history) {
-                return $('base').attr('href') + path;
-            } else {
-                return pager.Href.hash + path;
-            }
-        };
-
         /**
          *
          * Utility method to generate a complete (computed observable) path relative to the current Page.
@@ -534,8 +507,7 @@
                     page = p;
                 } else { // if string
                     if (p.substring(0, 1) === '/') {
-                        var pagePath = pager.page.getFullRoute()().join('/') + p.substring(1);
-                        return absolutePathToRealPath(pagePath);
+                        return pager.page.getFullRoute()() + p.substring(1);
                     }
                     var parentsToTrim = 0;
                     while (p.substring(0, 3) === '../') {
@@ -546,9 +518,18 @@
                     var fullRoute = me.getFullRoute()();
                     var parentPath = fullRoute.slice(0, fullRoute.length - parentsToTrim).join('/');
                     var fullPathWithoutHash = (parentPath === '' ? '' : parentPath + '/') + p;
-                    return absolutePathToRealPath(fullPathWithoutHash);
+                    if (pager.useHTML5history) {
+                        return $('base').attr('href') + fullPathWithoutHash;
+                    } else {
+                        return pager.Href.hash + fullPathWithoutHash;
+                    }
                 }
-                return absolutePathToRealPath(page.getFullRoute()().join('/'));
+                var pagePath = page.getFullRoute()().join('/');
+                if (pager.useHTML5history) {
+                    return $('base').attr('href') + pagePath;
+                } else {
+                    return pager.Href.hash + pagePath;
+                }
             }
         };
 
@@ -561,7 +542,7 @@
          * @param {Function} fn should return a $.Deferred (NOT a promise since async should be able to reject it).
          * @param {String/Object} ok route (e.g. '/some/path' or '../some/path'). Should not contain '#!/'.
          * @param {String/Object} notOk route (e.g. '/some/path' or '../some/path'). Should not contain '#!/'.
-         * @param {Function} [state]
+         * @param {Observable} [state]
          * @return {Function}
          */
         p.async = function (fn, ok, notOk, state) {
@@ -601,8 +582,7 @@
         };
 
         /**
-         * @method showPage
-         * @member pager.Page
+         * @method pager.Page#showPage
          *
          * @param route
          * @param [pageRoute]
@@ -639,8 +619,7 @@
         };
 
         /**
-         * @method setParams
-         * @member pager.Page
+         * @method pager.Page#setParams
          *
          */
         p.setParams = function () {
@@ -694,8 +673,7 @@
         };
 
         /**
-         * @method hidePage
-         * @member pager.Page
+         * @method pager.Page#hidePage
          *
          * @param {Function} callback
          */
@@ -715,25 +693,17 @@
             try {
                 ko.applyBindingsToDescendants(page.childBindingContext, page.element);
             } catch (e) {
-                if(!pager.onBindingError.has()) {
-                    if(window.console && window.console.error) {
-                        window.console.error(e);
-                    }
-                }
                 fire(page, 'onBindingError', {error: e});
             }
         };
 
         /**
-         * @method init
-         * @member pager.Page
+         * @method pager.Page#init
          *
          * @return {Object}
          */
         p.init = function () {
             var m = this;
-            m.cleanElement = m.element.innerHTML;
-
             var urlToggle = m.val('urlToggle');
 
             var id = m.val('id');
@@ -777,7 +747,7 @@
                 m.childBindingContext = m.bindingContext.createChildContext(m.ctx);
                 ko.utils.extend(m.childBindingContext, { $page: this });
             } else {
-                var context = value['with'] || m.viewModel;
+                var context = value['with'] || m.bindingContext['$observableData'] || m.viewModel;
                 m.ctx = _ko.value(context);
                 m.augmentContext();
 
@@ -785,7 +755,8 @@
                     var dataInContext = ko.observable(m.ctx);
                     m.childBindingContext = m.bindingContext.createChildContext(dataInContext);
                     ko.utils.extend(m.childBindingContext, {
-                        $page: this
+                        $page: this,
+                        $observableData: context
                     });
                     applyBindingsToDescendants(m);
                     context.subscribe(function () {
@@ -870,7 +841,7 @@
                 });
             }
             var nameParam = this.getValue()['nameParam'];
-            if (nameParam && typeof nameParam === 'string' && !m.ctx[nameParam]) {
+            if (nameParam && typeof nameParam === 'string') {
                 m.ctx[nameParam] = ko.observable(null);
             }
             this.setParams();
@@ -940,17 +911,11 @@
             }
         };
 
-        p.loadWithOnShow = function (showCallback) {
+        p.loadWithOnShow = function () {
             var me = this;
             if (!me.withOnShowLoaded || me.val('sourceCache') !== true) {
+                me.withOnShowLoaded = true;
                 me.val('withOnShow')(function (vm) {
-                    if (!me.val('sourceOnShow') && me.withOnShowLoaded) {
-                        ko.cleanNode($(me.element));
-                        $(me.element).empty();
-                        me.element.innerHTML = me.cleanElement;
-                    }
-
-
                     var childBindingContext = me.bindingContext.createChildContext(vm);
                     me.ctx = vm;
                     // replace the childBindingContext
@@ -958,15 +923,7 @@
                     me.augmentContext();
                     ko.utils.extend(childBindingContext, {$page: me});
                     applyBindingsToDescendants(me);
-					me.showElementWrapper(showCallback);
-					// what is signaling if a page is active or not?
-                    if (me.route) {
-                        me.childManager.showChild(me.route);
-                    }
                 }, me);
-                me.withOnShowLoaded = true;
-            } else {
-				me.showElementWrapper(showCallback);
             }
         };
 
@@ -974,15 +931,12 @@
          * @method pager.Page#loadSource
          * @param source
          */
-        p.loadSource = function (source, showCallback) {
+        p.loadSource = function (source) {
             var value = this.getValue();
             var me = this;
             var element = this.element;
             var loader = null;
             var loaderMethod = value.loader || pager.loader;
-			if (!me.val('withOnShow')) {
-				me.showElementWrapper(showCallback);
-			}
             if (value.frame === 'iframe') {
                 var iframe = $('iframe', $(element));
                 if (iframe.length === 0) {
@@ -1023,8 +977,8 @@
 
                     if (!me.val('withOnShow')) {
                         applyBindingsToDescendants(me);
-					} else if (me.val('withOnShow')) {
-						me.loadWithOnShow(showCallback);
+                    } else if (me.val('withOnShow')) {
+                        me.loadWithOnShow();
                     }
 
                     // trigger event
@@ -1118,8 +1072,8 @@
         p.show = function (callback) {
             var element = this.element;
             var me = this;
-            //me.showElementWrapper(callback);
-			//var value = me.getValue();
+            //var value = me.getValue();
+            me.showElementWrapper(callback);
             if (me.val('title')) {
                 window.document.title = me.val('title');
             }
@@ -1128,20 +1082,15 @@
                 if (!me.val('sourceCache') || !element.__pagerLoaded__ ||
                     (typeof(me.val('sourceCache')) === 'number' && element.__pagerLoaded__ + me.val('sourceCache') * 1000 < pager.now())) {
                     element.__pagerLoaded__ = pager.now();
-                    me.loadSource(me.val('sourceOnShow'), callback);
-				} else {
-					me.showElementWrapper(callback);
-				}
+                    me.loadSource(me.val('sourceOnShow'));
+                }
             }
             else if (me.val('withOnShow')) {
-                me.loadWithOnShow(callback);
-            }
-			else {
-				me.showElementWrapper(callback);
+                me.loadWithOnShow();
             }
         };
 
-        p.titleOrId = function () {
+        p.titleOrId = function() {
             return this.val('title') || this.id();
         };
 
@@ -1258,11 +1207,7 @@
          * @returns {boolean}
          */
         p.isStartPage = function () {
-            if (pager.ignoreRouteCase) {
-                return (this.getId() || "").toLowerCase() === 'start' || (this.getRole() || "").toLowerCase() === 'start';
-            } else {
-                return this.getId() === 'start' || this.getRole() === 'start';
-            }
+            return this.getId() === 'start' || this.getRole() === 'start';
         };
 
         p.nullObject = new pager.Page();
@@ -1298,9 +1243,9 @@
             return me._child[key];
         };
 
-        pager.getActivePage = function () {
+        pager.getActivePage = function() {
             var active = pager.page;
-            while (active.currentChildPage()() != null) {
+            while(active.currentChildPage()() != null) {
                 active = active.currentChildPage()();
             }
             return active;
@@ -1328,52 +1273,18 @@
             }
         };
 
-        /**
-        *
-        * @type {string}
-        */
-        var _dataAttribute = 'page-href';
+// page-href
 
         /**
          *
          * @type {Boolean}
          */
         pager.useHTML5history = false;
-
         /**
          *
          * @type {String}
          */
         pager.rootURI = '/';
-
-        /**
-         *
-         * @type {Boolean}
-         */
-        pager.ignoreRouteCase = false;
-
-        /**
-         *
-         * @type {String}
-         */
-        pager.dataAttribute = ko.computed({
-            read: function () {
-                return _dataAttribute;
-            },
-            write: function (value) {
-                if(!value){
-                    var err = new Error();
-                    err.message = 'Data Attribute cannot be blank';
-                    throw err;
-                }
-
-                if(ko.bindingHandlers[_dataAttribute]){
-                    delete ko.bindingHandlers[_dataAttribute];
-                }
-                _dataAttribute = value;
-                ko.bindingHandlers[_dataAttribute] = koBindingHandlerMethod;
-            }
-        });
 
         pager.Href = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             this.element = element;
@@ -1436,7 +1347,7 @@
             });
         };
 
-        var koBindingHandlerMethod = {
+        ko.bindingHandlers['page-href'] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 var Cls = pager.useHTML5history ? pager.Href5 : pager.Href;
                 var href = new Cls(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
@@ -1448,8 +1359,6 @@
                 element.__ko__page.update(valueAccessor);
             }
         };
-
-        ko.bindingHandlers[pager.dataAttribute()] = koBindingHandlerMethod;
 
         pager.fx = {};
 
@@ -1528,8 +1437,7 @@
                 goTo(relativeUrl);
             });
             pager.Href5.history.Adapter.bind(window, 'anchorchange', function () {
-                var hash = window.location.href.split('#')[1];
-                goTo(hash ? '#' + hash : '');
+                goTo(location.hash);
             });
             if (!options || !options.noGo) {
                 goTo(pager.Href5.history.getState().url.replace(pager.Href5.history.getBaseUrl(), ''));
@@ -1552,8 +1460,7 @@
                 window.location.hash = pager.Href.hash + id;
             }
             var onHashChange = function () {
-                var hash = window.location.href.split('#')[1];
-                goTo(hash ? '#' + hash : '');
+                goTo(window.location.hash);
             };
             $(window).bind('hashchange', onHashChange);
 

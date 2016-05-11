@@ -41,10 +41,10 @@ vm.removePoint = (data, event) => {
 let formatDate = (date) => moment(date).format("DD-MM-YYYY HH:mm:ss")
 
 vm.saveFavorite = () => {
-    let x_avg = graph_avg.xAxisRange()
-    let y_avg = graph_avg.yAxisRange()
-    let x_main = graph_main.xAxisRange()
-    let y_main = graph_main.yAxisRange()
+    let x_avg = vm.graph_avg.xAxisRange()
+    let y_avg = vm.graph_avg.yAxisRange()
+    let x_main = vm.graph_main.xAxisRange()
+    let y_main = vm.graph_main.yAxisRange()
 
     let points = mapping.toJS(vm.selected_points())
     points = points.map(formatDate)

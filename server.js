@@ -91,26 +91,6 @@ app.use(compression())
 app.use(body_parser.json())
 app.use(body_parser.urlencoded({ extended: true }))
 app.use(cookie_parser(config.session_secret))
-app.use(session({
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 30
-    },
-    store: new pg_session({
-        pg: pg,
-        conString: config.postgres_con,
-        tableName: "sessions"
-    }),
-    secret: config.session_secret,
-    saveUninitialized: false,
-    resave: false
-}))
-app.use(passport.initialize())
-app.use(passport.session())
-app.use((req, res, next) => {
-    console.log("req.user", req.user)
-    console.log("req.session", req.session)
-    next()
-})
 
 app.use("/api/app", require("./api/app"))
 app.use("/api/admin", require("./api/admin"))
@@ -118,15 +98,14 @@ app.use("/api/admin", require("./api/admin"))
 
 // static files
 
-app.use("/", express.static("app/build"))
 app.use("/admin", express.static("admin/build"))
-
-app.all("/*", (req, res) => {
-    res.sendFile("index.html", { root: __dirname + "/app/build" })
-})
-
 app.all("/admin/*", (req, res) => {
     res.sendFile("index.html", { root: __dirname + "/admin/build" })
+})
+
+app.use("/", express.static("app/build"))
+app.all("/*", (req, res) => {
+    res.sendFile("index.html", { root: __dirname + "/app/build" })
 })
 
 // run server

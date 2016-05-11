@@ -22,6 +22,16 @@ vm.graph_main = null
 
 vm.moment = moment
 
+vm.afterShow = () => {
+    if(vm.graph_avg) {
+        setTimeout(() => vm.graph_avg.resize(), 0)
+    }
+
+    if(vm.graph_main) {
+        setTimeout(() => vm.graph_main.resize(), 0)
+    }
+}
+
 vm.removePoint = (data, event) => {
     vm.selected_points.remove(function(item) {
         return item === data.x

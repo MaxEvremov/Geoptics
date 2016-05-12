@@ -2,60 +2,60 @@
 	.just-padding {
 		padding: 15px;
 	}
-	
+
 	.list-group.list-group-root {
 		padding: 0;
 		overflow: hidden;
 	}
-	
+
 	.list-group.list-group-root .list-group {
 		margin-bottom: 0;
 	}
-	
+
 	.list-group.list-group-root .list-group-item {
 		border-radius: 0;
 		border-width: 1px 0 0 0;
 	}
-	
+
 	.list-group.list-group-root > .list-group-item:first-child {
 		border-top-width: 0;
 	}
-	
+
 	.list-group.list-group-root > .list-group > .list-group-item {
 		padding-left: 30px;
 	}
-	
+
 	.list-group.list-group-root > .list-group > .list-group > .list-group-item {
 		padding-left: 45px;
 	}
-	
+
 	.list-group-item .glyphicon {
 		margin-right: 5px;
 	}
-	
+
 	.dygraph-legend {
 		padding: 10px;
 		border: 1px solid #999;
 		border-radius: 3px;
 	}
-	
+
 	.dygraph-legend >* {
 		display: block;
 	}
-	
+
 	.dygraphDefaultAnnotation {
 		line-height: 14px;
 		border: 0;
 		box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.37);
 	}
-	
+
 	.plotpoints {}
-	
+
 	.plotpoints td.clickable {
 /*		visibility: hidden*/
 		opacity: 0
 	}
-	
+
 	.plotpoints tr td.clickable:hover {
 /*		visibility: visible*/
 		opacity: 1
@@ -123,8 +123,13 @@
 -->
 						<tbody data-bind="foreach: annotations">
 							<tr>
-								<td data-bind="text: $index() + 1"></td>
-								<td 1class="clickable">
+								<td data-bind="
+                                    text: $index() + 1,
+                                    style: {
+                                        color: $parent.plot_colors[$index()]
+                                    }
+                                "></td>
+								<td>
 									<span data-bind="text: $parent.moment(x).format('DD.MM.YYYY HH:mm')"></span>
 								</td>
 								<td class="clickable" data-bind="click: $parent.removePoint">

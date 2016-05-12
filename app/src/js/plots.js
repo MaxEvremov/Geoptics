@@ -8,14 +8,27 @@ import moment from "moment"
 import Dygraph from "dygraphs"
 import $ from "jquery"
 import _ from "lodash"
+import randomColor from "randomcolor"
 
 import * as helpers from "./helpers"
 
+// const
+
+const INIT_COLORS_NUMBER = 20
+
 // main
+
+let plot_colors = []
+
+for(let i = 0; i < INIT_COLORS_NUMBER; i++) {
+    plot_colors.push(randomColor({ luminosity: "dark" }))
+}
 
 let vm = {
     selected_points: ko.observableArray()
 }
+
+vm.plot_colors = plot_colors
 
 vm.graph_avg = null
 vm.graph_main = null
@@ -77,28 +90,6 @@ let plots = {}
 vm.plots = plots
 
 let plot_data = [[0, 0]]
-let plot_colors = [
-    "#1f77b4",
-    "#aec7e8",
-    "#ff7f0e",
-    "#ffbb78",
-    "#2ca02c",
-    "#98df8a",
-    "#d62728",
-    "#ff9896",
-    "#9467bd",
-    "#c5b0d5",
-    "#8c564b",
-    "#c49c94",
-    "#e377c2",
-    "#f7b6d2",
-    "#7f7f7f",
-    "#c7c7c7",
-    "#bcbd22",
-    "#dbdb8d",
-    "#17becf",
-    "#9edae5"
-]
 let plot_labels = ["X", "Y1"]
 
 // computed observables
@@ -199,7 +190,12 @@ vm.main_done = (err, graph) => {
             plot_labels = ["X", "Y1"]
         }
         else {
+            while(plot_colors.length < annotations.length) {
+                plot_colors.push(randomColor({ luminosity: "dark" }))
+            }
+
             let dates = _.map(annotations, v => v.x)
+
             plot_labels = ["Length"].concat(_.map(dates,
                 v => moment(v).format("DD-MM-YYYY HH:mm:ss")))
             plot_data = _.map(plots[dates[0]], v => [v[0]])
@@ -213,6 +209,11 @@ vm.main_done = (err, graph) => {
                 }
             }
         }
+
+        $(".dygraphDefaultAnnotation").css(
+            "color",
+            (index, value) => plot_colors[index]
+        )
 
         graph.updateOptions({
             file: plot_data,

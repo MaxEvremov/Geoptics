@@ -28,7 +28,7 @@ let User = bookshelf_client.Model.extend(
             password: {
                 get: function() {},
                 set: function(value) {
-                    let salt = crypto.randomBytes(64).toString("hex")
+                    let salt = crypto.randomBytes(32).toString("hex")
                     let hash = crypto.createHash("sha256")
 
                     hash.update(salt + value)

@@ -15,7 +15,7 @@ const helpers = require("./helpers")
 
 const config = require("../config")
 
-const favorites = require("./favorites")
+const favorites = require("./app/favorites")
 const auth = require("./auth")
 
 // validators
@@ -36,7 +36,7 @@ api.use(session({
     store: new pg_session({
         pg: pg,
         conString: config.postgres_con,
-        tableName: "sessions_app"
+        tableName: config.sessions_app_table
     }),
     secret: config.session_secret,
     saveUninitialized: false,
@@ -50,11 +50,12 @@ api.use((req, res, next) => {
     next()
 })
 
-api.use("/favorites", favorites)
-api.use("/auth", auth)
+api.use("/favorites", helpers.validatePermissions(["admin", "user"]), favorites)
+api.use("/auth", auth.generateAPI(["admin", "user"]))
 
 api.post(
     "/init",
+    helpers.validatePermissions(["admin", "user"]),
     helpers.validateRequestData({
         date_start: isDateValid,
         date_end: isDateValid
@@ -127,6 +128,7 @@ api.post(
 
 api.post(
     "/measurements",
+    helpers.validatePermissions(["admin", "user"]),
     helpers.validateRequestData({
         dates: true
     }),

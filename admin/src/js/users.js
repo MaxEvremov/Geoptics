@@ -17,6 +17,12 @@ let vm = {
     user_id: ko.observable()
 }
 
+vm.roles = [
+    { id: "owner", name: "Суперадминистратор" },
+    { id: "admin", name: "Администратор" },
+    { id: "user", name: "Пользователь" }
+]
+
 vm.getAll = () => {
     vm.users.removeAll()
 

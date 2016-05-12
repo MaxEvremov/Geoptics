@@ -37,7 +37,8 @@ passport.deserializeUser((id, done) => {
         return done(err, {
             name: user.name,
             email: user.email,
-            id: user.id
+            id: user.id,
+            role: user.role
         })
     })
 })
@@ -71,7 +72,8 @@ passport.use(new LocalStrategy(
             return done(null, {
                 name: json_user.name,
                 email: json_user.email,
-                id: json_user.id
+                id: json_user.id,
+                role: json_user.role
             })
         })
     }

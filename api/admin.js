@@ -8,9 +8,11 @@ const session = require("express-session")
 const pg_session = require("connect-pg-simple")(session)
 const passport = require("passport")
 
+const helpers = require("./helpers")
+
 const auth = require("./auth")
-const users = require("./users")
-const wells = require("./wells")
+const users = require("./admin/users")
+const wells = require("./admin/wells")
 
 const config = require("../config")
 
@@ -25,7 +27,7 @@ api.use(session({
     store: new pg_session({
         pg: pg,
         conString: config.postgres_con,
-        tableName: "sessions_admin"
+        tableName: config.sessions_admin_table
     }),
     secret: config.session_secret,
     saveUninitialized: false,
@@ -39,9 +41,10 @@ api.use((req, res, next) => {
     next()
 })
 
-api.use("/auth", auth)
-api.use("/users", users)
-api.use("/wells", wells)
+api.use("/auth", auth.generateAPI(["admin"]))
+
+api.use("/users", helpers.validatePermissions("admin"), users)
+api.use("/wells", helpers.validatePermissions("admin"), wells)
 
 // exports
 

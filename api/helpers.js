@@ -7,7 +7,7 @@ const _ = require("lodash")
 // main
 
 module.exports = {
-    validateRequestData: fields => (req, res, next) => {
+    validateRequestData: (fields) => (req, res, next) => {
         let is_valid = true
 
         _.forOwn(fields, (value, key) => {
@@ -41,5 +41,29 @@ module.exports = {
         if(is_valid) {
             return next()
         }
+    },
+
+    validatePermissions: (roles) => (req, res, next) => {
+        if(!_.isArray(roles)) {
+            roles = [roles]
+        }
+
+        if(!req.user) {
+            return res.status(401).json({
+                err: "no_access"
+            })
+        }
+
+        if(req.user.role === "owner") {
+            return next()
+        }
+
+        if(roles.indexOf(req.user.role) === -1) {
+            return res.status(401).json({
+                err: "no_access"
+            })
+        }
+
+        return next()
     }
 }

@@ -5,9 +5,9 @@
 const express = require("express")
 const validator = require("validator")
 
-const helpers = require("./helpers")
+const helpers = require("../helpers")
 
-const User = require("../models/User")
+const Well = require("../../models/Well")
 
 // main
 
@@ -16,7 +16,7 @@ let api = express()
 api.get(
     "/",
     (req, res, next) => {
-        User.query("select", "id", "name", "email")
+        Well.query("select", "id", "name")
         .fetchAll()
         .asCallback((err, result) => {
             res.json({
@@ -30,7 +30,7 @@ api.get(
 api.get(
     "/:id",
     (req, res, next) => {
-        User.findById(req.params.id, {})
+        Well.findById(req.params.id, {})
         .asCallback((err, result) => {
             res.json({
                 err: err,
@@ -43,20 +43,14 @@ api.get(
 api.post(
     "/",
     helpers.validateRequestData({
-        name: true,
-        email: validator.isEmail,
-        password: true
+        name: true
     }),
     (req, res, next) => {
         let id = req.body.id
         let name = req.body.name
-        let email = req.body.email
-        let password = req.body.password
 
         let data = {
-            name: name,
-            email: email,
-            password: password
+            name: name
         }
 
         let done = (err, result) => {
@@ -66,11 +60,11 @@ api.post(
         }
 
         if(!id) {
-            User.create(data)
+            Well.create(data)
             .asCallback(done)
         }
         else {
-            User.update(data, { id: id })
+            Well.update(data, { id: id })
             .asCallback(done)
         }
     }

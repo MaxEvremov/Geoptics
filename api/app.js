@@ -10,6 +10,7 @@ const pg = require("pg").native
 const session = require("express-session")
 const pg_session = require("connect-pg-simple")(session)
 const passport = require("passport")
+const async = require("async")
 
 const helpers = require("./helpers")
 
@@ -62,65 +63,34 @@ api.post(
     }),
     (req, res, next) => {
         let date_start = req.body.date_start
+            ? formatDate(req.body.date_start)
+            : "-infinity"
+
         let date_end = req.body.date_end
+            ? formatDate(req.body.date_end)
+            : "infinity"
 
-        let query = knex.select(knex.raw("avg(temp) as temp, date"))
-            .from("t_measurements")
-            .groupBy("date")
-            .orderBy("date")
-            .where("date", ">=", date_start
-                ? formatDate(date_start)
-                : "-infinity"
-            )
-            .andWhere("date", "<=", date_end
-                ? formatDate(date_end)
-                : "infinity"
-            )
+        let query = `SELECT * FROM t_measurements_avg
+            WHERE date >= '${date_start}' AND date <= '${date_end}'
+            ORDER BY date`
 
-        pg.connect(
-            config.postgres_con,
-            (err, client, release) => {
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
                 if(err) {
-                    console.error(err)
-
-                    if(client) {
-                        release(client)
-                    }
-
                     return res.json({
-                        err: "db_err"
+                        err: err
                     })
                 }
 
-                client.query(
-                    query.toString(),
-                    (err, result) => {
-                        if(err) {
-                            console.error(err)
+                result = _.chain(result)
+                    .map(v => [new Date(v.date), v.temp])
+                    .value()
 
-                            if(client) {
-                                release(client)
-                            }
-
-                            return res.json({
-                                err: "db_err"
-                            })
-                        }
-
-                        release()
-
-                        let data = _.chain(result.rows)
-                            .map(v => [new Date(v.date), v.temp])
-                            .value()
-
-                        return res.json({
-                            err: null,
-                            result: {
-                                data: data
-                            }
-                        })
-                    }
-                )
+                return res.json({
+                    err: null,
+                    result: result
+                })
             }
         )
     }
@@ -158,12 +128,9 @@ api.post(
                 })
             }
 
-            console.time("query")
-
             client.query(
                 query.toString(),
                 (err, result) => {
-                    console.timeEnd("query")
                     if(err) {
                         console.error(err)
 
@@ -208,6 +175,169 @@ api.post(
         pg.connect(
             config.postgres_con,
             getMeasurements
+        )
+    }
+)
+
+api.post(
+    "/moving_avg",
+    helpers.validatePermissions(["admin", "user"]),
+    (req, res, next) => {
+        const PRECEDING_ROWS = 100
+
+        let date_start = req.body.date_start ? req.body.date_start : "-infinity"
+        let date_end = req.body.date_end ? req.body.date_end : "infinity"
+
+        let query = `SELECT avg (temp)
+            OVER (
+                ORDER BY date
+                ROWS BETWEEN ${PRECEDING_ROWS} PRECEDING AND 0 FOLLOWING
+            )
+            AS temp, date
+            FROM t_measurements_avg
+            WHERE date BETWEEN '${date_start}' AND '${date_end}'
+            ORDER BY date`
+
+        console.time("pg-query")
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    console.error(err)
+                    return res.json({
+                        err: err
+                    })
+                }
+
+                console.time("filter")
+                result = _.chain(result)
+                    .map(v => [new Date(v.date), v.temp])
+                    .value()
+                console.timeEnd("filter")
+
+                res.json({
+                    err: null,
+                    result: result
+                })
+            }
+        )
+    }
+)
+
+api.post(
+    "/max_deviation",
+    helpers.validatePermissions(["admin", "user"]),
+    (req, res, next) => {
+        let query = `SELECT
+                date,
+                max((d).temp) AS max_deviation
+            FROM t_deviations
+            LEFT JOIN LATERAL unnest(deviations) d ON true
+            GROUP BY date
+            ORDER BY date`
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    console.error(err)
+                    return res.json({
+                        err: err
+                    })
+                }
+
+                console.time("filter")
+                result = _.chain(result)
+                    .map(v => [new Date(v.date), v.max_deviation])
+                    .value()
+                console.timeEnd("filter")
+
+                res.json({
+                    err: null,
+                    result: result
+                })
+            }
+        )
+    }
+)
+
+api.post(
+    "/deviations",
+    helpers.validatePermissions(["admin", "user"]),
+    helpers.validateRequestData({
+        min_deviation: _.isNumber,
+        date_start: isDateValid,
+        date_end: isDateValid
+    }),
+    (req, res, next) => {
+        let date_start = req.body.date_start
+            ? formatDate(req.body.date_start)
+            : "-infinity"
+
+        let date_end = req.body.date_end
+            ? formatDate(req.body.date_end)
+            : "infinity"
+
+        let min_deviation = req.body.min_deviation
+
+        let norm_query = `SELECT length, temp FROM t_measurements
+            WHERE date = '2016-02-23 20:58:44'`
+        let plots_query = `SELECT * FROM t_measurements
+            WHERE date >= '${date_start}' AND date <= '${date_end}'`
+
+        async.waterfall([
+            (done) => {
+                async.parallel({
+                    norm_plot: (done) => helpers.makePGQuery(norm_query, done),
+                    plots: (done) => helpers.makePGQuery(plots_query, done)
+                }, done)
+            },
+            (result, done) => {
+                let norm_plot = result.norm_plot
+                let plots = _.groupBy(result.plots, "date")
+
+                let deviations = []
+
+                _.forEach(plots, (plot, date) => {
+                    let max_deviation = _.maxBy(plot, v => {
+                        let norm_temp = _.find(
+                            norm_plot,
+                            { length: v.length }
+                        ).temp
+
+                        return Math.abs(norm_temp - v.temp)
+                    })
+
+                    deviations.push({
+                        temp: max_deviation.temp,
+                        date: max_deviation.date,
+                        norm_temp: _.find(
+                            norm_plot,
+                            { length: max_deviation.length }
+                        ).temp,
+                        length: max_deviation.length
+                    })
+                })
+
+                return done(null, deviations)
+            },
+            (deviations, done) => {
+                return done(null, _.filter(deviations, v =>
+                    Math.abs(v.norm_temp - v.temp) >= min_deviation)
+                )
+            }],
+            (err, result) => {
+                if(err) {
+                    return res.json({
+                        err: err
+                    })
+                }
+
+                return res.json({
+                    err: null,
+                    result: result
+                })
+            }
         )
     }
 )

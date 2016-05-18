@@ -25,7 +25,8 @@ for(let i = 0; i < INIT_COLORS_NUMBER; i++) {
 }
 
 let vm = {
-    selected_points: ko.observableArray()
+    selected_points: ko.observableArray(),
+    min_deviation: ko.observable(0)
 }
 
 vm.plot_colors = plot_colors
@@ -82,6 +83,38 @@ vm.saveFavorite = () => {
             if(err) {
                 return console.error(err)
             }
+        }
+    )
+}
+
+vm.getDeviations = () => {
+    let min_deviation = parseFloat(vm.min_deviation())
+
+    let x_avg = vm.graph_avg.xAxisRange()
+    let date_start = x_avg[0]
+    let date_end = x_avg[1]
+
+    helpers.makeAJAXRequest(
+        "/api/app/deviations",
+        "post",
+        {
+            min_deviation: min_deviation,
+            date_start: date_start,
+            date_end: date_end
+        },
+        (err, result) => {
+            if(err) {
+                return console.error(err)
+            }
+
+            let annotations = result.map(v => ({
+                series: "Temperature",
+                x: Date.parse(v.date),
+                shortText: "!",
+                text: `Отклонение на ${v.length} м. Температура: ${v.temp}°. Образец: ${v.norm_temp}°.`
+            }))
+
+            vm.graph_avg.setAnnotations(annotations)
         }
     )
 }
@@ -153,16 +186,12 @@ vm.avg_done = (err, graph) => {
     helpers.makeAJAXRequest(
         "/api/app/init",
         "post",
-        {
-            date_start: "2016-04-20",
-            date_end: "2016-05-20"
-        },
         (err, result) => {
             if(err) {
                 return console.error(err)
             }
 
-            let data = _.map(result.data, v => [new Date(v[0]), v[1]])
+            let data = _.map(result, v => [new Date(v[0]), v[1]])
 
             graph.updateOptions({
                 file: data

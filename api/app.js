@@ -12,12 +12,12 @@ const pg_session = require("connect-pg-simple")(session)
 const passport = require("passport")
 const async = require("async")
 
-const helpers = require("./helpers")
+const helpers = require(__base + "lib/helpers")
 
-const config = require("../config")
+const config = require(__base + "config")
 
-const favorites = require("./app/favorites")
-const auth = require("./auth")
+const favorites = require(__base + "api/app/favorites")
+const auth = require(__base + "api/auth")
 
 // validators
 
@@ -270,6 +270,8 @@ api.post(
         date_end: isDateValid
     }),
     (req, res, next) => {
+        const norm_plot_date = "2016-02-23 20:58:44"
+
         let date_start = req.body.date_start
             ? formatDate(req.body.date_start)
             : "-infinity"
@@ -281,7 +283,7 @@ api.post(
         let min_deviation = req.body.min_deviation
 
         let norm_query = `SELECT length, temp FROM t_measurements
-            WHERE date = '2016-02-23 20:58:44'`
+            WHERE date = '${norm_plot_date}'`
         let plots_query = `SELECT * FROM t_measurements
             WHERE date >= '${date_start}' AND date <= '${date_end}'`
 

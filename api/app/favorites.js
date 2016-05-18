@@ -5,9 +5,9 @@
 const express = require("express")
 const validator = require("validator")
 
-const helpers = require("../helpers")
+const helpers = require(__base + "lib/helpers")
 
-const Favorite = require("../../models/Favorite")
+const Favorite = require(__base + "models/Favorite")
 
 // main
 

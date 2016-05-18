@@ -5,9 +5,9 @@
 const express = require("express")
 const validator = require("validator")
 
-const helpers = require("../helpers")
+const helpers = require(__base + "lib/helpers")
 
-const Well = require("../../models/Well")
+const Well = require(__base + "models/Well")
 
 // main
 

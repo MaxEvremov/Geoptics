@@ -2,7 +2,7 @@
 
 // imports
 
-const config = require("../config")
+const config = require(__base + "config")
 
 const bookshelf = require("bookshelf")
 const knex = require("knex")

@@ -8,13 +8,13 @@ const session = require("express-session")
 const pg_session = require("connect-pg-simple")(session)
 const passport = require("passport")
 
-const helpers = require("./helpers")
+const helpers = require(__base + "lib/helpers")
 
-const auth = require("./auth")
-const users = require("./admin/users")
-const wells = require("./admin/wells")
+const auth = require(__base + "api/auth")
+const users = require(__base + "api/admin/users")
+const wells = require(__base + "api/admin/wells")
 
-const config = require("../config")
+const config = require(__base + "config")
 
 // main
 

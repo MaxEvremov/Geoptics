@@ -5,6 +5,7 @@
 import $ from "jquery"
 import ko from "knockout"
 import Pager from "./lib/pager.js"
+import _ from "lodash"
 
 import * as helpers from "./helpers"
 import * as bindingHandlers from "./ko-binding-handlers"
@@ -30,7 +31,7 @@ vm.state = state
 
 // init
 
-ko.bindingHandlers.dygraph = bindingHandlers.dygraph
+_.forEach(bindingHandlers, (value, key) => ko.bindingHandlers[key] = value)
 
 $(document).ready(() => {
     let pager = new Pager($, ko)

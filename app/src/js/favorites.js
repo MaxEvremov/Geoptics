@@ -16,11 +16,11 @@ let vm = {
     favorites: ko.observableArray()
 }
 
-vm.formatDate = (date) => moment(date).format("DD-MM-YYYY HH:mm:ss")
+vm.formatDate = (date) => moment(date).format("DD-MM-YYYY HH:mm:ssZ")
 
 vm.load = (data, event) => {
      helpers.makeAJAXRequest(
-         "/api/app/measurements",
+         "/api/app/plots/measurements",
          "post",
          {
              dates: data.points.map(date => vm.formatDate(date))

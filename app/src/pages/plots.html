@@ -67,15 +67,42 @@
 
 <section class="content">
 	<div class="row">
-		<div class="col-md-10">
+		<div class="col-md-9">
 			<div class="box box-info">
 				<div class="box-header">
 					<h3 class="box-title">Средняя t°</h3>
 				</div>
 
 				<div class="box-body">
-					<div data-bind="dygraph: { options: avg_options, done: avg_done }">
-					</div>
+					<div data-bind="dygraph: { options: avg_options, done: avg_done }"></div>
+
+                    <div>
+                        <label class="control-label">zoom_y</label>
+                        <input style="width: 100px;" data-bind="value: min_zoom_y">
+                        <input style="width: 100px;" data-bind="value: max_zoom_y">
+                    </div>
+
+                    <div>
+                        <label class="control-label">zoom_x</label>
+                        <input style="width: 200px;" data-bind="
+                            textInput: min_zoom_x,
+                            jmask: {
+                                mask: '00/00/0000 00:00:00',
+                                options: {
+                                    placeholder: '__/__/____ __:__:__'
+                                }
+                            }
+                        ">
+                        <input style="width: 200px;" data-bind="
+                            textInput: max_zoom_x,
+                            jmask: {
+                                mask: '00/00/0000 00:00:00',
+                                options: {
+                                    placeholder: '__/__/____ __:__:__'
+                                }
+                            }
+                        ">
+                    </div>
 				</div>
 			</div>
 
@@ -108,7 +135,7 @@
 			</div>
 		</div>
 
-		<div class="col-md-2">
+		<div class="col-md-3">
 			<div class="box box-info">
 				<div class="box-header">
 					<h3 class="box-title">Точки</h3>
@@ -130,6 +157,9 @@
 								</td>
 								<td class="clickable" data-bind="click: $parent.removePoint">
 									<i class="fa fa-times"></i>
+								</td>
+                                <td class="clickable" data-bind="click: $parent.downloadLAS">
+									<i class="fa fa-download"></i> Скачать как LAS
 								</td>
 							</tr>
 						</tbody>

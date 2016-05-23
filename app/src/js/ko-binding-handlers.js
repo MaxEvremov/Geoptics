@@ -4,6 +4,8 @@
 
 import ko from "knockout"
 import Dygraph from "dygraphs"
+import $ from "jquery"
+import jMask from "jquery-mask-plugin"
 
 // main
 
@@ -21,5 +23,13 @@ export let dygraph = {
         )
 
         done(null, graph)
+    }
+}
+
+export let jmask = {
+    init: (element, value_accessor) => {
+        let value = ko.unwrap(value_accessor())
+
+        $(element).mask(value.mask, value.options || {})
     }
 }

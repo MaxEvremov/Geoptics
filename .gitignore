@@ -4,3 +4,8 @@ measurements.json
 node_modules
 admin/build
 app/build
+python_scripts/lib
+python_scripts/bin
+.Python
+python_scripts/include
+pip-selfcheck.json

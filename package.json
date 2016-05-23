@@ -25,6 +25,7 @@
     "express-session": "^1.13.0",
     "fs-extra": "^0.26.5",
     "jquery": "^2.2.3",
+    "jquery-mask-plugin": "^1.14.0",
     "knex": "^0.10.0",
     "knockout": "^3.4.0",
     "knockout-mapping": "^2.6.0",

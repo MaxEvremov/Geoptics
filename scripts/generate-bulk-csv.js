@@ -8,7 +8,7 @@ const throttle = require("lodash/throttle")
 
 console.time("generate")
 console.log("Reading data...")
-let raw_data = fs.readFileSync(path.join(process.cwd(), "measurements.json"))
+let raw_data = fs.readFileSync(path.join(process.cwd(), "scripts/measurements.json"))
 console.log("Parsing data...")
 let parsed_data = JSON.parse(raw_data)
 
@@ -29,9 +29,9 @@ let write = () => {
     log(i, j)
 
     if(j === parsed_data.length - 1) {
-        if(i === 3 * 365 - 1) {
+        if(i === 14 - 1) {
             console.log("Done!")
-            stringify_stream.end()
+            // stringify_stream.end()
             console.timeEnd("generate")
         }
         else {

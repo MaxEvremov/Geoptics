@@ -26,7 +26,13 @@ for(let i = 0; i < INIT_COLORS_NUMBER; i++) {
 
 let vm = {
     selected_points: ko.observableArray(),
-    min_deviation: ko.observable(0)
+    min_deviation: ko.observable(0),
+
+    min_zoom_y: ko.observable(),
+    max_zoom_y: ko.observable(),
+
+    min_zoom_x: ko.observable(),
+    max_zoom_x: ko.observable()
 }
 
 vm.plot_colors = plot_colors
@@ -52,7 +58,11 @@ vm.removePoint = (data, event) => {
     })
 }
 
-let formatDate = (date) => moment(date).format("DD-MM-YYYY HH:mm:ss")
+let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ssZ")
+
+vm.downloadLAS = (data, event) => {
+    window.open(`/api/app/plots/las?date=${encodeURIComponent(formatDate(data.x))}`)
+}
 
 vm.saveFavorite = () => {
     let x_avg = vm.graph_avg.xAxisRange()
@@ -91,11 +101,11 @@ vm.getDeviations = () => {
     let min_deviation = parseFloat(vm.min_deviation())
 
     let x_avg = vm.graph_avg.xAxisRange()
-    let date_start = x_avg[0]
-    let date_end = x_avg[1]
+    let date_start = formatDate(x_avg[0])
+    let date_end = formatDate(x_avg[1])
 
     helpers.makeAJAXRequest(
-        "/api/app/deviations",
+        "/api/app/plots/deviations",
         "post",
         {
             min_deviation: min_deviation,
@@ -144,10 +154,60 @@ vm.annotations = ko.computed(() => {
 
 // avg graph params
 
+vm.min_zoom_y.subscribe((value) => {
+    let min_zoom = parseFloat(vm.min_zoom_y())
+    let max_zoom = parseFloat(vm.max_zoom_y())
+
+    vm.graph_avg.updateOptions({
+        valueRange: [min_zoom, max_zoom],
+        isZoomedIgnoreProgrammaticZoom: true
+    })
+})
+
+vm.max_zoom_y.subscribe((value) => {
+    let min_zoom = parseFloat(vm.min_zoom_y())
+    let max_zoom = parseFloat(vm.max_zoom_y())
+
+    vm.graph_avg.updateOptions({
+        valueRange: [min_zoom, max_zoom],
+        isZoomedIgnoreProgrammaticZoom: true
+    })
+})
+
+vm.min_zoom_x.subscribe((value) => {
+    let min_moment = moment(vm.min_zoom_x(), "DD/MM/YYYY HH:mm:ss")
+    let max_moment = moment(vm.max_zoom_x(), "DD/MM/YYYY HH:mm:ss")
+
+    if(!min_moment.isValid() || !max_moment.isValid()) {
+        return
+    }
+
+    vm.graph_avg.updateOptions({
+        dateWindow: [min_moment.valueOf(), max_moment.valueOf()],
+        isZoomedIgnoreProgrammaticZoom: true
+    })
+})
+
+vm.max_zoom_x.subscribe((value) => {
+    let min_moment = moment(vm.min_zoom_x(), "DD/MM/YYYY HH:mm:ss")
+    let max_moment = moment(vm.max_zoom_x(), "DD/MM/YYYY HH:mm:ss")
+
+    if(!min_moment.isValid() || !max_moment.isValid()) {
+        return
+    }
+
+    vm.graph_avg.updateOptions({
+        dateWindow: [min_moment.valueOf(), max_moment.valueOf()],
+        isZoomedIgnoreProgrammaticZoom: true
+    })
+})
+
 vm.avg_options = {
     height: 150,
     labels: ["Date", "Temperature"],
+    showRoller: true,
     clickCallback: (e, x, points) => {
+        console.log(e)
         let selected_date = points[0].xval
 
         if(vm.selected_points.indexOf(selected_date) !== -1) {
@@ -159,7 +219,7 @@ vm.avg_options = {
         }
 
         helpers.makeAJAXRequest(
-            "/api/app/measurements",
+            "/api/app/plots/measurements",
             "post",
             {
                 dates: formatDate(selected_date)
@@ -173,7 +233,27 @@ vm.avg_options = {
                 vm.selected_points.push(selected_date)
             }
         )
-    }
+    },
+    zoomCallback: (min_date, max_date, y_ranges) => {
+        vm.min_zoom_y(y_ranges[0][0])
+        vm.max_zoom_y(y_ranges[0][1])
+        // vm.min_zoom_x(moment(min_date).format("DD/MM/YYYY HH:mm:ss"))
+        // vm.max_zoom_x(moment(max_date).format("DD/MM/YYYY HH:mm:ss"))
+    },
+    drawCallback: (dygraph, is_initial) => {
+        if(is_initial) {
+            return
+        }
+
+        let x_range = dygraph.xAxisRange()
+        let y_range = dygraph.yAxisRange()
+
+        // vm.min_zoom_y(y_range[0][0])
+        // vm.max_zoom_y(y_range[0][1])
+        vm.min_zoom_x(moment(x_range[0]).format("DD/MM/YYYY HH:mm:ss"))
+        vm.max_zoom_x(moment(x_range[1]).format("DD/MM/YYYY HH:mm:ss"))
+    },
+    animatedZooms: true
 }
 
 vm.avg_done = (err, graph) => {
@@ -184,7 +264,8 @@ vm.avg_done = (err, graph) => {
     })
 
     helpers.makeAJAXRequest(
-        "/api/app/init",
+        "/api/app/plots/init",
+        // "/api/app/plots/moving_avg",
         "post",
         (err, result) => {
             if(err) {
@@ -225,8 +306,7 @@ vm.main_done = (err, graph) => {
 
             let dates = _.map(annotations, v => v.x)
 
-            plot_labels = ["Length"].concat(_.map(dates,
-                v => moment(v).format("DD-MM-YYYY HH:mm:ss")))
+            plot_labels = ["Length"].concat(dates.map(formatDate))
             plot_data = _.map(plots[dates[0]], v => [v[0]])
 
             for(let i = 0; i < dates.length; i++) {

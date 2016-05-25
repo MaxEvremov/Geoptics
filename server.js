@@ -83,14 +83,14 @@ passport.use(new LocalStrategy(
 
 // middlewares
 
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    res.header("Access-Control-Allow-Credentials", "true")
-    next()
-})
-app.use(cors({
-    origin: true
-}))
+// app.use((req, res, next) => {
+//     res.header("Access-Control-Allow-Headers", "X-Requested-With");
+//     res.header("Access-Control-Allow-Credentials", "true")
+//     next()
+// })
+// app.use(cors({
+//     origin: true
+// }))
 app.use(compression())
 app.use(body_parser.json())
 app.use(body_parser.urlencoded({ extended: true }))

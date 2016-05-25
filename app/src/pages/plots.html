@@ -67,7 +67,7 @@
 
 <section class="content">
 	<div class="row">
-		<div class="col-md-9">
+		<div class="col-md-6">
 			<div class="box box-info">
 				<div class="box-header">
 					<h3 class="box-title">Средняя t°</h3>
@@ -105,25 +105,28 @@
                     </div>
 				</div>
 			</div>
+		</div>
 
-			<div class="box box-danger">
-				<div class="box-header">
-					<h3 class="box-title">Графики</h3>
-				</div>
+        <div class="col-md-3">
+            <div class="box box-danger">
+                <div class="box-header">
+                    <h3 class="box-title">Графики</h3>
+                </div>
 
-				<div class="box-body">
-					<div data-bind="dygraph: { options: main_options, done: main_done }">
-					</div>
-				</div>
+                <div id="main_dygraph" class="box-body">
+                    <!-- <div id="dygraph_container" data-bind="dygraph: { options: main_options, done: main_done }"> -->
+                    <div id="dygraph_container">
+                    </div>
+                </div>
 
-				<div class="box-footer">
-					<a class="btn btn-sm btn-danger" data-bind="click: saveFavorite">
-						<i class="fa fa-star"></i> <span>Добавить в Избранное</span>
-					</a>
+                <div class="box-footer">
+                    <a class="btn btn-sm btn-danger" data-bind="click: saveFavorite">
+                        <i class="fa fa-star"></i> <span>Добавить в Избранное</span>
+                    </a>
 
                     <a class="btn btn-sm btn-danger" data-bind="click: getDeviations">
-						<i class="fa fa-star"></i> <span>Рассчитать отклонения</span>
-					</a>
+                        <i class="fa fa-star"></i> <span>Рассчитать отклонения</span>
+                    </a>
                     <div class="col-sm-3">
                         <form>
                             <div class="form-group">
@@ -131,9 +134,9 @@
                             </div>
                         </form>
                     </div>
-				</div>
-			</div>
-		</div>
+                </div>
+            </div>
+        </div>
 
 		<div class="col-md-3">
 			<div class="box box-info">

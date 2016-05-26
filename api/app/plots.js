@@ -24,7 +24,6 @@ let api = express()
 
 api.post(
     "/init",
-    helpers.validatePermissions(["admin", "user"]),
     helpers.validateRequestData({
         date_start: isDateValid,
         date_end: isDateValid
@@ -66,7 +65,6 @@ api.post(
 
 api.post(
     "/measurements",
-    helpers.validatePermissions(["admin", "user"]),
     helpers.validateRequestData({
         dates: true
     }),
@@ -77,20 +75,41 @@ api.post(
             dates = [dates]
         }
 
-        // let query = `SELECT * FROM t_measurements
-        //     WHERE date in (
-        //         SELECT * FROM
-        //         json_array_elements_text('${JSON.stringify(dates)}')
+        // let query = `
+        //     SELECT * FROM t_measurements
+        //     WHERE date = ANY(
+        //         ARRAY(
+        //             SELECT nearest_date(value::timestamptz, (SELECT ARRAY(SELECT distinct(date) from t_measurements)))
+        //             FROM json_array_elements_text('${JSON.stringify(dates)}')
+        //         )
         //     )`
+        let measurements = []
 
-        let query = knex.select()
-            .from("t_measurements")
-            .whereIn("date", dates)
-            .toString()
+        async.each(
+            dates,
+            (date, done) => {
+                let query = `
+                    SELECT * FROM t_measurements
+                    WHERE date = (
+                        SELECT date FROM t_measurements
+                        WHERE date <= '${date}'
+                        ORDER BY date DESC
+                        LIMIT 1
+                    )`
 
-        helpers.makePGQuery(
-            query,
-            (err, result) => {
+                helpers.makePGQuery(
+                    query,
+                    (err, result) => {
+                        if(err) {
+                            return done(err)
+                        }
+
+                        measurements = measurements.concat(result)
+                        return done(null)
+                    }
+                )
+            },
+            (err) => {
                 if(err) {
                     return res.json({
                         err: err
@@ -99,7 +118,7 @@ api.post(
 
                 console.time("filter")
 
-                let data = _.chain(result)
+                let data = _.chain(measurements)
                     .groupBy("date")
                     .map((row, key) => {
                         let values = _.chain(row)
@@ -127,7 +146,6 @@ api.post(
 
 api.post(
     "/moving_avg",
-    helpers.validatePermissions(["admin", "user"]),
     (req, res, next) => {
         const PRECEDING_ROWS = req.body.preceding_rows || 100
 
@@ -171,7 +189,6 @@ api.post(
 
 api.post(
     "/deviations",
-    helpers.validatePermissions(["admin", "user"]),
     helpers.validateRequestData({
         min_deviation: _.isNumber,
         date_start: isDateValid,
@@ -278,6 +295,34 @@ api.get(
                     length: result.map(v => v.length),
                     temp: result.map(v => v.temp)
                 }).pipe(res)
+            }
+        )
+    }
+)
+
+api.get(
+    "/p_measurements",
+    (req, res, next) => {
+        let query = `SELECT * FROM p_measurements
+            ORDER BY date`
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.json({
+                        err: err
+                    })
+                }
+
+                result = _.chain(result)
+                    .map(v => [new Date(v.date), v.pressure])
+                    .value()
+
+                return res.json({
+                    err: null,
+                    result: result
+                })
             }
         )
     }

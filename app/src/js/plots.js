@@ -9,6 +9,7 @@ import Dygraph from "dygraphs"
 import $ from "jquery"
 import _ from "lodash"
 import randomColor from "randomcolor"
+import async from "async"
 
 import * as helpers from "./helpers"
 
@@ -53,15 +54,14 @@ vm.afterShow = () => {
 }
 
 vm.removePoint = (data, event) => {
-    vm.selected_points.remove(function(item) {
-        return item === data.x
-    })
+    vm.selected_points.remove((item) => item.x === data.x)
 }
 
 let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ssZ")
 
 vm.downloadLAS = (data, event) => {
-    window.open(`/api/app/plots/las?date=${encodeURIComponent(formatDate(data.x))}`)
+    let date = encodeURIComponent(formatDate(data.x))
+    window.open(`/api/app/plots/las?date=${date}`)
 }
 
 vm.saveFavorite = () => {
@@ -141,11 +141,15 @@ vm.annotations = ko.computed(() => {
     let points = vm.selected_points()
     let result = []
 
+    points.sort((a, b) => a.x - b.x)
+
     for(let i = 0; i < points.length; i++) {
         result.push({
-            series: "Temperature",
-            x: points[i],
-            shortText: i + 1
+            series: "Pressure",
+            x: points[i].x,
+            shortText: i + 1,
+            text: formatDate(points[i].plot_date),
+            attachAtBottom: true
         })
     }
 
@@ -154,27 +158,7 @@ vm.annotations = ko.computed(() => {
 
 // avg graph params
 
-vm.min_zoom_y.subscribe((value) => {
-    let min_zoom = parseFloat(vm.min_zoom_y())
-    let max_zoom = parseFloat(vm.max_zoom_y())
-
-    vm.graph_avg.updateOptions({
-        valueRange: [min_zoom, max_zoom],
-        isZoomedIgnoreProgrammaticZoom: true
-    })
-})
-
-vm.max_zoom_y.subscribe((value) => {
-    let min_zoom = parseFloat(vm.min_zoom_y())
-    let max_zoom = parseFloat(vm.max_zoom_y())
-
-    vm.graph_avg.updateOptions({
-        valueRange: [min_zoom, max_zoom],
-        isZoomedIgnoreProgrammaticZoom: true
-    })
-})
-
-vm.min_zoom_x.subscribe((value) => {
+let updateZoomX = (value) => {
     let min_moment = moment(vm.min_zoom_x(), "DD/MM/YYYY HH:mm:ss")
     let max_moment = moment(vm.max_zoom_x(), "DD/MM/YYYY HH:mm:ss")
 
@@ -186,61 +170,80 @@ vm.min_zoom_x.subscribe((value) => {
         dateWindow: [min_moment.valueOf(), max_moment.valueOf()],
         isZoomedIgnoreProgrammaticZoom: true
     })
-})
+}
 
-vm.max_zoom_x.subscribe((value) => {
-    let min_moment = moment(vm.min_zoom_x(), "DD/MM/YYYY HH:mm:ss")
-    let max_moment = moment(vm.max_zoom_x(), "DD/MM/YYYY HH:mm:ss")
-
-    if(!min_moment.isValid() || !max_moment.isValid()) {
-        return
-    }
+let updateZoomY = (value) => {
+    let min_zoom = parseFloat(vm.min_zoom_y())
+    let max_zoom = parseFloat(vm.max_zoom_y())
 
     vm.graph_avg.updateOptions({
-        dateWindow: [min_moment.valueOf(), max_moment.valueOf()],
+        valueRange: [min_zoom, max_zoom],
         isZoomedIgnoreProgrammaticZoom: true
     })
-})
+}
 
-vm.avg_options = {
-    height: 150,
-    labels: ["Date", "Temperature"],
-    showRoller: true,
-    clickCallback: (e, x, points) => {
-        console.log(e)
-        let selected_date = points[0].xval
+vm.min_zoom_x.subscribe(updateZoomX)
+vm.max_zoom_x.subscribe(updateZoomX)
 
-        if(vm.selected_points.indexOf(selected_date) !== -1) {
-            return
-        }
+vm.min_zoom_y.subscribe(updateZoomY)
+vm.max_zoom_y.subscribe(updateZoomY)
 
-        if(plots.hasOwnProperty(selected_date)) {
-            return vm.selected_points.push(selected_date)
-        }
-
+let queue = async.queue(
+    (date, done) => {
         helpers.makeAJAXRequest(
             "/api/app/plots/measurements",
             "post",
             {
-                dates: formatDate(selected_date)
+                dates: formatDate(date)
             },
             (err, result) => {
                 if(err) {
-                    return console.error(err)
+                    return done(err)
                 }
 
-                plots[selected_date] = result[0].values
-                vm.selected_points.push(selected_date)
+                let plot = result[0]
+
+                if(vm.selected_points().find(
+                    (point) => point.plot_date === plot.date)
+                ) {
+                    return done()
+                }
+
+                plots[plot.date] = plot.values
+                vm.selected_points.push({
+                    x: date,
+                    plot_date: plot.date
+                })
+
+                done()
             }
         )
+    },
+    1
+)
+
+vm.avg_options = {
+    height: 150,
+    labels: ["Date", "Pressure"],
+    showRoller: true,
+    clickCallback: (e, x, points) => {
+        let selected_date = points[0].xval
+        queue.push(selected_date, (err) => {
+            if(err) {
+                console.error(err)
+            }
+        })
     },
     zoomCallback: (min_date, max_date, y_ranges) => {
         vm.min_zoom_y(y_ranges[0][0])
         vm.max_zoom_y(y_ranges[0][1])
-        // vm.min_zoom_x(moment(min_date).format("DD/MM/YYYY HH:mm:ss"))
-        // vm.max_zoom_x(moment(max_date).format("DD/MM/YYYY HH:mm:ss"))
     },
     drawCallback: (dygraph, is_initial) => {
+        $(".dygraphDefaultAnnotation").css(
+            "background",
+            (index, value) => plot_colors[index]
+        )
+
         if(is_initial) {
             return
         }
@@ -248,8 +251,6 @@ vm.avg_options = {
         let x_range = dygraph.xAxisRange()
         let y_range = dygraph.yAxisRange()
 
-        // vm.min_zoom_y(y_range[0][0])
-        // vm.max_zoom_y(y_range[0][1])
         vm.min_zoom_x(moment(x_range[0]).format("DD/MM/YYYY HH:mm:ss"))
         vm.max_zoom_x(moment(x_range[1]).format("DD/MM/YYYY HH:mm:ss"))
     },
@@ -264,9 +265,8 @@ vm.avg_done = (err, graph) => {
     })
 
     helpers.makeAJAXRequest(
-        "/api/app/plots/init",
-        // "/api/app/plots/moving_avg",
-        "post",
+        "/api/app/plots/p_measurements",
+        "get",
         (err, result) => {
             if(err) {
                 return console.error(err)
@@ -469,7 +469,7 @@ vm.main_done = (err, graph) => {
                 plot_colors.push(randomColor({ luminosity: "dark" }))
             }
 
-            let dates = _.map(annotations, v => v.x)
+            let dates = vm.selected_points().map(point => point.plot_date)
 
             plot_labels = ["Length"].concat(dates.map(formatDate))
             plot_data = _.map(plots[dates[0]], v => [v[0]])
@@ -483,11 +483,6 @@ vm.main_done = (err, graph) => {
                 }
             }
         }
-
-        $(".dygraphDefaultAnnotation").css(
-            "color",
-            (index, value) => plot_colors[index]
-        )
 
         // graph.updateOptions({
         vm.graph_main.updateOptions({

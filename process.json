@@ -1,0 +1,6 @@
+{
+    "name": "geoptics",
+    "script": "server.js",
+    "watch": ["api", "models", "lib", "node_modules", "server.js"],
+    "log_date_format": "YYYY-MM-DD HH:mm:ss"
+}

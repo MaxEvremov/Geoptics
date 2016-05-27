@@ -10,7 +10,8 @@ import * as helpers from "./helpers"
 // main
 
 let vm = {
-    user: ko.observable()
+    user: ko.observable(),
+    current_page: ko.observable()
 }
 
 // exports

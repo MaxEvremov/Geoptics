@@ -15,6 +15,7 @@ const las = require(__base + "lib/las")
 
 let isDateValid = (date) => (!date || moment(date).isValid())
 let isLengthValid = (length) => (!length || !isNaN(parseFloat(length)))
+let isIDValid = (id) => Number.isInteger(id) && id > 0
 
 let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ss")
 
@@ -23,79 +24,55 @@ let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ss")
 let api = express()
 
 api.post(
-    "/init",
-    helpers.validateRequestData({
-        date_start: isDateValid,
-        date_end: isDateValid
-    }),
-    (req, res, next) => {
-        let date_start = req.body.date_start
-            ? formatDate(req.body.date_start)
-            : "-infinity"
-
-        let date_end = req.body.date_end
-            ? formatDate(req.body.date_end)
-            : "infinity"
-
-        let query = `SELECT * FROM t_measurements_avg
-            WHERE date >= '${date_start}' AND date <= '${date_end}'
-            ORDER BY date`
-
-        helpers.makePGQuery(
-            query,
-            (err, result) => {
-                if(err) {
-                    return res.json({
-                        err: err
-                    })
-                }
-
-                result = _.chain(result)
-                    .map(v => [new Date(v.date), v.temp])
-                    .value()
-
-                return res.json({
-                    err: null,
-                    result: result
-                })
-            }
-        )
-    }
-)
-
-api.post(
     "/measurements",
     helpers.validateRequestData({
-        dates: true
+        dates: true,
+        well_id: isIDValid
     }),
     (req, res, next) => {
         let dates = req.body.dates
+        let well_id = req.body.well_id
 
         if(!_.isArray(dates)) {
             dates = [dates]
         }
 
-        // let query = `
-        //     SELECT * FROM t_measurements
-        //     WHERE date = ANY(
-        //         ARRAY(
-        //             SELECT nearest_date(value::timestamptz, (SELECT ARRAY(SELECT distinct(date) from t_measurements)))
-        //             FROM json_array_elements_text('${JSON.stringify(dates)}')
-        //         )
-        //     )`
         let measurements = []
 
         async.each(
             dates,
             (date, done) => {
                 let query = `
-                    SELECT * FROM t_measurements
-                    WHERE date = (
-                        SELECT date FROM t_measurements
-                        WHERE date <= '${date}'
+                    WITH vars AS (
+                        SELECT date AS nearest_date
+                        FROM t_measurements
+                        WHERE date <= '${date}' AND well_id = ${well_id}
                         ORDER BY date DESC
                         LIMIT 1
-                    )`
+                    ),
+                    rpoint AS (
+                        SELECT
+                            reference_temp AS temp,
+                            reference_length AS length
+                        FROM wells
+                        WHERE id = ${well_id}
+                    ),
+                    rdiff AS (
+                        SELECT t.temp - (SELECT temp FROM rpoint) AS val
+                        FROM t_measurements AS t
+                        WHERE
+                            t.well_id = ${well_id}
+                            AND t.length = (SELECT length FROM rpoint)
+                            AND t.date = (SELECT nearest_date FROM vars)
+                    )
+                    SELECT
+                        t.length AS length,
+                        t.temp - (SELECT val FROM rdiff) AS temp,
+                        t.date AS date
+                    FROM t_measurements AS t
+                    WHERE
+                        t.date = (SELECT nearest_date FROM vars)
+                        AND t.well_id = ${well_id}`
 
                 helpers.makePGQuery(
                     query,
@@ -138,49 +115,6 @@ api.post(
                 return res.json({
                     err: null,
                     result: data
-                })
-            }
-        )
-    }
-)
-
-api.post(
-    "/moving_avg",
-    (req, res, next) => {
-        const PRECEDING_ROWS = req.body.preceding_rows || 100
-
-        let date_start = req.body.date_start ? req.body.date_start : "-infinity"
-        let date_end = req.body.date_end ? req.body.date_end : "infinity"
-
-        let query = `SELECT avg (temp)
-            OVER (
-                ORDER BY date
-                ROWS BETWEEN ${PRECEDING_ROWS} PRECEDING AND 0 FOLLOWING
-            )
-            AS temp, date
-            FROM t_measurements_avg
-            WHERE date BETWEEN '${date_start}' AND '${date_end}'
-            ORDER BY date`
-
-        helpers.makePGQuery(
-            query,
-            (err, result) => {
-                if(err) {
-                    console.error(err)
-                    return res.json({
-                        err: err
-                    })
-                }
-
-                console.time("filter")
-                result = _.chain(result)
-                    .map(v => [new Date(v.date), v.temp])
-                    .value()
-                console.timeEnd("filter")
-
-                res.json({
-                    err: null,
-                    result: result
                 })
             }
         )
@@ -303,7 +237,10 @@ api.get(
 api.get(
     "/p_measurements",
     (req, res, next) => {
-        let query = `SELECT * FROM p_measurements
+        let query = `SELECT
+                p_measurements.date AS date,
+                p_measurements.pressure AS pressure
+            FROM p_measurements
             ORDER BY date`
 
         helpers.makePGQuery(
@@ -322,6 +259,39 @@ api.get(
                 return res.json({
                     err: null,
                     result: result
+                })
+            }
+        )
+    }
+)
+
+api.post(
+    "/reference_point",
+    helpers.validateRequestData({
+        well_id: isIDValid,
+        date: (date) => moment(date).isValid(),
+        length: _.isNumber,
+        temp: _.isNumber
+    }),
+    (req, res) => {
+        let query = `UPDATE wells
+            SET reference_date = '${req.body.date}',
+                reference_temp = ${req.body.temp},
+                reference_length = ${req.body.length}
+            WHERE id = ${req.body.well_id}
+            `
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.json({
+                        err: err
+                    })
+                }
+
+                return res.json({
+                    err: null
                 })
             }
         )

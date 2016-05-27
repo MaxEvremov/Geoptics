@@ -21,13 +21,11 @@ import "./lib/history.adapter.native.js"
 // view model
 
 let vm = {
-    current_page: ko.observable()
+    login: login,
+    plots: plots,
+    favorites: favorites,
+    state: state
 }
-
-vm.login = login
-vm.plots = plots
-vm.favorites = favorites
-vm.state = state
 
 // init
 
@@ -48,10 +46,10 @@ $(document).ready(() => {
     window.vm = vm
 
     History.Adapter.bind(window, "statechange", () => {
-        vm.current_page(pager.activePage$().currentId)
+        vm.state.current_page(pager.activePage$().currentId)
     })
 
-    vm.current_page(pager.activePage$().currentId)
+    vm.state.current_page(pager.activePage$().currentId)
 
     helpers.makeAJAXRequest(
         "/api/app/auth/init",

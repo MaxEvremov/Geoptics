@@ -36,6 +36,63 @@ let vm = {
     max_zoom_x: ko.observable()
 }
 
+// TODO: перенести это в модель скважины (попутно создав эту самую модель)
+
+vm.are_settings_enabled = ko.observable(false)
+vm.toggleSettings = () => {
+    vm.are_settings_enabled(!vm.are_settings_enabled())
+}
+
+vm.is_editing_reference_point = ko.observable(false)
+vm.editReferencePoint = () => {
+    if(vm.is_editing_reference_point()) {
+        return
+    }
+
+    vm.reference_date(null)
+    vm.reference_temp(null)
+    vm.reference_length(null)
+
+    vm.selected_points.removeAll()
+
+    vm.is_editing_reference_point(true)
+}
+
+vm.reference_date = ko.observable()
+vm.reference_temp = ko.observable()
+vm.reference_length = ko.observable()
+
+vm.saveReferencePoint = () => {
+    helpers.makeAJAXRequest(
+        "/api/app/plots/reference_point",
+        "post",
+        {
+            date: vm.reference_date(),
+            temp: vm.reference_temp(),
+            length: vm.reference_length(),
+            well_id: 1 // TODO: поменять на настоящий id скважины
+        },
+        (err, result) => {
+            if(err) {
+                return console.error(err)
+            }
+
+            vm.reference_date(null)
+            vm.reference_temp(null)
+            vm.reference_length(null)
+
+            vm.graph_main.updateOptions({
+                file: [[0, 0]],
+                labels: ["X", "Y1"]
+            })
+
+            vm.is_editing_reference_point(false)
+        }
+    )
+}
+
+// TODO: перенести это в модель скважины (попутно создав эту самую модель)
+
 vm.plot_colors = plot_colors
 
 vm.graph_avg = null
@@ -194,7 +251,8 @@ let queue = async.queue(
             "/api/app/plots/measurements",
             "post",
             {
-                dates: formatDate(date)
+                dates: formatDate(date),
+                well_id: 1 // TODO: поменять на настоящий id выбранной скважины
             },
             (err, result) => {
                 if(err) {
@@ -202,6 +260,19 @@ let queue = async.queue(
                 }
 
                 let plot = result[0]
+
+                if(vm.is_editing_reference_point()) {
+                    vm.reference_date(formatDate(plot.date))
+
+                    let plot_labels = ["Length", formatDate(plot.date)]
+
+                    vm.graph_main.updateOptions({
+                        file: plot.values,
+                        labels: plot_labels
+                    })
+
+                    return done()
+                }
 
                 if(vm.selected_points().find(
                     (point) => point.plot_date === plot.date)
@@ -378,6 +449,16 @@ vm.main_options = {
     ylabel: "Temperature (C)",
     // xlabel: "Length",
     drawCallback: restyle,
+    clickCallback: (e, x, points) => {
+        if(!vm.is_editing_reference_point()) {
+            return
+        }
+
+        let point = points[0]
+
+        vm.reference_length(point.xval)
+        vm.reference_temp(point.yval)
+    },
     axes: {
         x: { pixelsPerLabel: 30 },
         y: { pixelsPerLabel: 60 }
@@ -455,8 +536,6 @@ vm.main_options = {
 }
 
 vm.main_done = (err, graph) => {
-    // vm.graph_main = graph
-
     vm.annotations.subscribe(value => {
         let annotations = value
 
@@ -484,7 +563,6 @@ vm.main_done = (err, graph) => {
             }
         }
 
-        // graph.updateOptions({
         vm.graph_main.updateOptions({
             file: plot_data,
             labels: plot_labels,
@@ -504,15 +582,15 @@ setTimeout(() => {
     vm.graph_main = new Dygraph($(dygraph_div_id)[0], [[0, 0]], vm.main_options)
     vm.graph_main.ready(vm.main_done)
 
-    // vm.graph_main.mousemove_func = vm.graph_main.mouseMove_;
-    // vm.graph_main.mouseMove_ = function(b) {
-    //     // "b" is the MouseEvent object. Copy the object so we can edit it, since MouseEvent is read-only
-    //     var new_b = $.extend(true, {}, b);
-    //     // switch the x and y values for this mouse event... well, dygraphs only cares about the mouse X value in this case.
-    //     new_b.pageX = $(dygraph_div_id).width() + $(dygraph_div_id).offset().left - (b.pageY - $(dygraph_div_id).offset().top) - $(window).scrollLeft();
-    //     // call the original function, using the new MouseEvent
-    //     vm.graph_main.mousemove_func(new_b);
-    // }
+    vm.graph_main.mousemove_func = vm.graph_main.mouseMove_;
+    vm.graph_main.mouseMove_ = function(b) {
+        // "b" is the MouseEvent object. Copy the object so we can edit it, since MouseEvent is read-only
+        var new_b = $.extend(true, {}, b);
+        // switch the x and y values for this mouse event... well, dygraphs only cares about the mouse X value in this case.
+        new_b.pageX = $(dygraph_div_id).width() + $(dygraph_div_id).offset().left - (b.pageY - $(dygraph_div_id).offset().top) - $(window).scrollLeft();
+        // call the original function, using the new MouseEvent
+        vm.graph_main.mousemove_func(new_b);
+    }
 
     let rect = $(dygraph_div_id)[0].getBoundingClientRect()
 

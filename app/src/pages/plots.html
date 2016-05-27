@@ -51,14 +51,6 @@
 	}
 
 	.plotpoints {}
-
-	.plotpoints td.clickable {
-		opacity: 0;
-	}
-
-	.plotpoints tr td.clickable:hover {
-		opacity: 1
-	}
 </style>
 <section class="content-header">
 	<h1>
@@ -140,7 +132,7 @@
         </div>
 
 		<div class="col-md-3">
-			<div class="box box-info">
+			<div class="box box-info" data-bind="visible: !is_editing_reference_point()">
 				<div class="box-header">
 					<h3 class="box-title">Точки</h3>
 				</div>
@@ -159,10 +151,10 @@
 								<td>
 									<span data-bind="text: $parent.moment(x).format('DD.MM.YYYY HH:mm')"></span>
 								</td>
-								<td class="clickable" data-bind="click: $parent.removePoint">
+								<td class="btn-hoverable" data-bind="click: $parent.removePoint">
 									<i class="fa fa-times"></i>
 								</td>
-                                <td class="clickable" data-bind="click: $parent.downloadLAS">
+                                <td class="btn-hoverable" data-bind="click: $parent.downloadLAS">
 									<i class="fa fa-download"></i> Скачать как LAS
 								</td>
 							</tr>
@@ -175,6 +167,26 @@
 					<!-- /ko -->
 				</div>
 			</div>
+
+            <div class="box box-danger" data-bind="visible: is_editing_reference_point">
+                <div class="box-header">
+                    <h3 class="box-title">Эталонная точка</h3>
+                </div>
+
+                <div class="box-body">
+                    <ul class="list-unstyled">
+                        <li>Дата: <span data-bind="text: reference_date() || '-'"></span></li>
+                        <li>Глубина: <span data-bind="text: reference_length() || '-'"></span></li>
+                        <li>Температура: <span data-bind="text: reference_temp() || '-'"></span></li>
+                    </ul>
+                </div>
+
+                <div class="box-footer">
+                    <a class="btn btn-sm btn-danger" data-bind="click: saveReferencePoint">
+                        <span>Сохранить</span>
+                    </a>
+                </div>
+            </div>
 		</div>
 	</div>
 </section>

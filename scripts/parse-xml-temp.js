@@ -5,10 +5,11 @@ const xml2js = require("xml2js")
 const path = require("path")
 const moment = require("moment")
 const async = require("async")
+const stringify = require("csv").stringify
 
 const parseString = xml2js.parseString
 
-let xml_dir = path.join(process.cwd(), "GDKRN26-20160225")
+let xml_dir = path.join(process.cwd(), "../GDKRN26-20160225")
 
 let measurements = []
 
@@ -25,18 +26,19 @@ let parseXML = function(xml, done) {
         values = data.D
 
     for(let i = 0; i < values.length; i++) {
-        measurements.push({
-            date: date,
-            length: start_length + i * length_step,
-            temp: parseFloat(values[i].T[0])
-        })
+        measurements.push([
+            date, // date
+            start_length + i * length_step, // length
+            parseFloat(values[i].T[0]), // temp
+            1 // well_id
+        ])
     }
 
     return done()
 }
 
 let processXML = function(file, done) {
-    console.log("Processing XML", file)
+    // console.log("Processing XML", file)
 
     let xml_path = path.join(xml_dir, file)
 
@@ -64,11 +66,20 @@ async.waterfall(
             async.each(files, processXML, done)
         },
         (done) => {
-            fs.writeFile(
-                path.join(process.cwd(), "measurements.json"),
-                JSON.stringify(measurements, "", 4),
-                done
-            )
+            console.log(measurements)
+            let write_path = path.join(process.cwd(), "t_measurements.csv")
+            let write_stream = fs.createWriteStream(write_path)
+
+            let is_ready = true
+            let stringify_stream = stringify()
+
+            stringify_stream.on("error", done)
+            stringify_stream.on("finish", done)
+            stringify_stream.pipe(write_stream)
+
+            measurements.forEach(measurement => {
+                stringify_stream.write(measurement)
+            })
         }
     ],
     (err, result) => {

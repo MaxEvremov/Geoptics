@@ -1,2 +1,16 @@
-a,.clickable{cursor:pointer}
-.clickable:hover{opacity: .7}
+a, .clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    opacity: .7;
+}
+
+.btn-hoverable {
+    cursor: pointer;
+    opacity: 0;
+}
+
+.btn-hoverable:hover {
+    opacity: 1;
+}

@@ -107,7 +107,7 @@ vm.cancelEditingReferencePoint = () => {
 
 vm.plot_colors = plot_colors
 
-vm.graph_avg = null
+let plot_avg = null
 
 vm.moment = moment
 
@@ -123,8 +123,8 @@ vm.downloadLAS = (data, event) => {
 }
 
 vm.saveFavorite = () => {
-    let x_avg = vm.graph_avg.xAxisRange()
-    let y_avg = vm.graph_avg.yAxisRange()
+    let x_avg = plot_avg.xAxisRange()
+    let y_avg = plot_avg.yAxisRange()
     let x_main = plot_main.xAxisRange()
     let y_main = plot_main.yAxisRange()
 
@@ -158,7 +158,7 @@ vm.saveFavorite = () => {
 vm.getDeviations = () => {
     let min_deviation = parseFloat(vm.min_deviation())
 
-    let x_avg = vm.graph_avg.xAxisRange()
+    let x_avg = plot_avg.xAxisRange()
     let date_start = formatDate(x_avg[0])
     let date_end = formatDate(x_avg[1])
 
@@ -182,7 +182,7 @@ vm.getDeviations = () => {
                 text: `Отклонение на ${v.length} м. Температура: ${v.temp}°. Образец: ${v.norm_temp}°.`
             }))
 
-            vm.graph_avg.setAnnotations(annotations)
+            plot_avg.setAnnotations(annotations)
         }
     )
 }
@@ -224,7 +224,7 @@ let updateZoomX = (value) => {
         return
     }
 
-    vm.graph_avg.updateOptions({
+    plot_avg.updateOptions({
         dateWindow: [min_moment.valueOf(), max_moment.valueOf()],
         isZoomedIgnoreProgrammaticZoom: true
     })
@@ -234,7 +234,7 @@ let updateZoomY = (value) => {
     let min_zoom = parseFloat(vm.min_zoom_y())
     let max_zoom = parseFloat(vm.max_zoom_y())
 
-    vm.graph_avg.updateOptions({
+    plot_avg.updateOptions({
         valueRange: [min_zoom, max_zoom],
         isZoomedIgnoreProgrammaticZoom: true
     })
@@ -296,7 +296,70 @@ let queue = async.queue(
 
 let plot_main
 
-setTimeout(() => {
+let is_inited = false
+
+let init = () => {
+    plot_avg = new Dygraph(
+        $("#dygraph_avg_container")[0],
+        [[0, 0]],
+        {
+            height: 150,
+            labels: ["Date", "Pressure"],
+            showRoller: true,
+            clickCallback: (e, x, points) => {
+                let selected_date = points[0].xval
+                queue.push(selected_date, (err) => {
+                    if(err) {
+                        console.error(err)
+                    }
+                })
+            },
+            zoomCallback: (min_date, max_date, y_ranges) => {
+                vm.min_zoom_y(y_ranges[0][0])
+                vm.max_zoom_y(y_ranges[0][1])
+            },
+            drawCallback: (dygraph, is_initial) => {
+                $(".dygraphDefaultAnnotation").css(
+                    "background",
+                    (index, value) => plot_colors[index]
+                )
+
+                if(is_initial) {
+                    return
+                }
+
+                let x_range = dygraph.xAxisRange()
+                let y_range = dygraph.yAxisRange()
+
+                vm.min_zoom_x(moment(x_range[0]).format("DD/MM/YYYY HH:mm:ss"))
+                vm.max_zoom_x(moment(x_range[1]).format("DD/MM/YYYY HH:mm:ss"))
+            },
+            animatedZooms: true
+        }
+    )
+
+    plot_avg.ready(() => {
+        vm.annotations.subscribe(value => {
+            plot_avg.setAnnotations(value)
+        })
+
+        helpers.makeAJAXRequest(
+            "/api/app/plots/p_measurements",
+            "get",
+            (err, result) => {
+                if(err) {
+                    return console.error(err)
+                }
+
+                let data = _.map(result, v => [new Date(v[0]), v[1]])
+
+                plot_avg.updateOptions({
+                    file: data
+                })
+            }
+        )
+    })
+
     plot_main = dygraph_main.init()
 
     plot_main.updateOptions({
@@ -346,71 +409,17 @@ setTimeout(() => {
             })
         })
     })
-}, 0)
 
-
-vm.avg_options = {
-    height: 150,
-    labels: ["Date", "Pressure"],
-    showRoller: true,
-    clickCallback: (e, x, points) => {
-        let selected_date = points[0].xval
-        queue.push(selected_date, (err) => {
-            if(err) {
-                console.error(err)
-            }
-        })
-    },
-    zoomCallback: (min_date, max_date, y_ranges) => {
-        vm.min_zoom_y(y_ranges[0][0])
-        vm.max_zoom_y(y_ranges[0][1])
-    },
-    drawCallback: (dygraph, is_initial) => {
-        $(".dygraphDefaultAnnotation").css(
-            "background",
-            (index, value) => plot_colors[index]
-        )
-
-        if(is_initial) {
-            return
-        }
-
-        let x_range = dygraph.xAxisRange()
-        let y_range = dygraph.yAxisRange()
-
-        vm.min_zoom_x(moment(x_range[0]).format("DD/MM/YYYY HH:mm:ss"))
-        vm.max_zoom_x(moment(x_range[1]).format("DD/MM/YYYY HH:mm:ss"))
-    },
-    animatedZooms: true
-}
-
-vm.avg_done = (err, graph) => {
-    vm.graph_avg = graph
-
-    vm.annotations.subscribe(value => {
-        graph.setAnnotations(value)
-    })
-
-    helpers.makeAJAXRequest(
-        "/api/app/plots/p_measurements",
-        "get",
-        (err, result) => {
-            if(err) {
-                return console.error(err)
-            }
-
-            let data = _.map(result, v => [new Date(v[0]), v[1]])
-
-            graph.updateOptions({
-                file: data
-            })
-        }
-    )
+    is_inited = true
 }
 
 vm.afterShow = () => {
-    if(vm.graph_avg) {
-        setTimeout(() => vm.graph_avg.resize(), 0)
+    if(!is_inited) {
+        setTimeout(() => init(), 100)
+    }
+
+    if(plot_avg) {
+        setTimeout(() => plot_avg.resize(), 0)
     }
 
     if(plot_main) {

@@ -27,7 +27,7 @@
         source: 'pages/login.html'
     }"></div>
 
-	<div class="1wrapper" data-bind="visible: state.current_page() !== 'login'">
+	<div data-bind="visible: state.current_page() !== 'login'">
 		<!-- ko if: state.user -->
 		<header class="main-header">
 			<span class="logo" >
@@ -79,14 +79,16 @@
                 id: 'plots',
                 with: plots,
                 afterShow: plots.afterShow,
-                source: 'pages/plots.html'
+                source: 'pages/plots.html',
+                guard: state.loggedInGuard
             }"></div>
 
 			<div data-bind="page: {
                 id: 'favorites',
                 with: favorites,
                 beforeShow: favorites.onShow,
-                source: 'pages/favorites.html'
+                source: 'pages/favorites.html',
+                guard: state.loggedInGuard
             }"></div>
 		</div>
 	</div>

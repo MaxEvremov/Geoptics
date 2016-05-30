@@ -3,7 +3,6 @@
 // imports
 
 import ko from "knockout"
-import mapping from "knockout-mapping"
 
 import * as helpers from "./helpers"
 
@@ -11,7 +10,15 @@ import * as helpers from "./helpers"
 
 let vm = {
     user: ko.observable(),
-    current_page: ko.observable()
+    current_page: ko.observable(),
+
+    loggedInGuard: (page, route, done) => {
+        if(!!vm.user()) {
+            return done()
+        }
+
+        return pager.navigate("login")
+    }
 }
 
 // exports

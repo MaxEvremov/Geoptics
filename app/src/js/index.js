@@ -8,7 +8,7 @@ import Pager from "./lib/pager.js"
 import _ from "lodash"
 
 import * as helpers from "./helpers"
-import * as bindingHandlers from "./ko-binding-handlers"
+import * as binding_handlers from "./ko-binding-handlers"
 
 import login from "./login"
 import plots from "./plots"
@@ -29,39 +29,33 @@ let vm = {
 
 // init
 
-_.forEach(bindingHandlers, (value, key) => ko.bindingHandlers[key] = value)
+_.forEach(binding_handlers, (value, key) => ko.bindingHandlers[key] = value)
 
 $(document).ready(() => {
     let pager = new Pager($, ko)
 
-    pager.useHTML5history = true
-    pager.Href5.history = History
-
-    pager.extendWithPage(vm)
-
-    ko.applyBindings(vm)
-    pager.startHistoryJs()
-
-	window.pager = pager
+    window.pager = pager
     window.vm = vm
 
-    History.Adapter.bind(window, "statechange", () => {
-        vm.state.current_page(pager.activePage$().currentId)
-    })
-
-    vm.state.current_page(pager.activePage$().currentId)
+    pager.useHTML5history = true
+    pager.Href5.history = History
 
     helpers.makeAJAXRequest(
         "/api/app/auth/init",
         "get",
         (err, result) => {
-            if(!result) {
-                vm.state.user(null)
-                pager.navigate("login")
-                return
-            }
+            vm.state.user(result ? result : null)
 
-            vm.state.user(result)
+            pager.extendWithPage(vm)
+
+            ko.applyBindings(vm)
+            pager.startHistoryJs()
+
+            History.Adapter.bind(window, "statechange", () => {
+                vm.state.current_page(pager.activePage$().currentId)
+            })
+
+            vm.state.current_page(pager.activePage$().currentId)
         }
     )
 })

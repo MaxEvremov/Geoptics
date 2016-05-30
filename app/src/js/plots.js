@@ -393,19 +393,30 @@ vm.main_done = (err, graph) => {
 setTimeout(() => {
 	const DYGRAPH_BOTTOM_OFFSET = 50
 
-	let container_rect = $("#main_dygraph")[0].getBoundingClientRect()
+    let box_rect = $("#dygraph_box")[0].getBoundingClientRect()
 
-	let container_width = container_rect.width
-	let container_height = $(window).height() - container_rect.top - DYGRAPH_BOTTOM_OFFSET
+    let box_height = $(window).height() - box_rect.top - DYGRAPH_BOTTOM_OFFSET
 
-	let dygraph_width = container_height
-	let dygraph_height = container_width
+    $("#dygraph_box").css({
+        height: box_height
+    })
+
+	// let container_rect = $("#main_dygraph")[0].getBoundingClientRect()
+    // console.log(container_rect)
+    //
+	// let container_width = container_rect.width
+	// let container_height = container_rect.height
+    const DYGRAPH_SIDE_PADDING = 50
+
+    setTimeout(() => {
+        console.log($("#main_dygraph").height())
+        console.log($("#main_dygraph").width())
+    }, 0)
+
+	let dygraph_width = $("#main_dygraph").height() - DYGRAPH_SIDE_PADDING
+	let dygraph_height = $("#main_dygraph").width() - DYGRAPH_SIDE_PADDING
 
 	var dygraph_div_id = '#dygraph_container'
-
-	$("#main_dygraph").css({
-	    height: container_height
-	})
 
 	var changeEvent = function(c) {
 	    var new_c;
@@ -484,8 +495,8 @@ setTimeout(() => {
 	    var legend_transform = 'rotate(90deg) translateY(-5px) rotateY(180deg)';
 	    $(dygraph_div_id + ' .dygraph-legend').css({
 	        textAlign: 'right',
-	        top: '125px',
-	        left: (dygraph_width - 125) + 'px',
+	        // top: '125px',
+	        // left: (dygraph_width - 125) + 'px',
 	        transform: legend_transform,
 	        msTransform: legend_transform,
 	        webkitTransform: legend_transform
@@ -584,7 +595,11 @@ setTimeout(() => {
 	    }
 	}
 
-    var dygraph_transform = 'rotate(-90deg) rotateX(180deg) translateX(' + (dygraph_height - dygraph_width) / 2 + 'px) translateY(' + ((dygraph_width - dygraph_height) / 2) + 'px)';
+    // var dygraph_transform = 'rotate(-90deg) rotateX(180deg) translateX(' + (dygraph_height - dygraph_width) / 2 + 'px) translateY(' + ((dygraph_width - dygraph_height) / 2) + 'px)';
+    // var dygraph_transform = 'rotate(-90deg) rotateX(180deg) translateY(' + ((dygraph_width - dygraph_height) / 2) + 'px) translateX()';
+
+    let dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ ((dygraph_width - dygraph_height) / 2) - 20}px) translateX(${-box_rect.top - 50}px)`
+
     $(dygraph_div_id).css({
         transform: dygraph_transform,
         msTransform: dygraph_transform,

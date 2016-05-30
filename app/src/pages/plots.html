@@ -97,34 +97,35 @@
                         ">
                     </div>
 				</div>
+
+                <div class="box-footer">
+                    <div class="col-sm-2">
+                        <a class="btn btn-sm btn-danger" data-bind="click: saveFavorite">
+                            <i class="fa fa-star"></i> <span>В Избранное</span>
+                        </a>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <a class="btn btn-sm btn-danger" data-bind="click: getDeviations">
+                            <i class="fa fa-star"></i> <span>Рассчитать отклонения</span>
+                        </a>
+                    </div>
+
+                    <div class="col-sm-1">
+                        <input class="form-control" placeholder="Мин. отклонение" data-bind="textInput: min_deviation"></input>
+                    </div>
+                </div>
 			</div>
 		</div>
 
         <div class="col-md-3">
-            <div class="box box-danger">
+            <div id="dygraph_box" class="box box-danger">
                 <div class="box-header">
                     <h3 class="box-title">Графики</h3>
                 </div>
 
-                <div id="main_dygraph" class="box-body">
+                <div id="main_dygraph" class="box-body" style="height: 100%;">
                     <div id="dygraph_container">
-                    </div>
-                </div>
-
-                <div class="box-footer">
-                    <a class="btn btn-sm btn-danger" data-bind="click: saveFavorite">
-                        <i class="fa fa-star"></i> <span>Добавить в Избранное</span>
-                    </a>
-
-                    <a class="btn btn-sm btn-danger" data-bind="click: getDeviations">
-                        <i class="fa fa-star"></i> <span>Рассчитать отклонения</span>
-                    </a>
-                    <div class="col-sm-3">
-                        <form>
-                            <div class="form-group">
-                                <input class="form-control" placeholder="Минимальное отклонение" data-bind="textInput: min_deviation"></input>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>

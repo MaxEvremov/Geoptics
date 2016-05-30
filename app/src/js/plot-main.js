@@ -62,28 +62,32 @@ let drawCallback = () => {
     $(DYGRAPH_CONTAINER_ID + ' .dygraph-xlabel').parent().css({
         transform: xlabel_transform,
         msTransform: xlabel_transform,
-        webkitTransform: xlabel_transform
+        webkitTransform: xlabel_transform,
+        "-webkit-filter": "blur(0.000001px)"
     })
 
     let ylabel_transform = 'rotate(90deg) rotateY(180deg) translateY(-10px)'
     $(DYGRAPH_CONTAINER_ID + ' .dygraph-ylabel').parent().css({
         transform: ylabel_transform,
         msTransform: ylabel_transform,
-        webkitTransform: ylabel_transform
+        webkitTransform: ylabel_transform,
+        "-webkit-filter": "blur(0.000001px)"
     })
 
     let axis_label_x_transform = 'translateY(17.5px) translateX(0.5px) rotate(90deg) rotateY(180deg)'
     $(DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-x, ' + DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-y').parent().css({
         transform: axis_label_x_transform,
         msTransform: axis_label_x_transform,
-        webkitTransform: axis_label_x_transform
+        webkitTransform: axis_label_x_transform,
+        "-webkit-filter": "blur(0.000001px)"
     })
 
     let axis_label_y_transform = 'translateX(17.5px) translateY(0.5px) rotate(90deg) rotateY(180deg)'
     $(DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-y').parent().css({
         transform: axis_label_y_transform,
         msTransform: axis_label_y_transform,
-        webkitTransform: axis_label_y_transform
+        webkitTransform: axis_label_y_transform,
+        "-webkit-filter": "blur(0.000001px)"
     })
 
     let legend_transform = 'rotate(90deg) translateY(-5px) rotateY(180deg)'
@@ -91,7 +95,8 @@ let drawCallback = () => {
         textAlign: 'right',
         transform: legend_transform,
         msTransform: legend_transform,
-        webkitTransform: legend_transform
+        webkitTransform: legend_transform,
+        "-webkit-filter": "blur(0.000001px)"
     })
 }
 

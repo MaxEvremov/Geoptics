@@ -418,6 +418,14 @@ vm.afterShow = () => {
     }
 }
 
+vm.is_main_plot_visible = ko.computed(() => {
+    if(vm.is_editing_reference_point()) {
+        return !!vm.reference_date()
+    }
+
+    return vm.selected_points().length > 0
+})
+
 // exports
 
 export default vm

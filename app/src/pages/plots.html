@@ -50,8 +50,13 @@
         color: white !important;
 	}
 
-    .plot-placeholder {
+    .placeholder {
         font-size: 0.8em; color: #999;
+    }
+
+    #dygraph_box_body .placeholder {
+        position: absolute;
+        top: 50px;
     }
 </style>
 <section class="content-header">
@@ -126,9 +131,19 @@
                     <h3 class="box-title">Графики</h3>
                 </div>
 
-                <div id="main_dygraph" class="box-body" style="height: 100%;">
-                    <div id="dygraph_container" class="plot">
+                <div id="dygraph_box_body" class="box-body" style="height: 100%;">
+                    <div id="dygraph_container" class="plot" data-bind="style: { visibility: is_main_plot_visible() ? 'visible' : 'hidden' }">
                     </div>
+
+                    <p class="placeholder" data-bind="style: { visibility: is_main_plot_visible() ? 'hidden' : 'visible' }">
+                        <!-- ko if: is_editing_reference_point -->
+                        Выберите точку на графике давления
+                        <!-- /ko -->
+
+                        <!-- ko ifnot: is_editing_reference_point -->
+                        Выберите хотя бы одну точку на графике давления
+                        <!-- /ko -->
+                    </p>
                 </div>
             </div>
         </div>
@@ -165,7 +180,7 @@
 					<!-- /ko -->
 
 					<!-- ko if: annotations().length === 0 -->
-					<p class="plot-placeholder noselect">Выберите хотя бы одну точку на графике давления</p>
+					<p class="placeholder noselect">Выберите хотя бы одну точку на графике давления</p>
 					<!-- /ko -->
 				</div>
 			</div>

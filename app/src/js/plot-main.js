@@ -11,7 +11,7 @@ const DYGRAPH_BOTTOM_OFFSET = 50
 const DYGRAPH_PADDING = 50
 
 const DYGRAPH_BOX_ID = "#dygraph_box"
-const DYGRAPH_BOX_BODY_ID = "#main_dygraph"
+const DYGRAPH_BOX_BODY_ID = "#dygraph_box_body"
 const DYGRAPH_CONTAINER_ID = "#dygraph_container"
 
 // dygraph options

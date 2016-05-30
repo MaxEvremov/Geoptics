@@ -14,3 +14,18 @@ a, .clickable {
 .btn-hoverable:hover {
     opacity: 1;
 }
+
+.noselect,
+.box-title,
+a,
+.content-header *,
+.plot *,
+.logo,
+.header {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

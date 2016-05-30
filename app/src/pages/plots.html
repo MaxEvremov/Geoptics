@@ -39,7 +39,7 @@
 		border-radius: 3px;
 	}
 
-	.dygraph-legend >* {
+	.dygraph-legend > * {
 		display: block;
 	}
 
@@ -50,7 +50,9 @@
         color: white !important;
 	}
 
-	.plotpoints {}
+    .plot-placeholder {
+        font-size: 0.8em; color: #999;
+    }
 </style>
 <section class="content-header">
 	<h1>
@@ -67,7 +69,7 @@
 				</div>
 
 				<div class="box-body">
-					<div data-bind="dygraph: { options: avg_options, done: avg_done }"></div>
+					<div class="plot" data-bind="dygraph: { options: avg_options, done: avg_done }"></div>
 
                     <div>
                         <label class="control-label">zoom_y</label>
@@ -125,7 +127,7 @@
                 </div>
 
                 <div id="main_dygraph" class="box-body" style="height: 100%;">
-                    <div id="dygraph_container">
+                    <div id="dygraph_container" class="plot">
                     </div>
                 </div>
             </div>
@@ -163,7 +165,7 @@
 					<!-- /ko -->
 
 					<!-- ko if: annotations().length === 0 -->
-					<p style="font-size: 0.8em; color: #999;">Выберите хотя бы одну точку на графике давления</p>
+					<p class="plot-placeholder noselect">Выберите хотя бы одну точку на графике давления</p>
 					<!-- /ko -->
 				</div>
 			</div>

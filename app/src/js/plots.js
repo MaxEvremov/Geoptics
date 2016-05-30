@@ -91,6 +91,14 @@ vm.saveReferencePoint = () => {
     )
 }
 
+vm.cancelEditingReferencePoint = () => {
+    vm.reference_date(null)
+    vm.reference_temp(null)
+    vm.reference_length(null)
+
+    vm.is_editing_reference_point(false)
+}
+
 // TODO: перенести это в модель скважины (попутно создав эту самую модель)
 
 vm.plot_colors = plot_colors

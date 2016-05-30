@@ -299,6 +299,9 @@ let plot_main
 let is_inited = false
 
 let init = () => {
+    let plot_avg_interaction_model = Dygraph.Interaction.defaultModel
+    plot_avg_interaction_model.dblclick = () => {}
+
     plot_avg = new Dygraph(
         $("#dygraph_avg_container")[0],
         [[0, 0]],
@@ -334,7 +337,8 @@ let init = () => {
                 vm.min_zoom_x(moment(x_range[0]).format("DD/MM/YYYY HH:mm:ss"))
                 vm.max_zoom_x(moment(x_range[1]).format("DD/MM/YYYY HH:mm:ss"))
             },
-            animatedZooms: true
+            animatedZooms: true,
+            interactionModel: plot_avg_interaction_model
         }
     )
 
@@ -411,6 +415,10 @@ let init = () => {
     })
 
     is_inited = true
+}
+
+vm.resetAvgPlotZoom = () => {
+    plot_avg.resetZoom()
 }
 
 vm.afterShow = () => {

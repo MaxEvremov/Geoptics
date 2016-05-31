@@ -170,6 +170,8 @@ let interactionModel = {
 
 // main
 
+let line
+
 let exports = {
     init: () => {
         let box_rect = $(DYGRAPH_BOX_ID)[0].getBoundingClientRect()
@@ -183,7 +185,7 @@ let exports = {
         let dygraph_width = $(DYGRAPH_BOX_BODY_ID).height() - DYGRAPH_PADDING
         let dygraph_height = $(DYGRAPH_BOX_BODY_ID).width() - DYGRAPH_PADDING
 
-        let dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ ((dygraph_width - dygraph_height) / 2) - 20}px) translateX(${-box_rect.top - 50}px)`
+        let dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ ((dygraph_width - dygraph_height) / 2) - 25}px) translateX(-${ ((dygraph_width - dygraph_height) / 2)}px)`
 
         $(DYGRAPH_CONTAINER_ID).css({
             transform: dygraph_transform,
@@ -218,6 +220,16 @@ let exports = {
 
             plot_main.mousemove_func(new_b)
         }
+
+        line = document.createElement("div")
+        line.className = "line"
+        $(DYGRAPH_CONTAINER_ID)[0].appendChild(line)
+
+        $(line).css({
+            // width: dygraph_height,
+            // transform: `rotate(90deg) rotateY(180deg) translateY(${((dygraph_width - dygraph_height) / 2) - 25}px) translateX(${((dygraph_width - dygraph_height) / 2)}px)`
+            // transform: `translateY(-${((dygraph_width - dygraph_height) / 2) - 25}px)`
+        })
 
         return plot_main
     }

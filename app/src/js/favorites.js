@@ -23,7 +23,8 @@ vm.load = (data, event) => {
          "/api/app/plots/measurements",
          "post",
          {
-             dates: data.points.map(date => vm.formatDate(date))
+             dates: data.points.map(date => vm.formatDate(date)),
+             well_id: 1 // TODO: заменить на настоящий id скважины
          },
          (err, result) => {
              if(err) {

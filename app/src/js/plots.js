@@ -53,6 +53,10 @@ vm.editReferencePoint = () => {
         return
     }
 
+    if(vm.is_setting_min_length()) {
+        vm.cancelSettingMinLength()
+    }
+
     vm.reference_date(null)
     vm.reference_temp(null)
     vm.reference_length(null)
@@ -101,6 +105,52 @@ vm.cancelEditingReferencePoint = () => {
     vm.reference_length(null)
 
     vm.is_editing_reference_point(false)
+}
+
+vm.min_length = ko.observable(0)
+
+vm.is_setting_min_length = ko.observable(false)
+
+vm.setMinLength = () => {
+    if(vm.is_setting_min_length()) {
+        return
+    }
+
+    if(vm.is_editing_reference_point()) {
+        vm.cancelEditingReferencePoint()
+    }
+
+    vm.min_length(0)
+    vm.is_setting_min_length(true)
+    vm.selected_points.removeAll()
+}
+
+vm.saveMinLength = () => {
+    helpers.makeAJAXRequest(
+        "/api/app/plots/min_length",
+        "post",
+        {
+            min_length: vm.min_length(),
+            well_id: 1 // TODO: поменять на настоящий id скважины
+        },
+        (err, result) => {
+            if(err) {
+                return console.error(err)
+            }
+
+            $("#dygraph_container .line")[0].style.visibility = "hidden"
+            vm.selected_points.removeAll()
+            vm.min_length(0)
+            vm.is_setting_min_length(false)
+        }
+    )
+}
+
+vm.cancelSettingMinLength = () => {
+    $("#dygraph_container .line")[0].style.visibility = "hidden"
+    vm.selected_points.removeAll()
+    vm.min_length(0)
+    vm.is_setting_min_length(false)
 }
 
 // TODO: перенести это в модель скважины (попутно создав эту самую модель)
@@ -253,7 +303,8 @@ let queue = async.queue(
             "post",
             {
                 dates: formatDate(date),
-                well_id: 1 // TODO: поменять на настоящий id выбранной скважины
+                well_id: 1, // TODO: поменять на настоящий id выбранной скважины
+                is_setting_min_length: vm.is_setting_min_length()
             },
             (err, result) => {
                 if(err) {
@@ -365,17 +416,27 @@ let init = () => {
     })
 
     plot_main = dygraph_main.init()
+    let line = $("#dygraph_container .line")[0]
 
     plot_main.updateOptions({
         clickCallback: (e, x, points) => {
-            if(!vm.is_editing_reference_point()) {
-                return
+            if(vm.is_editing_reference_point()) {
+                let point = points[0]
+
+                vm.reference_length(point.xval)
+                vm.reference_temp(point.yval)
             }
 
-            let point = points[0]
+            if(vm.is_setting_min_length()) {
+                let point = points[0]
 
-            vm.reference_length(point.xval)
-            vm.reference_temp(point.yval)
+                let x = point.canvasx
+
+                line.style.visibility = "visible"
+                line.style.left = x + "px"
+
+                vm.min_length(point.xval)
+            }
         }
     })
     plot_main.ready((err, graph) => {
@@ -423,7 +484,7 @@ vm.resetAvgPlotZoom = () => {
 
 vm.afterShow = () => {
     if(!is_inited) {
-        setTimeout(() => init(), 100)
+        setTimeout(() => init(), 100) // TODO: говнокод, нужный для того, чтобы pager.js не запускал инит до загрузки страницы. По-хорошему, нужно попатчить afterShow у pager.js, чтобы не писать такое говно.
     }
 
     if(plot_avg) {

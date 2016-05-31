@@ -27,7 +27,8 @@ api.post(
     "/measurements",
     helpers.validateRequestData({
         dates: true,
-        well_id: isIDValid
+        well_id: isIDValid,
+        is_setting_min_length: _.isBoolean
     }),
     (req, res, next) => {
         let dates = req.body.dates
@@ -50,19 +51,20 @@ api.post(
                         ORDER BY date DESC
                         LIMIT 1
                     ),
-                    rpoint AS (
+                    well AS (
                         SELECT
-                            reference_temp AS temp,
-                            reference_length AS length
+                            reference_temp,
+                            reference_length,
+                            min_length
                         FROM wells
                         WHERE id = ${well_id}
                     ),
                     rdiff AS (
-                        SELECT t.temp - (SELECT temp FROM rpoint) AS val
+                        SELECT t.temp - (SELECT reference_temp FROM well) AS val
                         FROM t_measurements AS t
                         WHERE
                             t.well_id = ${well_id}
-                            AND t.length = (SELECT length FROM rpoint)
+                            AND t.length = (SELECT reference_length FROM well)
                             AND t.date = (SELECT nearest_date FROM vars)
                     )
                     SELECT
@@ -72,7 +74,11 @@ api.post(
                     FROM t_measurements AS t
                     WHERE
                         t.date = (SELECT nearest_date FROM vars)
-                        AND t.well_id = ${well_id}`
+                        AND t.well_id = ${well_id}
+                        ${req.body.is_setting_min_length
+                            ? "" :
+                            "AND t.length >= (SELECT min_length FROM well)"
+                        }`
 
                 helpers.makePGQuery(
                     query,
@@ -278,6 +284,35 @@ api.post(
             SET reference_date = '${req.body.date}',
                 reference_temp = ${req.body.temp},
                 reference_length = ${req.body.length}
+            WHERE id = ${req.body.well_id}
+            `
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.json({
+                        err: err
+                    })
+                }
+
+                return res.json({
+                    err: null
+                })
+            }
+        )
+    }
+)
+
+api.post(
+    "/min_length",
+    helpers.validateRequestData({
+        well_id: isIDValid,
+        min_length: (length) => _.isNumber(length) && length >= 0
+    }),
+    (req, res) => {
+        let query = `UPDATE wells
+            SET min_length = ${req.body.min_length}
             WHERE id = ${req.body.well_id}
             `
 

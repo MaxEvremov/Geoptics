@@ -58,6 +58,17 @@
         position: absolute;
         top: 50px;
     }
+
+    #dygraph_container .line {
+        visibility: hidden;
+        background-color: black;
+        position: absolute;
+        pointer-events: none;
+        width: 1px;
+        height: 100%;
+        top: 0;
+        margin-top: -20px;
+    }
 </style>
 <section class="content-header">
 	<h1>
@@ -106,27 +117,19 @@
 				</div>
 
                 <div class="box-footer">
-                    <div class="col-sm-2">
-                        <a class="btn btn-sm btn-danger" data-bind="click: resetAvgPlotZoom">
-                            <i class="fa fa-search"></i> <span>Сбросить зум</span>
-                        </a>
-                    </div>
+                    <a class="btn btn-sm btn-danger" data-bind="click: resetAvgPlotZoom">
+                        <i class="fa fa-search"></i> <span>Сбросить зум</span>
+                    </a>
 
-                    <div class="col-sm-2">
-                        <a class="btn btn-sm btn-danger" data-bind="click: saveFavorite">
-                            <i class="fa fa-star"></i> <span>В Избранное</span>
-                        </a>
-                    </div>
+                    <a class="btn btn-sm btn-danger" data-bind="click: saveFavorite">
+                        <i class="fa fa-star"></i> <span>В Избранное</span>
+                    </a>
 
-                    <div class="col-sm-3">
-                        <a class="btn btn-sm btn-danger" data-bind="click: getDeviations">
-                            <i class="fa fa-star"></i> <span>Рассчитать отклонения</span>
-                        </a>
-                    </div>
+                    <a class="btn btn-sm btn-danger" data-bind="click: getDeviations">
+                        <i class="fa fa-star"></i> <span>Рассчитать отклонения</span>
+                    </a>
 
-                    <div class="col-sm-1">
-                        <input class="form-control" placeholder="Мин. отклонение" data-bind="textInput: min_deviation"></input>
-                    </div>
+                    <input style="max-width: 50px;" placeholder="Мин. отклонение" data-bind="textInput: min_deviation"></input>
                 </div>
 			</div>
 		</div>
@@ -155,7 +158,7 @@
         </div>
 
 		<div class="col-md-3">
-			<div class="box box-info" data-bind="visible: !is_editing_reference_point()">
+			<div class="box box-info" data-bind="visible: !is_editing_reference_point() && !is_setting_min_length()">
 				<div class="box-header">
 					<h3 class="box-title">Точки</h3>
 				</div>
@@ -209,6 +212,27 @@
                         <span>Сохранить</span>
                     </a>
                     <a class="btn btn-sm btn-default" data-bind="click: cancelEditingReferencePoint">
+                        <span>Отмена</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="box box-danger" data-bind="visible: is_setting_min_length">
+                <div class="box-header">
+                    <h3 class="box-title">Выбор нуля глубины</h3>
+                </div>
+
+                <div class="box-body">
+                    <ul class="list-unstyled">
+                        <li>Ноль глубины: <span data-bind="text: min_length"></span></li>
+                    </ul>
+                </div>
+
+                <div class="box-footer">
+                    <a class="btn btn-sm btn-danger" data-bind="click: saveMinLength">
+                        <span>Сохранить</span>
+                    </a>
+                    <a class="btn btn-sm btn-default" data-bind="click: cancelSettingMinLength">
                         <span>Отмена</span>
                     </a>
                 </div>

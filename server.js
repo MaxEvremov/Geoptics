@@ -14,7 +14,9 @@ const pg_session = require("connect-pg-simple")(session)
 const pg = require("pg").native
 const cookie_parser = require("cookie-parser")
 const cors = require("cors")
+const minimist = require("minimist")
 
+const argv = minimist(process.argv.slice(2))
 const config = require(__base + "config")
 
 const User = require(__base + "models/User")
@@ -83,14 +85,19 @@ passport.use(new LocalStrategy(
 
 // middlewares
 
-// app.use((req, res, next) => {
-//     res.header("Access-Control-Allow-Headers", "X-Requested-With");
-//     res.header("Access-Control-Allow-Credentials", "true")
-//     next()
-// })
-// app.use(cors({
-//     origin: true
-// }))
+if(argv.cors) {
+    console.log("CORS enabled!")
+    
+    app.use((req, res, next) => {
+        res.header("Access-Control-Allow-Headers", "X-Requested-With");
+        res.header("Access-Control-Allow-Credentials", "true")
+        next()
+    })
+    app.use(cors({
+        origin: true
+    }))
+}
+
 app.use(compression())
 app.use(body_parser.json())
 app.use(body_parser.urlencoded({ extended: true }))
@@ -114,6 +121,8 @@ app.all("/*", (req, res) => {
 // run server
 
 User.ensureAdmin(() => {
-    app.listen(config.port)
-    console.log("Server running on port", config.port)
+    let port = argv.p || config.port
+
+    app.listen(port)
+    console.log("Server running on port", port)
 })

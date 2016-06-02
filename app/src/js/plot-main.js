@@ -1,9 +1,10 @@
-"use strict"
+//"use strict"
+(function(){
 
 // imports
-
-import $ from "jquery"
-import Dygraph from "dygraphs"
+//
+//import $ from "jquery"
+//import Dygraph from "dygraphs"
 
 // const
 
@@ -237,4 +238,6 @@ let exports = {
 
 // exports
 
-export default exports
+//export default exports
+window.dygraph_main=exports
+})()

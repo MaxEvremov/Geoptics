@@ -2,12 +2,12 @@
 
 // imports
 
-import ko from "knockout"
-import mapping from "knockout-mapping"
-
-import * as helpers from "./helpers"
-
-import state from "./state"
+//import ko from "knockout"
+//import mapping from "knockout-mapping"
+//
+//import * as helpers from "./helpers"
+//
+//import state from "./state"
 
 // main
 
@@ -40,7 +40,7 @@ vm.logIn = () => {
                 return console.error(err)
             }
 
-            state.user(result)
+            m_site.state.user(result)
             pager.navigate("plots")
         }
     )
@@ -51,7 +51,7 @@ vm.logOut = () => {
         "/api/app/auth/logout",
         "post",
         (err, result) => {
-            state.user(null)
+            m_site.state.user(null)
             pager.navigate("login")
         }
     )
@@ -59,4 +59,6 @@ vm.logOut = () => {
 
 // exports
 
-export default vm
+//export default vm
+
+window.m_site.login=vm

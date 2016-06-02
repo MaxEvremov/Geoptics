@@ -1,19 +1,21 @@
 "use strict"
+//
+//import $ from "jquery"
+//import _ from "lodash"
 
-import $ from "jquery"
-import _ from "lodash"
-
-// const SERVER_URL = "http://10.66.80.132:7777"
-
-export let makeAJAXRequest = (url, method, data, done) => {
+// const SERVER_URL = ""
+ const SERVER_URL = "http://10.66.80.132:7778"
+window.helpers={}
+helpers.makeAJAXRequest = (url, method, data, done) => {
+//export let makeAJAXRequest = (url, method, data, done) => {
 	if (_.isFunction(data) && _.isUndefined(done)) {
 		done = data
 		data = {}
 	}
 
 	let params = {
-		// url: SERVER_URL + url,
-        url: url,
+		 url: SERVER_URL + url,
+//        url: url,
 		type: method,
 		dataType: "JSON",
 		contentType: "application/json",

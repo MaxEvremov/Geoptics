@@ -1,19 +1,19 @@
-"use strict"
-
+//"use strict"
+(function(){
 // imports
-
-import ko from "knockout"
-import mapping from "knockout-mapping"
-import moment from "moment"
-import Dygraph from "dygraphs"
-import $ from "jquery"
-import _ from "lodash"
-import randomColor from "randomcolor"
-import async from "async"
-
-import * as helpers from "./helpers"
-
-import dygraph_main from "./plot-main"
+//
+//import ko from "knockout"
+//import mapping from "knockout-mapping"
+//import moment from "moment"
+//import Dygraph from "dygraphs"
+//import $ from "jquery"
+//import _ from "lodash"
+//import randomColor from "randomcolor"
+//import async from "async"
+//
+//import * as helpers from "./helpers"
+//
+//import dygraph_main from "./plot-main"
 
 // const
 
@@ -359,7 +359,7 @@ let init = () => {
         {
             height: 150,
             labels: ["Date", "Pressure"],
-            showRoller: true,
+            showRoller: false,
             clickCallback: (e, x, points) => {
                 let selected_date = points[0].xval
                 queue.push(selected_date, (err) => {
@@ -478,13 +478,19 @@ let init = () => {
     is_inited = true
 }
 
-vm.resetAvgPlotZoom = () => {
+vm.adjustRoll = ko.observable();
+vm.adjustRoll.subscribe( function(val) {
+	console.log("adjustRoll",val)
+	plot_avg.adjustRoll(Number(val))
+})
+
+vm.resetAvgPlotZoom = function() {
     plot_avg.resetZoom()
 }
 
 vm.afterShow = () => {
     if(!is_inited) {
-        setTimeout(() => init(), 100) // TODO: говнокод, нужный для того, чтобы pager.js не запускал инит до загрузки страницы. По-хорошему, нужно попатчить afterShow у pager.js, чтобы не писать такое говно.
+        setTimeout(() => init(), 500) // TODO: говнокод, нужный для того, чтобы pager.js не запускал инит до загрузки страницы. По-хорошему, нужно попатчить afterShow у pager.js, чтобы не писать такое говно.
     }
 
     if(plot_avg) {
@@ -506,4 +512,6 @@ vm.is_main_plot_visible = ko.computed(() => {
 
 // exports
 
-export default vm
+//export default vm
+window.m_site.plots=vm
+	})()

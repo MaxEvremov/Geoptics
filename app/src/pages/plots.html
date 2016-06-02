@@ -2,73 +2,136 @@
 	.just-padding {
 		padding: 15px;
 	}
-
+	
 	.list-group.list-group-root {
 		padding: 0;
 		overflow: hidden;
 	}
-
+	
 	.list-group.list-group-root .list-group {
 		margin-bottom: 0;
 	}
-
+	
 	.list-group.list-group-root .list-group-item {
 		border-radius: 0;
 		border-width: 1px 0 0 0;
 	}
-
+	
 	.list-group.list-group-root > .list-group-item:first-child {
 		border-top-width: 0;
 	}
-
+	
 	.list-group.list-group-root > .list-group > .list-group-item {
 		padding-left: 30px;
 	}
-
+	
 	.list-group.list-group-root > .list-group > .list-group > .list-group-item {
 		padding-left: 45px;
 	}
-
+	
 	.list-group-item .glyphicon {
 		margin-right: 5px;
 	}
-
+	
 	.dygraph-legend {
 		padding: 10px;
-		border: 1px solid #999;
+		/*		border: 1px solid #999;*/
 		border-radius: 3px;
+		margin-top: -80px;
+		box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.20);
 	}
-
+	
 	.dygraph-legend > * {
 		display: block;
 	}
-
+	
 	.dygraphDefaultAnnotation {
 		line-height: 14px;
 		border: 0;
 		box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.37);
-        color: white !important;
+		color: white !important;
 	}
-
-    .placeholder {
-        font-size: 0.8em; color: #999;
-    }
-
-    #dygraph_box_body .placeholder {
-        position: absolute;
-        top: 50px;
-    }
-
-    #dygraph_container .line {
-        visibility: hidden;
-        background-color: black;
-        position: absolute;
-        pointer-events: none;
-        width: 1px;
-        height: 100%;
-        top: 0;
-        margin-top: -20px;
-    }
+	
+	.placeholder {
+		font-size: 0.8em;
+		color: #999;
+	}
+	
+	#dygraph_box_body .placeholder {
+		position: absolute;
+		top: 50px;
+	}
+	
+	#dygraph_container .line {
+		visibility: hidden;
+		background-color: black;
+		position: absolute;
+		pointer-events: none;
+		width: 1px;
+		height: 100%;
+		top: 0;
+		margin-top: -20px;
+	}
+	
+	.dygraph-box {
+		position: relative;
+		padding: 0
+	}
+	
+	.axis-input-block {
+		position: absolute;
+		z-index: 10
+	}
+	
+	.axis-input-block input {
+		position: absolute;
+		display: none;
+		border-radius: 3px;
+		border: 1px inset #eee;
+		padding: 0px 3px;
+	}
+	
+	.axis-input-block:hover input {
+		display: block
+	}
+	
+	.axis-input-block-left {
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 50px;
+	}
+	
+	.axis-input-block-left-top {
+		left: 5px;
+		top: 0;
+		width: 50px;
+	}
+	
+	.axis-input-block-left-bottom {
+		left: 5px;
+		bottom: 20px;
+		width: 50px;
+	}
+	
+	.axis-input-block-bottom {
+		left: 56px;
+		right: 5px;
+		bottom: -5px;
+		height: 20px;
+	}
+	
+	.axis-input-block-bottom-left {
+		left: 0;
+		bottom: 0;
+		width: 10em;
+	}
+	
+	.axis-input-block-bottom-right {
+		right: 0;
+		bottom: 0;
+		width: 10em;
+	}
 </style>
 <section class="content-header">
 	<h1>
@@ -84,18 +147,18 @@
 					<h3 class="box-title">Давление</h3>
 				</div>
 
-				<div class="box-body">
+				<div class="box-body dygraph-box">
 					<div id="dygraph_avg_container" class="plot"></div>
 
-                    <div>
-                        <label class="control-label">zoom_y</label>
-                        <input style="width: 100px;" data-bind="value: min_zoom_y">
-                        <input style="width: 100px;" data-bind="value: max_zoom_y">
-                    </div>
+					<div class="axis-input-block axis-input-block-left">
+						<!--                        <label class="control-label">zoom_y</label>-->
+						<input class="axis-input-block-left-top" data-bind="value: max_zoom_y">
+						<input class="axis-input-block-left-bottom" data-bind="value: min_zoom_y">
+					</div>
 
-                    <div>
-                        <label class="control-label">zoom_x</label>
-                        <input style="width: 200px;" data-bind="
+					<div class="axis-input-block axis-input-block-bottom ">
+						<!--						<label class="control-label">zoom_x</label>-->
+						<input class="axis-input-block-bottom-left" data-bind="
                             textInput: min_zoom_x,
                             jmask: {
                                 mask: '00/00/0000 00:00:00',
@@ -104,7 +167,7 @@
                                 }
                             }
                         ">
-                        <input style="width: 200px;" data-bind="
+						<input class="axis-input-block-bottom-right" data-bind="
                             textInput: max_zoom_x,
                             jmask: {
                                 mask: '00/00/0000 00:00:00',
@@ -113,49 +176,56 @@
                                 }
                             }
                         ">
-                    </div>
+					</div>
 				</div>
 
-                <div class="box-footer">
-                    <a class="btn btn-sm btn-danger" data-bind="click: resetAvgPlotZoom">
-                        <i class="fa fa-search"></i> <span>Сбросить зум</span>
-                    </a>
+				<div class="box-toolbar">
+				<a class="btn btn-sm btn-danger" data-bind="click: resetAvgPlotZoom">
+						<i class="fa fa-search"></i> <span>Сбросить зум</span>
+					</a>
+					
+					<input placeholder="adjustRoll" type=number data-bind="value: adjustRoll"></input>
+				  </div>
 
-                    <a class="btn btn-sm btn-danger" data-bind="click: saveFavorite">
-                        <i class="fa fa-star"></i> <span>В Избранное</span>
-                    </a>
+				<div class="box-footer">
 
-                    <a class="btn btn-sm btn-danger" data-bind="click: getDeviations">
-                        <i class="fa fa-star"></i> <span>Рассчитать отклонения</span>
-                    </a>
 
-                    <input style="max-width: 50px;" placeholder="Мин. отклонение" data-bind="textInput: min_deviation"></input>
-                </div>
+					<a class="btn btn-sm btn-danger" data-bind="click: saveFavorite">
+						<i class="fa fa-star"></i> <span>В Избранное</span>
+					</a>
+
+					<a class="btn btn-sm btn-danger" data-bind="click: getDeviations">
+						<i class="fa fa-star"></i> <span>Рассчитать отклонения</span>
+					</a>
+
+					<input style="max-width: 50px;" placeholder="Мин. отклонение" data-bind="textInput: min_deviation"></input>
+				</div>
 			</div>
 		</div>
 
-        <div class="col-md-3">
-            <div id="dygraph_box" class="box box-danger">
-                <div class="box-header">
-                    <h3 class="box-title">Графики</h3>
-                </div>
+		<div class="col-md-3">
+			<div id="dygraph_box" class="box box-danger">
+				<div class="box-header">
+					<h3 class="box-title">Графики</h3>
+				</div>
 
-                <div id="dygraph_box_body" class="box-body" style="height: 100%;">
-                    <div id="dygraph_container" class="plot" data-bind="style: { visibility: is_main_plot_visible() ? 'visible' : 'hidden' }">
-                    </div>
+				<div id="dygraph_box_body" class="box-body" style="height: 100%;">
+					<div id="dygraph_container" class="plot" data-bind="style: { visibility: is_main_plot_visible() ? 'visible' : 'hidden' }">
 
-                    <p class="placeholder noselect" data-bind="style: { visibility: is_main_plot_visible() ? 'hidden' : 'visible' }">
-                        <!-- ko if: is_editing_reference_point -->
-                        Выберите точку на графике давления
-                        <!-- /ko -->
+					</div>
 
-                        <!-- ko ifnot: is_editing_reference_point -->
-                        Выберите хотя бы одну точку на графике давления
-                        <!-- /ko -->
-                    </p>
-                </div>
-            </div>
-        </div>
+					<p class="placeholder noselect" data-bind="style: { visibility: is_main_plot_visible() ? 'hidden' : 'visible' }">
+						<!-- ko if: is_editing_reference_point -->
+						Выберите точку на графике давления
+						<!-- /ko -->
+
+						<!-- ko ifnot: is_editing_reference_point -->
+						Выберите хотя бы одну точку на графике давления
+						<!-- /ko -->
+					</p>
+				</div>
+			</div>
+		</div>
 
 		<div class="col-md-3">
 			<div class="box box-info" data-bind="visible: !is_editing_reference_point() && !is_setting_min_length()">
@@ -180,8 +250,8 @@
 								<td class="btn-hoverable" data-bind="click: $parent.removePoint">
 									<i class="fa fa-times"></i>
 								</td>
-                                <td class="btn-hoverable" data-bind="click: $parent.downloadLAS">
-									<i class="fa fa-download"></i> Скачать как LAS
+								<td class="btn-hoverable" data-bind="click: $parent.downloadLAS">
+									<a title=' Скачать как LAS'><i class="fa fa-download"></i></a>
 								</td>
 							</tr>
 						</tbody>
@@ -194,49 +264,49 @@
 				</div>
 			</div>
 
-            <div class="box box-danger" data-bind="visible: is_editing_reference_point">
-                <div class="box-header">
-                    <h3 class="box-title">Эталонная точка</h3>
-                </div>
+			<div class="box box-danger" data-bind="visible: is_editing_reference_point">
+				<div class="box-header">
+					<h3 class="box-title">Эталонная точка</h3>
+				</div>
 
-                <div class="box-body">
-                    <ul class="list-unstyled">
-                        <li>Дата: <span data-bind="text: reference_date() || '-'"></span></li>
-                        <li>Глубина: <span data-bind="text: reference_length() || '-'"></span></li>
-                        <li>Температура: <span data-bind="text: reference_temp() || '-'"></span></li>
-                    </ul>
-                </div>
+				<div class="box-body">
+					<ul class="list-unstyled">
+						<li>Дата: <span data-bind="text: reference_date() || '-'"></span></li>
+						<li>Глубина: <span data-bind="text: reference_length() || '-'"></span></li>
+						<li>Температура: <span data-bind="text: reference_temp() || '-'"></span></li>
+					</ul>
+				</div>
 
-                <div class="box-footer">
-                    <a class="btn btn-sm btn-danger" data-bind="click: saveReferencePoint">
-                        <span>Сохранить</span>
-                    </a>
-                    <a class="btn btn-sm btn-default" data-bind="click: cancelEditingReferencePoint">
-                        <span>Отмена</span>
-                    </a>
-                </div>
-            </div>
+				<div class="box-footer">
+					<a class="btn btn-sm btn-danger" data-bind="click: saveReferencePoint">
+						<span>Сохранить</span>
+					</a>
+					<a class="btn btn-sm btn-default" data-bind="click: cancelEditingReferencePoint">
+						<span>Отмена</span>
+					</a>
+				</div>
+			</div>
 
-            <div class="box box-danger" data-bind="visible: is_setting_min_length">
-                <div class="box-header">
-                    <h3 class="box-title">Выбор нуля глубины</h3>
-                </div>
+			<div class="box box-danger" data-bind="visible: is_setting_min_length">
+				<div class="box-header">
+					<h3 class="box-title">Выбор ноля глубины</h3>
+				</div>
 
-                <div class="box-body">
-                    <ul class="list-unstyled">
-                        <li>Ноль глубины: <span data-bind="text: min_length"></span></li>
-                    </ul>
-                </div>
+				<div class="box-body">
+					<ul class="list-unstyled">
+						<li>Ноль глубины: <span data-bind="text: min_length"></span></li>
+					</ul>
+				</div>
 
-                <div class="box-footer">
-                    <a class="btn btn-sm btn-danger" data-bind="click: saveMinLength">
-                        <span>Сохранить</span>
-                    </a>
-                    <a class="btn btn-sm btn-default" data-bind="click: cancelSettingMinLength">
-                        <span>Отмена</span>
-                    </a>
-                </div>
-            </div>
+				<div class="box-footer">
+					<a class="btn btn-sm btn-danger" data-bind="click: saveMinLength">
+						<span>Сохранить</span>
+					</a>
+					<a class="btn btn-sm btn-default" data-bind="click: cancelSettingMinLength">
+						<span>Отмена</span>
+					</a>
+				</div>
+			</div>
 		</div>
 	</div>
 </section>

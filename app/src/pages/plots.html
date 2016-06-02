@@ -73,6 +73,13 @@
 		margin-top: -20px;
 	}
 	
+	.box-toolbar {
+		position: absolute;
+		top: 0;
+		right: 0;
+		padding: 5px;
+	}
+	
 	.dygraph-box {
 		position: relative;
 		padding: 0
@@ -132,6 +139,15 @@
 		bottom: 0;
 		width: 10em;
 	}
+	
+	.box-toolbar .adjustRoll {}
+	
+	.box-toolbar .adjustRoll input {
+		width: 2em;
+		border-radius: 3px;
+		border: 1px inset #eee;
+		padding: 0px 3px;
+	}
 </style>
 <section class="content-header">
 	<h1>
@@ -141,10 +157,15 @@
 
 <section class="content">
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-md-9">
+			<div 1class="row">
+		
+		
 			<div class="box box-info">
 				<div class="box-header">
-					<h3 class="box-title">Давление</h3>
+					<h3 class="box-title">Давление 		<a class="btn btn-xs" title="В Избранное" data-bind="click: saveFavorite">
+						<i class="fa fa-star"></i>
+					</a></h3>
 				</div>
 
 				<div class="box-body dygraph-box">
@@ -180,30 +201,31 @@
 				</div>
 
 				<div class="box-toolbar">
-				<a class="btn btn-sm btn-danger" data-bind="click: resetAvgPlotZoom">
-						<i class="fa fa-search"></i> <span>Сбросить зум</span>
+					<a class="" title="Сбросить увеличение" data-bind="click: resetAvgPlotZoom">
+						<i class="fa fa-repeat"></i>
 					</a>
-					
-					<input placeholder="adjustRoll" type=number data-bind="value: adjustRoll"></input>
-				  </div>
+
+					<a class="adjustRoll" title="Сглаживание">
+						<input class="" placeholder="" type=number data-bind="value: adjustRoll"></input>
+					</a>
+				</div>
 
 				<div class="box-footer">
 
 
-					<a class="btn btn-sm btn-danger" data-bind="click: saveFavorite">
-						<i class="fa fa-star"></i> <span>В Избранное</span>
-					</a>
+			
+<!--
 
 					<a class="btn btn-sm btn-danger" data-bind="click: getDeviations">
 						<i class="fa fa-star"></i> <span>Рассчитать отклонения</span>
 					</a>
+-->
 
-					<input style="max-width: 50px;" placeholder="Мин. отклонение" data-bind="textInput: min_deviation"></input>
+<!--					<input style="max-width: 50px;" placeholder="Мин. отклонение" data-bind="textInput: min_deviation"></input>-->
 				</div>
 			</div>
-		</div>
-
-		<div class="col-md-3">
+			</div>
+			<div 1class="row">
 			<div id="dygraph_box" class="box box-danger">
 				<div class="box-header">
 					<h3 class="box-title">Графики</h3>
@@ -225,9 +247,9 @@
 					</p>
 				</div>
 			</div>
-		</div>
-
-		<div class="col-md-3">
+			</div>
+			</div>
+				<div class="col-md-3">
 			<div class="box box-info" data-bind="visible: !is_editing_reference_point() && !is_setting_min_length()">
 				<div class="box-header">
 					<h3 class="box-title">Точки</h3>
@@ -308,5 +330,15 @@
 				</div>
 			</div>
 		</div>
+		</div>
+
+<!--
+		<div class="col-md-3">
+			
+		</div>
+-->
+
+	
 	</div>
+
 </section>

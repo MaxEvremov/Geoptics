@@ -178,7 +178,7 @@ vm.saveFavorite = () => {
     let x_main = plot_main.xAxisRange()
     let y_main = plot_main.yAxisRange()
 
-    let points = mapping.toJS(vm.selected_points())
+    let points = ko.mapping.toJS(vm.selected_points())
     points = points.map(formatDate)
 
     helpers.makeAJAXRequest(
@@ -472,9 +472,12 @@ let init = () => {
                 labels: plot_labels,
                 colors: plot_colors
             })
+			
         })
     })
-
+setTimeout(function(){
+	vm.adjustRoll(100)
+},1000)
     is_inited = true
 }
 

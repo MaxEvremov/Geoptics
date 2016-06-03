@@ -226,7 +226,7 @@ api.get(
         }
 
         let query = `SELECT length, temp FROM t_measurements
-            WHERE date = '${formatDate(date)}'`
+            WHERE date = '${date}'`
 
         helpers.makePGQuery(
             query,
@@ -235,7 +235,7 @@ api.get(
                     return res.sendStatus(500)
                 }
 
-                res.attachment(`${formatDate(date)}.las`)
+                res.attachment(`${date}.las`)
 
                 las({
                     date: date,

@@ -135,7 +135,7 @@ api.post(
         date_end: isDateValid
     }),
     (req, res, next) => {
-        const norm_plot_date = "2016-02-23 20:58:44+05"
+        const norm_plot_date = "2016-02-24 01:58:44+05"
 
         let date_start = req.body.date_start
             ? formatDate(req.body.date_start)
@@ -149,7 +149,7 @@ api.post(
 
         let norm_query = `SELECT length, temp FROM t_measurements
             WHERE date = '${norm_plot_date}'`
-        let plots_query = `SELECT * FROM t_measurements
+        let plots_query = `SELECT length, temp, date FROM t_measurements
             WHERE date >= '${date_start}' AND date <= '${date_end}'`
 
         async.waterfall([
@@ -161,6 +161,13 @@ api.post(
             },
             (result, done) => {
                 let norm_plot = result.norm_plot
+
+                if(norm_plot.length === 0) {
+                    return res.json({
+                        err: "norm_plot_not_found"
+                    })
+                }
+
                 let plots = _.groupBy(result.plots, "date")
 
                 let deviations = []
@@ -327,6 +334,69 @@ api.post(
 
                 return res.json({
                     err: null
+                })
+            }
+        )
+    }
+)
+
+api.post(
+    "/timeline_event",
+    helpers.validateRequestData({
+        well_id: isIDValid,
+        short_text: true,
+        description: true,
+        date: (date) => moment(date, "YYYY-MM-DD HH:mm:ssZ").isValid()
+    }),
+    (req, res) => {
+        let query = `INSERT INTO timeline_events
+            (well_id, short_text, description, date)
+            VALUES (
+                ${req.body.well_id},
+                '${req.body.short_text}',
+                '${req.body.description}',
+                '${req.body.date}'
+            )`
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.json({
+                        err: err
+                    })
+                }
+
+                return res.json({
+                    err: null
+                })
+            }
+        )
+    }
+)
+
+api.post(
+    "/timeline_events",
+    helpers.validateRequestData({
+        well_id: isIDValid
+    }),
+    (req, res) => {
+        let query = `SELECT short_text, description, date
+            FROM timeline_events
+            WHERE well_id = ${req.body.well_id}`
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.json({
+                        err: err
+                    })
+                }
+
+                return res.json({
+                    err: null,
+                    result: result
                 })
             }
         )

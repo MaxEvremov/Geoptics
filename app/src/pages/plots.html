@@ -51,7 +51,8 @@
 	}
 
     .placeholder {
-        font-size: 0.8em; color: #999;
+        font-size: 0.8em;
+        color: #999;
     }
 
     #dygraph_box_body .placeholder {
@@ -68,6 +69,15 @@
         height: 100%;
         top: 0;
         margin-top: -20px;
+    }
+
+    .dygraph-annotation-deviation {
+        background-color: red;
+        color: white;
+    }
+
+    .dygraph-annotation-event {
+        background-color: #666;
     }
 </style>
 <section class="content-header">
@@ -145,11 +155,11 @@
                     </div>
 
                     <p class="placeholder noselect" data-bind="style: { visibility: is_main_plot_visible() ? 'hidden' : 'visible' }">
-                        <!-- ko if: is_editing_reference_point -->
+                        <!-- ko if: current_mode() === 'reference_point' -->
                         Выберите точку на графике давления
                         <!-- /ko -->
 
-                        <!-- ko ifnot: is_editing_reference_point -->
+                        <!-- ko ifnot: current_mode() === 'reference_point' -->
                         Выберите хотя бы одну точку на графике давления
                         <!-- /ko -->
                     </p>
@@ -158,15 +168,15 @@
         </div>
 
 		<div class="col-md-3">
-			<div class="box box-info" data-bind="visible: !is_editing_reference_point() && !is_setting_min_length()">
+			<div class="box box-info" data-bind="visible: current_mode() === 'normal'">
 				<div class="box-header">
 					<h3 class="box-title">Точки</h3>
 				</div>
 
 				<div class="box-body">
-					<!-- ko ifnot: annotations().length === 0 -->
+					<!-- ko ifnot: selected_plots().length === 0 -->
 					<table class="table plotpoints" style="font-size: 0.8em;">
-						<tbody data-bind="foreach: annotations">
+						<tbody data-bind="foreach: selected_plots">
 							<tr>
 								<td data-bind="
                                     text: $index() + 1,
@@ -188,13 +198,13 @@
 					</table>
 					<!-- /ko -->
 
-					<!-- ko if: annotations().length === 0 -->
+					<!-- ko if: selected_plots().length === 0 -->
 					<p class="placeholder noselect">Выберите хотя бы одну точку на графике давления</p>
 					<!-- /ko -->
 				</div>
 			</div>
 
-            <div class="box box-danger" data-bind="visible: is_editing_reference_point">
+            <div class="box box-danger" data-bind="visible: current_mode() === 'reference_point'">
                 <div class="box-header">
                     <h3 class="box-title">Эталонная точка</h3>
                 </div>
@@ -211,13 +221,13 @@
                     <a class="btn btn-sm btn-danger" data-bind="click: saveReferencePoint">
                         <span>Сохранить</span>
                     </a>
-                    <a class="btn btn-sm btn-default" data-bind="click: cancelEditingReferencePoint">
+                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
                         <span>Отмена</span>
                     </a>
                 </div>
             </div>
 
-            <div class="box box-danger" data-bind="visible: is_setting_min_length">
+            <div class="box box-danger" data-bind="visible: current_mode() === 'min_length'">
                 <div class="box-header">
                     <h3 class="box-title">Выбор нуля глубины</h3>
                 </div>
@@ -232,7 +242,30 @@
                     <a class="btn btn-sm btn-danger" data-bind="click: saveMinLength">
                         <span>Сохранить</span>
                     </a>
-                    <a class="btn btn-sm btn-default" data-bind="click: cancelSettingMinLength">
+                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+                        <span>Отмена</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="box box-danger" data-bind="visible: current_mode() === 'timeline_event'">
+                <div class="box-header">
+                    <h3 class="box-title">Добавление события на таймлайне</h3>
+                </div>
+
+                <div class="box-body">
+                    <ul class="list-unstyled">
+                        <li>Дата: <span data-bind="text: timeline_event_date"></span></li>
+                        <li>Краткое обозначение: <input data-bind="textInput: timeline_event_short_text"></li>
+                        <li>Описание: <input data-bind="textInput: timeline_event_description"></li>
+                    </ul>
+                </div>
+
+                <div class="box-footer">
+                    <a class="btn btn-sm btn-danger" data-bind="click: saveTimelineEvent">
+                        <span>Сохранить</span>
+                    </a>
+                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
                         <span>Отмена</span>
                     </a>
                 </div>

@@ -87,7 +87,7 @@ passport.use(new LocalStrategy(
 
 if(argv.cors) {
     console.log("CORS enabled!")
-    
+
     app.use((req, res, next) => {
         res.header("Access-Control-Allow-Headers", "X-Requested-With");
         res.header("Access-Control-Allow-Credentials", "true")
@@ -108,14 +108,14 @@ app.use("/api/admin", require(__base + "api/admin"))
 
 // static files
 
-app.use("/admin", express.static("admin/build"))
+app.use("/admin", express.static("admin/src"))
 app.all("/admin/*", (req, res) => {
-    res.sendFile("index.html", { root: __dirname + "/admin/build" })
+    res.sendFile("index.html", { root: __dirname + "/admin/src" })
 })
 
-app.use("/", express.static("app/build"))
+app.use("/", express.static("app/src"))
 app.all("/*", (req, res) => {
-    res.sendFile("index.html", { root: __dirname + "/app/build" })
+    res.sendFile("index.html", { root: __dirname + "/app/src" })
 })
 
 // run server

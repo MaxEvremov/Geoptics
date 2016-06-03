@@ -1,19 +1,19 @@
-"use strict"
-
+//"use strict"
+(function(){
 // imports
-
-import ko from "knockout"
-import mapping from "knockout-mapping"
-import moment from "moment"
-import Dygraph from "dygraphs"
-import $ from "jquery"
-import _ from "lodash"
-import randomColor from "randomcolor"
-import async from "async"
-
-import * as helpers from "./helpers"
-
-import dygraph_main from "./plot-main"
+//
+//import ko from "knockout"
+//import mapping from "knockout-mapping"
+//import moment from "moment"
+//import Dygraph from "dygraphs"
+//import $ from "jquery"
+//import _ from "lodash"
+//import randomColor from "randomcolor"
+//import async from "async"
+//
+//import * as helpers from "./helpers"
+//
+//import dygraph_main from "./plot-main"
 
 // const
 
@@ -425,7 +425,7 @@ vm.saveFavorite = () => {
     let x_main = plot_main.xAxisRange()
     let y_main = plot_main.yAxisRange()
 
-    let points = mapping.toJS(vm.selected_points())
+    let points = ko.mapping.toJS(vm.selected_points())
     points = points.map(formatDate)
 
     helpers.makeAJAXRequest(
@@ -588,6 +588,12 @@ vm.resetAvgPlotZoom = () => {
     plot_avg.resetZoom()
 }
 
+vm.adjustRoll = ko.observable();
+vm.adjustRoll.subscribe( function(val) {
+	console.log("adjustRoll",val)
+	plot_avg.adjustRoll(Number(val))
+})
+
 vm.is_main_plot_visible = ko.computed(() => {
     if(vm.current_mode() === "reference_point") {
         return !!vm.reference_date()
@@ -598,4 +604,6 @@ vm.is_main_plot_visible = ko.computed(() => {
 
 // exports
 
-export default vm
+//export default vm
+window.m_site.plots=vm
+	})()

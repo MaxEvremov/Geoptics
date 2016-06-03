@@ -1,13 +1,13 @@
-"use strict"
+//"use strict"
 
 // imports
 
-import ko from "knockout"
+//import ko from "knockout"
 
-import * as helpers from "./helpers"
+//import * as helpers from "./helpers"
 
 // main
-
+(function(){
 let vm = {
     user: ko.observable(),
     current_page: ko.observable(),
@@ -23,4 +23,6 @@ let vm = {
 
 // exports
 
-export default vm
+//export default vm
+m_site.state=vm
+})()

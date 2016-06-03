@@ -14,6 +14,34 @@
 	<link href="css/font-awesome.min.css" rel="stylesheet">
 	<link href="css/style.css" rel="stylesheet">
 
+	<script src="lib/jquery.min.js"></script>
+	<script src="lib/jquery.mask.min.js"></script>
+	<script src="lib/knockout-latest.debug.js"></script>
+	<script src="lib/knockout.mapping.js"></script>
+
+
+	<script src="lib/randomColor.js"></script>
+	<script src="lib/moment-with-locales.min.js"></script>
+	<script src="lib/lodash.min.js"></script>
+	<script src="lib/dygraph-combined.js"></script>
+
+	<script src="lib/async.min.js"></script>
+
+	<script src="js/helpers.js"></script>
+	<script src="js/ko-binding-handlers.js"></script>
+	<script src="js/index.js"></script>
+	<script src="js/login.js"></script>
+
+	<script src="js/plots.js"></script>
+
+	<script src="js/state.js"></script>
+	<script src="js/plot-main.js"></script>
+
+	<script src="js/favorites.js"></script>
+
+	<script src="lib/pagerjs/history.js"></script>
+	<script src="lib/pagerjs/history.adapter.native.js"></script>
+	<script src="lib/pagerjs/pager.js"></script>
 	<script type="text/javascript">
 		document.write("<base href='" + document.location.origin + "/' />")
 	</script>
@@ -30,10 +58,10 @@
 	<div data-bind="visible: state.current_page() !== 'login'">
 		<!-- ko if: state.user -->
 		<header class="main-header">
-			<span class="logo" >
+			<span class="logo">
                 Geoptics
             </span>
-			<nav class="navbar navbar-static-top" role="navigation" >
+			<nav class="navbar navbar-static-top" role="navigation">
 				<div class="navbar-custom-menu">
 					<ul class="nav navbar-nav">
 						<li>
@@ -58,12 +86,13 @@
 						<a data-bind="'page-href': '/plots'">
 							<i class="fa fa-industry"></i> <span>Скважина №4</span> <i class="fa fa-cog pull-right btn-hoverable" data-bind="click: plots.toggleSettings"></i>
 						</a>
+                        
                         <ul class="treeview-menu" data-bind="visible: plots.are_settings_enabled">
                             <li>
-                                <a data-bind="click: plots.editReferencePoint"><i class="fa fa-circle-o"></i> Выбор эталонной точки</a>
+                                <a data-bind="click: plots.editReferencePoint"><i class="fa fa-compress"></i> Выбор эталонной точки</a>
                             </li>
                             <li>
-                                <a data-bind="click: plots.setMinLength"><i class="fa fa-circle-o"></i> Выбор нуля глубины</a>
+                                <a data-bind="click: plots.setMinLength"><i class="fa fa-step-forward"></i> Выбор нуля глубины</a>
                             </li>
                             <li>
                                 <a data-bind="click: plots.addTimelineEvent"><i class="fa fa-circle-o"></i> Добавить событие</a>
@@ -99,7 +128,7 @@
 		</div>
 	</div>
 
-	<script src="js/index.js"></script>
+<!--	<script src="js/index.js"></script>-->
 </body>
 
 </html>

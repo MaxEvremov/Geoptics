@@ -1,14 +1,14 @@
-"use strict"
-
+//"use strict"
+(function(){
 // imports
-
-import ko from "knockout"
-import mapping from "knockout-mapping"
-import moment from "moment"
-
-import * as helpers from "./helpers"
-
-import plots from "./plots"
+//
+//import ko from "knockout"
+//import mapping from "knockout-mapping"
+//import moment from "moment"
+//
+//import * as helpers from "./helpers"
+//
+//import plots from "./plots"
 
 // main
 
@@ -75,4 +75,6 @@ vm.onShow = () => {
 
 // exports
 
-export default vm
+//export default vm
+window.m_site.favorites=vm
+	})()

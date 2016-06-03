@@ -35,8 +35,10 @@
 
 	.dygraph-legend {
 		padding: 10px;
-		border: 1px solid #999;
+		/*		border: 1px solid #999;*/
 		border-radius: 3px;
+		margin-top: -80px;
+		box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.20);
 	}
 
 	.dygraph-legend > * {
@@ -47,29 +49,103 @@
 		line-height: 14px;
 		border: 0;
 		box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.37);
-        color: white !important;
+		color: white !important;
 	}
 
-    .placeholder {
-        font-size: 0.8em;
-        color: #999;
-    }
+	.placeholder {
+		font-size: 0.8em;
+		color: #999;
+	}
 
-    #dygraph_box_body .placeholder {
-        position: absolute;
-        top: 50px;
-    }
+	#dygraph_box_body .placeholder {
+		position: absolute;
+		top: 50px;
+	}
 
-    #dygraph_container .line {
-        visibility: hidden;
-        background-color: black;
-        position: absolute;
-        pointer-events: none;
-        width: 1px;
-        height: 100%;
-        top: 0;
-        margin-top: -20px;
-    }
+	#dygraph_container .line {
+		visibility: hidden;
+		background-color: black;
+		position: absolute;
+		pointer-events: none;
+		width: 1px;
+		height: 100%;
+		top: 0;
+		margin-top: -20px;
+	}
+
+	.box-toolbar {
+		position: absolute;
+		top: 0;
+		right: 0;
+		padding: 5px;
+	}
+
+	.dygraph-box {
+		position: relative;
+		padding: 0
+	}
+
+	.axis-input-block {
+		position: absolute;
+		z-index: 10
+	}
+
+	.axis-input-block input {
+		position: absolute;
+		display: none;
+		border-radius: 3px;
+		border: 1px inset #eee;
+		padding: 0px 3px;
+	}
+
+	.axis-input-block:hover input {
+		display: block
+	}
+
+	.axis-input-block-left {
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 50px;
+	}
+
+	.axis-input-block-left-top {
+		left: 5px;
+		top: 0;
+		width: 50px;
+	}
+
+	.axis-input-block-left-bottom {
+		left: 5px;
+		bottom: 20px;
+		width: 50px;
+	}
+
+	.axis-input-block-bottom {
+		left: 56px;
+		right: 5px;
+		bottom: -5px;
+		height: 20px;
+	}
+
+	.axis-input-block-bottom-left {
+		left: 0;
+		bottom: 0;
+		width: 10em;
+	}
+
+	.axis-input-block-bottom-right {
+		right: 0;
+		bottom: 0;
+		width: 10em;
+	}
+
+	.box-toolbar .adjustRoll input {
+		width: 2em;
+		border-radius: 3px;
+		border: 1px inset #eee;
+		padding: 0px 3px;
+	}
 
     .dygraph-annotation-deviation {
         background-color: red;
@@ -87,64 +163,59 @@
 </section>
 
 <section class="content">
-	<div class="row">
-		<div class="col-md-6">
-			<div class="box box-info">
-				<div class="box-header">
-					<h3 class="box-title">Давление</h3>
-				</div>
+    <div class="row">
+        <div class="col-md-9">
+            <div class="box box-info">
+                <div class="box-header">
+                    <h3 class="box-title">Давление 	<a class="btn btn-xs" title="В Избранное" data-bind="click: saveFavorite">
+                        <i class="fa fa-star"></i>
+                    </a></h3>
+                </div>
 
-				<div class="box-body">
-					<div id="dygraph_avg_container" class="plot"></div>
+                <div class="box-body dygraph-box">
+                    <div id="dygraph_avg_container" class="plot"></div>
 
-                    <div>
-                        <label class="control-label">zoom_y</label>
-                        <input style="width: 100px;" data-bind="value: min_zoom_y">
-                        <input style="width: 100px;" data-bind="value: max_zoom_y">
+                    <div class="axis-input-block axis-input-block-left">
+                        <input class="axis-input-block-left-top" data-bind="value: max_zoom_y">
+                        <input class="axis-input-block-left-bottom" data-bind="value: min_zoom_y">
                     </div>
 
-                    <div>
-                        <label class="control-label">zoom_x</label>
-                        <input style="width: 200px;" data-bind="
-                            textInput: min_zoom_x,
-                            jmask: {
-                                mask: '00/00/0000 00:00:00',
-                                options: {
-                                    placeholder: '__/__/____ __:__:__'
-                                }
+                    <div class="axis-input-block axis-input-block-bottom">
+                        <input class="axis-input-block-bottom-left" data-bind="
+                        textInput: min_zoom_x,
+                        jmask: {
+                            mask: '00/00/0000 00:00:00',
+                            options: {
+                                placeholder: '__/__/____ __:__:__'
                             }
+                        }
                         ">
-                        <input style="width: 200px;" data-bind="
-                            textInput: max_zoom_x,
-                            jmask: {
-                                mask: '00/00/0000 00:00:00',
-                                options: {
-                                    placeholder: '__/__/____ __:__:__'
-                                }
+                        <input class="axis-input-block-bottom-right" data-bind="
+                        textInput: max_zoom_x,
+                        jmask: {
+                            mask: '00/00/0000 00:00:00',
+                            options: {
+                                placeholder: '__/__/____ __:__:__'
                             }
+                        }
                         ">
                     </div>
-				</div>
+                </div>
+
+                <div class="box-toolbar">
+                    <a class="" title="Сбросить увеличение" data-bind="click: resetAvgPlotZoom">
+                        <i class="fa fa-repeat"></i>
+                    </a>
+
+                    <a class="adjustRoll" title="Сглаживание">
+                        <input class="" placeholder="" type=number data-bind="value: adjustRoll"></input>
+                    </a>
+                </div>
 
                 <div class="box-footer">
-                    <a class="btn btn-sm btn-danger" data-bind="click: resetAvgPlotZoom">
-                        <i class="fa fa-search"></i> <span>Сбросить зум</span>
-                    </a>
-
-                    <a class="btn btn-sm btn-danger" data-bind="click: saveFavorite">
-                        <i class="fa fa-star"></i> <span>В Избранное</span>
-                    </a>
-
-                    <a class="btn btn-sm btn-danger" data-bind="click: getDeviations">
-                        <i class="fa fa-star"></i> <span>Рассчитать отклонения</span>
-                    </a>
-
-                    <input style="max-width: 50px;" placeholder="Мин. отклонение" data-bind="textInput: min_deviation"></input>
                 </div>
-			</div>
-		</div>
+            </div>
 
-        <div class="col-md-3">
             <div id="dygraph_box" class="box box-danger">
                 <div class="box-header">
                     <h3 class="box-title">Графики</h3>
@@ -152,6 +223,7 @@
 
                 <div id="dygraph_box_body" class="box-body" style="height: 100%;">
                     <div id="dygraph_container" class="plot" data-bind="style: { visibility: is_main_plot_visible() ? 'visible' : 'hidden' }">
+
                     </div>
 
                     <p class="placeholder noselect" data-bind="style: { visibility: is_main_plot_visible() ? 'hidden' : 'visible' }">
@@ -166,43 +238,42 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="box box-info" data-bind="visible: current_mode() === 'normal'">
+                <div class="box-header">
+                    <h3 class="box-title">Точки</h3>
+                </div>
 
-		<div class="col-md-3">
-			<div class="box box-info" data-bind="visible: current_mode() === 'normal'">
-				<div class="box-header">
-					<h3 class="box-title">Точки</h3>
-				</div>
-
-				<div class="box-body">
-					<!-- ko ifnot: selected_plots().length === 0 -->
-					<table class="table plotpoints" style="font-size: 0.8em;">
-						<tbody data-bind="foreach: selected_plots">
-							<tr>
-								<td data-bind="
-                                    text: $index() + 1,
-                                    style: {
-                                        color: $parent.plot_colors[$index()]
-                                    }
+                <div class="box-body">
+                    <!-- ko ifnot: selected_plots().length === 0 -->
+                    <table class="table plotpoints" style="font-size: 0.8em;">
+                        <tbody data-bind="foreach: selected_plots">
+                            <tr>
+                                <td data-bind="
+                                text: $index() + 1,
+                                style: {
+                                    color: $parent.plot_colors[$index()]
+                                }
                                 "></td>
-								<td>
-									<span data-bind="text: $parent.moment(x).format('DD.MM.YYYY HH:mm')"></span>
-								</td>
-								<td class="btn-hoverable" data-bind="click: $parent.removePoint">
-									<i class="fa fa-times"></i>
-								</td>
+                                <td>
+                                    <span data-bind="text: $parent.moment(x).format('DD.MM.YYYY HH:mm')"></span>
+                                </td>
+                                <td class="btn-hoverable" data-bind="click: $parent.removePoint">
+                                    <i class="fa fa-times"></i>
+                                </td>
                                 <td class="btn-hoverable" data-bind="click: $parent.downloadLAS">
-									<i class="fa fa-download"></i> Скачать как LAS
-								</td>
-							</tr>
-						</tbody>
-					</table>
-					<!-- /ko -->
+                                    <a title=' Скачать как LAS'><i class="fa fa-download"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- /ko -->
 
-					<!-- ko if: selected_plots().length === 0 -->
-					<p class="placeholder noselect">Выберите хотя бы одну точку на графике давления</p>
-					<!-- /ko -->
-				</div>
-			</div>
+                    <!-- ko if: selected_plots().length === 0 -->
+                    <p class="placeholder noselect">Выберите хотя бы одну точку на графике давления</p>
+                    <!-- /ko -->
+                </div>
+            </div>
 
             <div class="box box-danger" data-bind="visible: current_mode() === 'reference_point'">
                 <div class="box-header">
@@ -270,6 +341,6 @@
                     </a>
                 </div>
             </div>
-		</div>
-	</div>
+        </div>
+    </div>
 </section>

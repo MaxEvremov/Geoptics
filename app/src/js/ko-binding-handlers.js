@@ -1,15 +1,15 @@
 "use strict"
 
 // imports
-
-import ko from "knockout"
-import Dygraph from "dygraphs"
-import $ from "jquery"
-import jMask from "jquery-mask-plugin"
+//
+//import ko from "knockout"
+//import Dygraph from "dygraphs"
+//import $ from "jquery"
+//import jMask from "jquery-mask-plugin"
 
 // main
 
-export let dygraph = {
+ko.bindingHandlers.dygraph = {
     init: (element, value_accessor) => {
         let value = ko.unwrap(value_accessor())
 
@@ -26,7 +26,7 @@ export let dygraph = {
     }
 }
 
-export let jmask = {
+ko.bindingHandlers.jmask = {
     init: (element, value_accessor) => {
         let value = ko.unwrap(value_accessor())
 

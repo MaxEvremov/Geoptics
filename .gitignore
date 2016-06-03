@@ -9,5 +9,3 @@ python_scripts/bin
 .Python
 python_scripts/include
 pip-selfcheck.json
-p_measurements.csv
-t_measurements.csv

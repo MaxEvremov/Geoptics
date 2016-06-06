@@ -38,70 +38,109 @@ api.post(
             dates = [dates]
         }
 
-        let measurements = []
-
-        async.each(
-            dates,
-            (date, done) => {
-                let query = `
-                    WITH vars AS (
-                        SELECT date AS nearest_date
-                        FROM t_measurements
-                        WHERE date <= '${date}' AND well_id = ${well_id}
-                        ORDER BY date DESC
-                        LIMIT 1
-                    ),
-                    well AS (
-                        SELECT
-                            reference_temp,
-                            reference_length,
-                            min_length
-                        FROM wells
-                        WHERE id = ${well_id}
-                    ),
-                    rdiff AS (
-                        SELECT t.temp - (SELECT reference_temp FROM well) AS val
-                        FROM t_measurements AS t
-                        WHERE
-                            t.well_id = ${well_id}
-                            AND t.length = (SELECT reference_length FROM well)
-                            AND t.date = (SELECT nearest_date FROM vars)
-                    )
+        async.waterfall([
+            (done) => {
+                let well_query = `
                     SELECT
-                        t.length AS length,
-                        t.temp - (SELECT val FROM rdiff) AS temp,
-                        t.date AS date
-                    FROM t_measurements AS t
-                    WHERE
-                        t.date = (SELECT nearest_date FROM vars)
-                        AND t.well_id = ${well_id}
-                        ${req.body.is_setting_min_length
-                            ? "" :
-                            "AND t.length >= (SELECT min_length FROM well)"
-                        }`
+                        reference_temp,
+                        reference_length,
+                        min_length
+                    FROM wells
+                    WHERE id = ${well_id}
+                `
 
                 helpers.makePGQuery(
-                    query,
-                    (err, result) => {
+                    well_query,
+                    done
+                )
+            },
+            (well_query_result, done) => {
+                let well = well_query_result[0]
+                let has_reference_point = !!well.reference_temp
+                    && !!well.reference_length
+
+                let measurements = []
+
+                async.each(
+                    dates,
+                    (date, done) => {
+                        let query_with_rdiff = `
+                            WITH vars AS (
+                                SELECT date AS nearest_date
+                                FROM t_measurements
+                                WHERE date <= '${date}' AND well_id = ${well_id}
+                                ORDER BY date DESC
+                                LIMIT 1
+                            ),
+                            rdiff AS (
+                                SELECT t.temp - ${well.reference_temp} AS val
+                                FROM t_measurements AS t
+                                WHERE
+                                    t.well_id = ${well_id}
+                                    AND t.length::numeric = ${well.reference_length}
+                                    AND t.date = (SELECT nearest_date FROM vars)
+                            )
+                            SELECT
+                                t.length AS length,
+                                t.temp - (SELECT val FROM rdiff) AS temp,
+                                t.date AS date
+                            FROM t_measurements AS t
+                            WHERE
+                                t.date = (SELECT nearest_date FROM vars)
+                                AND t.well_id = ${well_id}
+                                ${req.body.is_setting_min_length
+                                    ? "" :
+                                    `AND t.length >= ${well.min_length}`
+                                }`
+
+                        let query_wo_rdiff = `
+                            WITH vars AS (
+                                SELECT date AS nearest_date
+                                FROM t_measurements
+                                WHERE date <= '${date}' AND well_id = ${well_id}
+                                ORDER BY date DESC
+                                LIMIT 1
+                            )
+                            SELECT
+                                t.length AS length,
+                                t.temp AS temp,
+                                t.date AS date
+                            FROM t_measurements AS t
+                            WHERE
+                                t.date = (SELECT nearest_date FROM vars)
+                                AND t.well_id = ${well_id}
+                                ${req.body.is_setting_min_length
+                                    ? "" :
+                                    `AND t.length >= ${well.min_length}`
+                                }`
+
+                        helpers.makePGQuery(
+                            has_reference_point
+                                ? query_with_rdiff
+                                : query_wo_rdiff,
+                            (err, result) => {
+                                if(err) {
+                                    return done(err)
+                                }
+
+                                measurements = measurements.concat(result)
+                                return done(null)
+                            }
+                        )
+                    },
+                    (err) => {
                         if(err) {
                             return done(err)
                         }
 
-                        measurements = measurements.concat(result)
-                        return done(null)
+                        return done(null, measurements)
                     }
                 )
             },
-            (err) => {
-                if(err) {
-                    return res.json({
-                        err: err
-                    })
-                }
-
+            (measurements, done) => {
                 console.time("filter")
 
-                let data = _.chain(measurements)
+                let result = _.chain(measurements)
                     .groupBy("date")
                     .map((row, key) => {
                         let values = _.chain(row)
@@ -118,12 +157,21 @@ api.post(
 
                 console.timeEnd("filter")
 
+                return done(null, result)
+            }
+        ],
+        (err, result) => {
+            if(err) {
                 return res.json({
-                    err: null,
-                    result: data
+                    err: err
                 })
             }
-        )
+
+            return res.json({
+                err: null,
+                result: result
+            })
+        })
     }
 )
 

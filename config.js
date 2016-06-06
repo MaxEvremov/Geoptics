@@ -9,6 +9,7 @@ module.exports = {
     default_admin: {
         name: "Администратор",
         email: "admin@geoptics.com",
-        password: "1234"
+        password: "1234",
+        role: "owner"
     }
 }

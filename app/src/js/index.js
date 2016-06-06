@@ -33,29 +33,31 @@
 
 $(document).ready(() => {
     let pager = new Pager($, ko)
-	console.log(" window.m_site", window.m_site,m_site)
     window.pager = pager
-//    window.m_site = m_site
 
     pager.useHTML5history = true
     pager.Href5.history = History
+
+    pager.extendWithPage(m_site)
+    ko.applyBindings(m_site)
+
+    pager.startHistoryJs()
+
+    History.Adapter.bind(window, "statechange", () => {
+        m_site.state.current_page(pager.activePage$().currentId)
+    })
+    m_site.state.current_page(pager.activePage$().currentId)
 
     helpers.makeAJAXRequest(
         "/api/app/auth/init",
         "get",
         (err, result) => {
             m_site.state.user(result ? result : null)
-//
-            pager.extendWithPage(m_site)
-//
-            ko.applyBindings(m_site)
-            pager.startHistoryJs()
-//
-            History.Adapter.bind(window, "statechange", () => {
-                m_site.state.current_page(pager.activePage$().currentId)
-            })
-//
-            m_site.state.current_page(pager.activePage$().currentId)
+            m_site.state.is_ready(true)
+
+            if(!m_site.state.current_page()) {
+                pager.navigate("plots")
+            }
         }
     )
 })

@@ -16,6 +16,7 @@ def main():
     l.add_curve("TEMP", np.asarray(params.get("temp")), unit="C")
 
     l.write(sys.stdout, version=2.0, fmt="%10.5g")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

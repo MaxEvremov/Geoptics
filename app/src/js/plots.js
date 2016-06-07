@@ -119,10 +119,10 @@ var init = function() {
 
     plot_avg = new Dygraph(
         $("#dygraph_avg_container")[0],
-        [[0, 0, null]],
+        [[0, 0]],
         {
             height: 150,
-            labels: ["Date", "Pressure", "Annotations"],
+            labels: ["Date", "Pressure"],
             connectSeparatedPoints: true,
             clickCallback: function(e, x, points) {
                 var selected_date = points[0].xval
@@ -175,7 +175,7 @@ var init = function() {
                 }
 
                 var data = result.map(function(v) {
-                    return [new Date(v[0]), v[1], null]
+                    return [new Date(v[0]), v[1]]
                 })
 
                 plot_avg.updateOptions({
@@ -490,7 +490,7 @@ vm.selected_plots = ko.computed(function() {
 })
 
 vm.annotations = ko.computed(function() {
-    var AVG_Y_AXIS = "Annotations"
+    var AVG_Y_AXIS = "Pressure"
 
     var selected_plots = vm.selected_plots()
     var deviations = vm.deviations()
@@ -538,8 +538,12 @@ vm.annotations.subscribe(function(value) {
         if(!file.find(function(v) {
             return v[0].getTime() === annotation.x
         })) {
-            file.push([new Date(annotation.x), null, null])
+            file.push([new Date(annotation.x), null])
         }
+    })
+
+    file.sort(function(a, b) {
+        return a[0] - b[0]
     })
 
     plot_avg.updateOptions({

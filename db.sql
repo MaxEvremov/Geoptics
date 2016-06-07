@@ -242,7 +242,7 @@ CREATE TABLE wells (
     reference_date timestamp with time zone,
     reference_temp real,
     reference_length real,
-    min_length real
+    min_length real DEFAULT 0
 );
 
 

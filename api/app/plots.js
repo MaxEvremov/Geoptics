@@ -91,7 +91,8 @@ api.post(
                                 ${req.body.is_setting_min_length
                                     ? "" :
                                     `AND t.length >= ${well.min_length}`
-                                }`
+                                }
+                            ORDER BY length DESC`
 
                         let query_wo_rdiff = `
                             WITH vars AS (
@@ -112,7 +113,8 @@ api.post(
                                 ${req.body.is_setting_min_length
                                     ? "" :
                                     `AND t.length >= ${well.min_length}`
-                                }`
+                                }
+                            ORDER BY length DESC`
 
                         helpers.makePGQuery(
                             has_reference_point
@@ -145,7 +147,6 @@ api.post(
                     .map((row, key) => {
                         let values = _.chain(row)
                             .map(v => [v.length, v.temp])
-                            .sortBy(v => v[0])
                             .value()
 
                         return {

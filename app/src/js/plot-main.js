@@ -187,8 +187,7 @@ let exports = {
         let dygraph_height = $(DYGRAPH_BOX_BODY_ID).width() - DYGRAPH_PADDING
 
         let dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ ((dygraph_width - dygraph_height) / 2) - 25}px) translateX(${ -((dygraph_width - dygraph_height) / 2)}px)`
-console.log("   $(DYGRAPH_CONTAINER_ID)",  DYGRAPH_CONTAINER_ID,   $(DYGRAPH_CONTAINER_ID))
-console.log("   dygraph_transform", dygraph_transform)
+
         $(DYGRAPH_CONTAINER_ID).css({
             transform: dygraph_transform,
             msTransform: dygraph_transform,

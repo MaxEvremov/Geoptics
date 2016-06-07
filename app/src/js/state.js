@@ -21,6 +21,8 @@
         current_page: ko.observable(),
         is_ready: ko.observable(false),
 
+        current_well: new Well({ id: 1 }),
+
         loggedInGuard: (page, route, done) => {
             let is_ready = vm.is_ready()
 

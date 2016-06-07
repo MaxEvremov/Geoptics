@@ -40,21 +40,16 @@ let plot_labels = ["X", "Y1"]
 let plot_avg = null
 let plot_main = null
 
-let getTimelineEvents = () => {
-    helpers.makeAJAXRequest(
-        "/api/app/plots/timeline_events",
-        "post",
-        {
-            well_id: 1
-        },
-        (err, result) => {
-            if(err) {
-                return console.error(err)
-            }
+let current_well = m_site.state.current_well
 
-            vm.timeline_events(result || [])
+let getTimelineEvents = () => {
+    current_well.getTimelineEvents((err, result) => {
+        if(err) {
+            return console.error(err)
         }
-    )
+
+        vm.timeline_events(result || [])
+    })
 }
 
 let queue = async.queue(
@@ -126,7 +121,6 @@ let init = () => {
         {
             height: 150,
             labels: ["Date", "Pressure", "Annotations"],
-            showRoller: true,
             connectSeparatedPoints: true,
             clickCallback: (e, x, points) => {
                 let selected_date = points[0].xval
@@ -268,7 +262,7 @@ let vm = {
 
 vm.afterShow = () => {
     if(!is_inited) {
-        setTimeout(() => init(), 100) // TODO: говнокод, нужный для того, чтобы pager.js не запускал инит до загрузки страницы. По-хорошему, нужно попатчить afterShow у pager.js, чтобы не писать такое говно.
+        init()
     }
 
     if(plot_avg) {
@@ -279,8 +273,6 @@ vm.afterShow = () => {
         setTimeout(() => plot_main.resize(), 0)
     }
 }
-
-// TODO: перенести это в модель скважины (попутно создав эту самую модель)
 
 vm.are_settings_enabled = ko.observable(false)
 vm.toggleSettings = () => {
@@ -332,14 +324,11 @@ vm.reference_temp = ko.observable()
 vm.reference_length = ko.observable()
 
 vm.saveReferencePoint = () => {
-    helpers.makeAJAXRequest(
-        "/api/app/plots/reference_point",
-        "post",
+    current_well.setReferencePoint(
         {
             date: vm.reference_date(),
             temp: vm.reference_temp(),
-            length: vm.reference_length(),
-            well_id: 1 // TODO: поменять на настоящий id скважины
+            length: vm.reference_length()
         },
         (err, result) => {
             if(err) {
@@ -358,12 +347,9 @@ vm.setMinLength = () => {
 }
 
 vm.saveMinLength = () => {
-    helpers.makeAJAXRequest(
-        "/api/app/plots/min_length",
-        "post",
+    current_well.setMinLength(
         {
-            min_length: vm.min_length(),
-            well_id: 1 // TODO: поменять на настоящий id скважины
+            min_length: vm.min_length()
         },
         (err, result) => {
             if(err) {
@@ -384,14 +370,11 @@ vm.addTimelineEvent = () => {
 }
 
 vm.saveTimelineEvent = () => {
-    helpers.makeAJAXRequest(
-        "/api/app/plots/timeline_event",
-        "post",
+    current_well.addTimelineEvent(
         {
             short_text: vm.timeline_event_short_text(),
             description: vm.timeline_event_description(),
-            date: vm.timeline_event_date(),
-            well_id: 1
+            date: vm.timeline_event_date()
         },
         (err, result) => {
             if(err) {
@@ -403,8 +386,6 @@ vm.saveTimelineEvent = () => {
         }
     )
 }
-
-// TODO: перенести это в модель скважины (попутно создав эту самую модель)
 
 vm.plot_colors = plot_colors
 

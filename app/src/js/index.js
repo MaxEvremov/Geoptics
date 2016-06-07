@@ -31,8 +31,8 @@
 
 //_.forEach(binding_handlers, (value, key) => ko.bindingHandlers[key] = value)
 
-$(document).ready(() => {
-    let pager = new Pager($, ko)
+$(document).ready(function() {
+    var pager = new Pager($, ko)
     window.pager = pager
 
     pager.useHTML5history = true
@@ -43,7 +43,7 @@ $(document).ready(() => {
 
     pager.startHistoryJs()
 
-    History.Adapter.bind(window, "statechange", () => {
+    History.Adapter.bind(window, "statechange", function() {
         m_site.state.current_page(pager.activePage$().currentId)
     })
     m_site.state.current_page(pager.activePage$().currentId)
@@ -51,7 +51,7 @@ $(document).ready(() => {
     helpers.makeAJAXRequest(
         "/api/app/auth/init",
         "get",
-        (err, result) => {
+        function(err, result) {
             m_site.state.user(result ? result : null)
             m_site.state.is_ready(true)
 

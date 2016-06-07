@@ -15,35 +15,37 @@
 //
 //import dygraph_main from "./plot-main"
 
-// const
+// var
 
-const INIT_COLORS_NUMBER = 20
+var INIT_COLORS_NUMBER = 20
 
 // helpers
 
-let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ssZ")
+var formatDate = function(date) {
+    return moment(date).format("YYYY-MM-DD HH:mm:ssZ")
+}
 
 // init
 
-let is_inited = false
+var is_inited = false
 
-let plots = {}
-let plot_colors = []
+var plots = {}
+var plot_colors = []
 
-for(let i = 0; i < INIT_COLORS_NUMBER; i++) {
+for(var i = 0; i < INIT_COLORS_NUMBER; i++) {
     plot_colors.push(randomColor({ luminosity: "dark" }))
 }
 
-let plot_data = [[0, 0]]
-let plot_labels = ["X", "Y1"]
+var plot_data = [[0, 0]]
+var plot_labels = ["X", "Y1"]
 
-let plot_avg = null
-let plot_main = null
+var plot_avg = null
+var plot_main = null
 
-let current_well = m_site.state.current_well
+var current_well = m_site.state.current_well
 
-let getTimelineEvents = () => {
-    current_well.getTimelineEvents((err, result) => {
+var getTimelineEvents = function() {
+    current_well.getTimelineEvents(function(err, result) {
         if(err) {
             return console.error(err)
         }
@@ -52,9 +54,9 @@ let getTimelineEvents = () => {
     })
 }
 
-let queue = async.queue(
-    (date, done) => {
-        let mode = vm.current_mode()
+var queue = async.queue(
+    function(date, done) {
+        var mode = vm.current_mode()
 
         helpers.makeAJAXRequest(
             "/api/app/plots/measurements",
@@ -64,17 +66,17 @@ let queue = async.queue(
                 well_id: 1, // TODO: поменять на настоящий id выбранной скважины
                 is_setting_min_length: mode === "min_length"
             },
-            (err, result) => {
+            function(err, result) {
                 if(err) {
                     return done(err)
                 }
 
-                let plot = result[0]
+                var plot = result[0]
 
                 if(mode === "reference_point") {
                     vm.reference_date(formatDate(plot.date))
 
-                    let plot_labels = ["Length", formatDate(plot.date)]
+                    var plot_labels = ["Length", formatDate(plot.date)]
 
                     plot_main.updateOptions({
                         file: plot.values,
@@ -87,7 +89,7 @@ let queue = async.queue(
                 if(mode === "timeline_event") {
                     vm.timeline_event_date(formatDate(plot.date))
 
-                    let plot_labels = ["Length", formatDate(plot.date)]
+                    var plot_labels = ["Length", formatDate(plot.date)]
 
                     plot_main.updateOptions({
                         file: plot.values,
@@ -111,9 +113,9 @@ let queue = async.queue(
     1
 )
 
-let init = () => {
-    let plot_avg_interaction_model = Dygraph.Interaction.defaultModel
-    plot_avg_interaction_model.dblclick = () => {}
+var init = function() {
+    var plot_avg_interaction_model = Dygraph.Interaction.defaultModel
+    plot_avg_interaction_model.dblclick = function() {}
 
     plot_avg = new Dygraph(
         $("#dygraph_avg_container")[0],
@@ -122,34 +124,38 @@ let init = () => {
             height: 150,
             labels: ["Date", "Pressure", "Annotations"],
             connectSeparatedPoints: true,
-            clickCallback: (e, x, points) => {
-                let selected_date = points[0].xval
-                queue.push(selected_date, (err) => {
+            clickCallback: function(e, x, points) {
+                var selected_date = points[0].xval
+                queue.push(selected_date, function(err) {
                     if(err) {
                         console.error(err)
                     }
                 })
             },
-            zoomCallback: (min_date, max_date, y_ranges) => {
+            zoomCallback: function(min_date, max_date, y_ranges) {
                 vm.min_zoom_y(y_ranges[0][0])
                 vm.max_zoom_y(y_ranges[0][1])
             },
-            drawCallback: (dygraph, is_initial) => {
-                let plot_annotations = $(".dygraphDefaultAnnotation.dygraph-annotation-plot")
+            drawCallback: function(dygraph, is_initial) {
+                var plot_annotations = $(".dygraphDefaultAnnotation.dygraph-annotation-plot")
 
-                plot_annotations.sort((a, b) => parseInt(a.innerHTML) - parseInt(b.innerHTML))
+                plot_annotations.sort(function(a, b) {
+                    return parseInt(a.innerHTML) - parseInt(b.innerHTML)
+                })
 
                 plot_annotations.css(
                     "background",
-                    (index, value) => plot_colors[index]
+                    function(index, value) {
+                        return plot_colors[index]
+                    }
                 )
 
                 if(is_initial) {
                     return
                 }
 
-                let x_range = dygraph.xAxisRange()
-                let y_range = dygraph.yAxisRange()
+                var x_range = dygraph.xAxisRange()
+                var y_range = dygraph.yAxisRange()
 
                 vm.min_zoom_x(moment(x_range[0]).format("DD/MM/YYYY HH:mm:ss"))
                 vm.max_zoom_x(moment(x_range[1]).format("DD/MM/YYYY HH:mm:ss"))
@@ -159,16 +165,18 @@ let init = () => {
     )
     window.plot_avg = plot_avg
 
-    plot_avg.ready(() => {
+    plot_avg.ready(function() {
         helpers.makeAJAXRequest(
             "/api/app/plots/p_measurements",
             "get",
-            (err, result) => {
+            function(err, result) {
                 if(err) {
                     return console.error(err)
                 }
 
-                let data = result.map(v => [new Date(v[0]), v[1], null])
+                var data = result.map(function(v) {
+                    return [new Date(v[0]), v[1], null]
+                })
 
                 plot_avg.updateOptions({
                     file: data
@@ -180,23 +188,23 @@ let init = () => {
     })
 
     plot_main = dygraph_main.init()
-    let line = $("#dygraph_container .line")[0]
+    var line = $("#dygraph_container .line")[0]
 
     plot_main.updateOptions({
-        clickCallback: (e, x, points) => {
-            let mode = vm.current_mode()
+        clickCallback: function(e, x, points) {
+            var mode = vm.current_mode()
 
             if(mode === "reference_point") {
-                let point = points[0]
+                var point = points[0]
 
                 vm.reference_length(point.xval)
                 vm.reference_temp(point.yval)
             }
 
             if(mode === "min_length") {
-                let point = points[0]
+                var point = points[0]
 
-                let x = point.canvasx
+                var x = point.canvasx
 
                 line.style.visibility = "visible"
                 line.style.left = x + "px"
@@ -205,9 +213,9 @@ let init = () => {
             }
         }
     })
-    plot_main.ready((err, graph) => {
-        vm.selected_plots.subscribe(value => {
-            let annotations = value
+    plot_main.ready(function(err, graph) {
+        vm.selected_plots.subscribe(function(value) {
+            var annotations = value
 
             if(annotations.length === 0) {
                 plot_data = [[0, 0]]
@@ -218,16 +226,18 @@ let init = () => {
                     plot_colors.push(randomColor({ luminosity: "dark" }))
                 }
 
-                let dates = vm.selected_points()
+                var dates = vm.selected_points()
 
                 plot_labels = ["Length"].concat(dates.map(formatDate))
-                plot_data = _.map(plots[dates[0]], v => [v[0]])
+                plot_data = _.map(plots[dates[0]], function(v) {
+                    return [v[0]]
+                })
 
-                for(let i = 0; i < dates.length; i++) {
-                    let date = dates[i]
+                for(var i = 0; i < dates.length; i++) {
+                    var date = dates[i]
 
-                    for(let j = 0; j < plots[date].length; j++) {
-                        let plot = plots[date]
+                    for(var j = 0; j < plots[date].length; j++) {
+                        var plot = plots[date]
                         plot_data[j].push(plot[j][1])
                     }
                 }
@@ -246,7 +256,7 @@ let init = () => {
 
 // main
 
-let vm = {
+var vm = {
     selected_points: ko.observableArray(),
     min_deviation: ko.observable(0),
 
@@ -260,26 +270,26 @@ let vm = {
     timeline_events: ko.observableArray()
 }
 
-vm.afterShow = () => {
+vm.afterShow = function() {
     if(!is_inited) {
         init()
     }
 
     if(plot_avg) {
-        setTimeout(() => plot_avg.resize(), 0)
+        setTimeout(function() { plot_avg.resize(), 0 })
     }
 
     if(plot_main) {
-        setTimeout(() => plot_main.resize(), 0)
+        setTimeout(function() { plot_main.resize(), 0 })
     }
 }
 
 vm.are_settings_enabled = ko.observable(false)
-vm.toggleSettings = () => {
+vm.toggleSettings = function() {
     vm.are_settings_enabled(!vm.are_settings_enabled())
 }
 
-let clearModeData = (mode) => {
+var clearModeData = function(mode) {
     if(mode === "reference_point") {
         vm.reference_date(null)
         vm.reference_temp(null)
@@ -311,11 +321,11 @@ vm.current_mode = ko.observable("normal")
 vm.current_mode.subscribe(clearModeData)
 vm.current_mode.subscribe(clearModeData, null, "beforeChange")
 
-vm.returnToNormalMode = () => {
+vm.returnToNormalMode = function() {
     vm.current_mode("normal")
 }
 
-vm.editReferencePoint = () => {
+vm.editReferencePoint = function() {
     vm.current_mode("reference_point")
 }
 
@@ -323,14 +333,14 @@ vm.reference_date = ko.observable()
 vm.reference_temp = ko.observable()
 vm.reference_length = ko.observable()
 
-vm.saveReferencePoint = () => {
+vm.saveReferencePoint = function() {
     current_well.setReferencePoint(
         {
             date: vm.reference_date(),
             temp: vm.reference_temp(),
             length: vm.reference_length()
         },
-        (err, result) => {
+        function(err, result) {
             if(err) {
                 return console.error(err)
             }
@@ -342,16 +352,16 @@ vm.saveReferencePoint = () => {
 
 vm.min_length = ko.observable(0)
 
-vm.setMinLength = () => {
+vm.setMinLength = function() {
     vm.current_mode("min_length")
 }
 
-vm.saveMinLength = () => {
+vm.saveMinLength = function() {
     current_well.setMinLength(
         {
             min_length: vm.min_length()
         },
-        (err, result) => {
+        function(err, result) {
             if(err) {
                 return console.error(err)
             }
@@ -365,18 +375,18 @@ vm.timeline_event_short_text = ko.observable()
 vm.timeline_event_description = ko.observable()
 vm.timeline_event_date = ko.observable()
 
-vm.addTimelineEvent = () => {
+vm.addTimelineEvent = function() {
     vm.current_mode("timeline_event")
 }
 
-vm.saveTimelineEvent = () => {
+vm.saveTimelineEvent = function() {
     current_well.addTimelineEvent(
         {
             short_text: vm.timeline_event_short_text(),
             description: vm.timeline_event_description(),
             date: vm.timeline_event_date()
         },
-        (err, result) => {
+        function(err, result) {
             if(err) {
                 return console.error(err)
             }
@@ -391,22 +401,24 @@ vm.plot_colors = plot_colors
 
 vm.moment = moment
 
-vm.removePoint = (data, event) => {
-    vm.selected_points.remove((item) => item === data.x)
+vm.removePoint = function(data, event) {
+    vm.selected_points.remove(function(item) {
+        return item === data.x
+    })
 }
 
-vm.downloadLAS = (data, event) => {
-    let date = encodeURIComponent(formatDate(data.x))
+vm.downloadLAS = function(data, event) {
+    var date = encodeURIComponent(formatDate(data.x))
     window.open(`/api/app/plots/las?date=${date}`)
 }
 
-vm.saveFavorite = () => {
-    let x_avg = plot_avg.xAxisRange()
-    let y_avg = plot_avg.yAxisRange()
-    let x_main = plot_main.xAxisRange()
-    let y_main = plot_main.yAxisRange()
+vm.saveFavorite = function() {
+    var x_avg = plot_avg.xAxisRange()
+    var y_avg = plot_avg.yAxisRange()
+    var x_main = plot_main.xAxisRange()
+    var y_main = plot_main.yAxisRange()
 
-    let points = ko.mapping.toJS(vm.selected_points())
+    var points = ko.mapping.toJS(vm.selected_points())
     points = points.map(formatDate)
 
     helpers.makeAJAXRequest(
@@ -425,7 +437,7 @@ vm.saveFavorite = () => {
             zoom_main_low: y_main[0],
             zoom_main_high: y_main[1]
         },
-        (err, result) => {
+        function(err, result) {
             if(err) {
                 return console.error(err)
             }
@@ -433,12 +445,12 @@ vm.saveFavorite = () => {
     )
 }
 
-vm.getDeviations = () => {
-    let min_deviation = parseFloat(vm.min_deviation())
+vm.getDeviations = function() {
+    var min_deviation = parseFloat(vm.min_deviation())
 
-    let x_avg = plot_avg.xAxisRange()
-    let date_start = formatDate(x_avg[0])
-    let date_end = formatDate(x_avg[1])
+    var x_avg = plot_avg.xAxisRange()
+    var date_start = formatDate(x_avg[0])
+    var date_end = formatDate(x_avg[1])
 
     helpers.makeAJAXRequest(
         "/api/app/plots/deviations",
@@ -448,7 +460,7 @@ vm.getDeviations = () => {
             date_start: date_start,
             date_end: date_end
         },
-        (err, result) => {
+        function(err, result) {
             if(err) {
                 return console.error(err)
             }
@@ -460,13 +472,15 @@ vm.getDeviations = () => {
 
 // computed observables
 
-vm.selected_plots = ko.computed(() => {
-    let points = vm.selected_points()
-    let result = []
+vm.selected_plots = ko.computed(function() {
+    var points = vm.selected_points()
+    var result = []
 
-    points.sort((a, b) => a - b)
+    points.sort(function(a, b) {
+        return a - b
+    })
 
-    for(let i = 0; i < points.length; i++) {
+    for(var i = 0; i < points.length; i++) {
         result.push({
             x: points[i]
         })
@@ -475,16 +489,16 @@ vm.selected_plots = ko.computed(() => {
     return result
 })
 
-vm.annotations = ko.computed(() => {
-    const AVG_Y_AXIS = "Annotations"
+vm.annotations = ko.computed(function() {
+    var AVG_Y_AXIS = "Annotations"
 
-    let selected_plots = vm.selected_plots()
-    let deviations = vm.deviations()
-    let timeline_events = vm.timeline_events()
+    var selected_plots = vm.selected_plots()
+    var deviations = vm.deviations()
+    var timeline_events = vm.timeline_events()
 
-    let result = []
+    var result = []
 
-    selected_plots.forEach((v, i) => {
+    selected_plots.forEach(function(v, i) {
         result.push({
             series: AVG_Y_AXIS,
             x: v.x,
@@ -494,7 +508,7 @@ vm.annotations = ko.computed(() => {
         })
     })
 
-    deviations.forEach((v) => {
+    deviations.forEach(function(v) {
         result.push({
             series: AVG_Y_AXIS,
             x: Date.parse(v.date),
@@ -504,7 +518,7 @@ vm.annotations = ko.computed(() => {
         })
     })
 
-    timeline_events.forEach((v) => {
+    timeline_events.forEach(function(v) {
         result.push({
             series: AVG_Y_AXIS,
             x: Date.parse(v.date),
@@ -517,11 +531,13 @@ vm.annotations = ko.computed(() => {
 
     return result
 })
-vm.annotations.subscribe((value) => {
-    let file = plot_avg.file_
+vm.annotations.subscribe(function(value) {
+    var file = plot_avg.file_
 
-    value.forEach(annotation => {
-        if(!file.find(v => v[0].getTime() === annotation.x)) {
+    value.forEach(function(annotation) {
+        if(!file.find(function(v) {
+            return v[0].getTime() === annotation.x
+        })) {
             file.push([new Date(annotation.x), null, null])
         }
     })
@@ -535,9 +551,9 @@ vm.annotations.subscribe((value) => {
 
 // avg graph params
 
-let updateZoomX = (value) => {
-    let min_moment = moment(vm.min_zoom_x(), "DD/MM/YYYY HH:mm:ss")
-    let max_moment = moment(vm.max_zoom_x(), "DD/MM/YYYY HH:mm:ss")
+var updateZoomX = function(value) {
+    var min_moment = moment(vm.min_zoom_x(), "DD/MM/YYYY HH:mm:ss")
+    var max_moment = moment(vm.max_zoom_x(), "DD/MM/YYYY HH:mm:ss")
 
     if(!min_moment.isValid() || !max_moment.isValid()) {
         return
@@ -549,9 +565,9 @@ let updateZoomX = (value) => {
     })
 }
 
-let updateZoomY = (value) => {
-    let min_zoom = parseFloat(vm.min_zoom_y())
-    let max_zoom = parseFloat(vm.max_zoom_y())
+var updateZoomY = function(value) {
+    var min_zoom = parseFloat(vm.min_zoom_y())
+    var max_zoom = parseFloat(vm.max_zoom_y())
 
     plot_avg.updateOptions({
         valueRange: [min_zoom, max_zoom],
@@ -565,7 +581,7 @@ vm.max_zoom_x.subscribe(updateZoomX)
 vm.min_zoom_y.subscribe(updateZoomY)
 vm.max_zoom_y.subscribe(updateZoomY)
 
-vm.resetAvgPlotZoom = () => {
+vm.resetAvgPlotZoom = function() {
     plot_avg.resetZoom()
 }
 
@@ -575,7 +591,7 @@ vm.adjustRoll.subscribe( function(val) {
 	plot_avg.adjustRoll(Number(val))
 })
 
-vm.is_main_plot_visible = ko.computed(() => {
+vm.is_main_plot_visible = ko.computed(function() {
     if(vm.current_mode() === "reference_point") {
         return !!vm.reference_date()
     }

@@ -12,28 +12,32 @@
 
 // main
 
-let vm = {
+var vm = {
     favorites: ko.observableArray()
 }
 
-vm.formatDate = (date) => moment(date).format("DD-MM-YYYY HH:mm:ssZ")
+vm.formatDate = function(date) {
+    return moment(date).format("DD-MM-YYYY HH:mm:ssZ")
+}
 
-vm.load = (data, event) => {
+vm.load = function(data, event) {
      helpers.makeAJAXRequest(
          "/api/app/plots/measurements",
          "post",
          {
-             dates: data.points.map(date => vm.formatDate(date)),
+             dates: data.points.map(function(date) {
+                 return vm.formatDate(date)
+             }),
              well_id: 1 // TODO: заменить на настоящий id скважины
          },
-         (err, result) => {
+         function(err, result) {
              if(err) {
                  return console.error(err)
              }
 
              plots.selected_points.removeAll()
 
-             result.forEach(v => {
+             result.forEach(function(v) {
                  plots.plots[v.date] = v.values
                  plots.selected_points.push(v.date)
              })
@@ -53,23 +57,25 @@ vm.load = (data, event) => {
      )
 }
 
-vm.loadAll = () => {
+vm.loadAll = function() {
     helpers.makeAJAXRequest(
         "/api/app/favorites",
         "get",
-        (err, result) => {
+        function(err, result) {
             if(err) {
                 return console.error(err)
             }
 
             vm.favorites.removeAll()
 
-            result.forEach(favorite => vm.favorites.push(favorite))
+            result.forEach(function(favorite) {
+                vm.favorites.push(favorite)
+            })
         }
     )
 }
 
-vm.onShow = () => {
+vm.onShow = function() {
     vm.loadAll()
 }
 

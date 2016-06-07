@@ -6,19 +6,19 @@
 //import $ from "jquery"
 //import Dygraph from "dygraphs"
 
-// const
+// var
 
-const DYGRAPH_BOTTOM_OFFSET = 50
-const DYGRAPH_PADDING = 50
+var DYGRAPH_BOTTOM_OFFSET = 50
+var DYGRAPH_PADDING = 50
 
-const DYGRAPH_BOX_ID = "#dygraph_box"
-const DYGRAPH_BOX_BODY_ID = "#dygraph_box_body"
-const DYGRAPH_CONTAINER_ID = "#dygraph_container"
+var DYGRAPH_BOX_ID = "#dygraph_box"
+var DYGRAPH_BOX_BODY_ID = "#dygraph_box_body"
+var DYGRAPH_CONTAINER_ID = "#dygraph_container"
 
 // dygraph options
 
-let swapEventAxis = (e) => {
-    let new_e
+var swapEventAxis = function(e) {
+    var new_e
 
     if (document.createEvent) {
         new_e = document.createEvent('MouseEvent');
@@ -58,8 +58,8 @@ let swapEventAxis = (e) => {
     return new_e
 }
 
-let drawCallback = () => {
-    let xlabel_transform = 'rotate(180deg) translateY(-5px) rotateY(180deg)'
+var drawCallback = function() {
+    var xlabel_transform = 'rotate(180deg) translateY(-5px) rotateY(180deg)'
     $(DYGRAPH_CONTAINER_ID + ' .dygraph-xlabel').parent().css({
         transform: xlabel_transform,
         msTransform: xlabel_transform,
@@ -67,7 +67,7 @@ let drawCallback = () => {
         "-webkit-filter": "blur(0.000001px)"
     })
 
-    let ylabel_transform = 'rotate(90deg) rotateY(180deg) translateY(-10px)'
+    var ylabel_transform = 'rotate(90deg) rotateY(180deg) translateY(-10px)'
     $(DYGRAPH_CONTAINER_ID + ' .dygraph-ylabel').parent().css({
         transform: ylabel_transform,
         msTransform: ylabel_transform,
@@ -75,7 +75,7 @@ let drawCallback = () => {
         "-webkit-filter": "blur(0.000001px)"
     })
 
-    let axis_label_x_transform = 'translateY(17.5px) translateX(0.5px) rotate(90deg) rotateY(180deg)'
+    var axis_label_x_transform = 'translateY(17.5px) translateX(0.5px) rotate(90deg) rotateY(180deg)'
     $(DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-x, ' + DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-y').parent().css({
         transform: axis_label_x_transform,
         msTransform: axis_label_x_transform,
@@ -83,7 +83,7 @@ let drawCallback = () => {
         "-webkit-filter": "blur(0.000001px)"
     })
 
-    let axis_label_y_transform = 'translateX(17.5px) translateY(0.5px) rotate(90deg) rotateY(180deg)'
+    var axis_label_y_transform = 'translateX(17.5px) translateY(0.5px) rotate(90deg) rotateY(180deg)'
     $(DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-y').parent().css({
         transform: axis_label_y_transform,
         msTransform: axis_label_y_transform,
@@ -91,7 +91,7 @@ let drawCallback = () => {
         "-webkit-filter": "blur(0.000001px)"
     })
 
-    let legend_transform = 'rotate(90deg) translateY(-5px) rotateY(180deg)'
+    var legend_transform = 'rotate(90deg) translateY(-5px) rotateY(180deg)'
     $(DYGRAPH_CONTAINER_ID + ' .dygraph-legend').css({
         textAlign: 'right',
         transform: legend_transform,
@@ -101,7 +101,7 @@ let drawCallback = () => {
     })
 }
 
-let interactionModel = {
+var interactionModel = {
     mousedown: function(event, g, context) {
         event = swapEventAxis(event)
 
@@ -171,22 +171,22 @@ let interactionModel = {
 
 // main
 
-let line
+var line
 
-let exports = {
-    init: () => {
-        let box_rect = $(DYGRAPH_BOX_ID)[0].getBoundingClientRect()
+var exports = {
+    init: function() {
+        var box_rect = $(DYGRAPH_BOX_ID)[0].getBoundingClientRect()
 
-        let box_height = $(window).height() - box_rect.top - DYGRAPH_BOTTOM_OFFSET
+        var box_height = $(window).height() - box_rect.top - DYGRAPH_BOTTOM_OFFSET
 
         $(DYGRAPH_BOX_ID).css({
             height: box_height
         })
 
-        let dygraph_width = $(DYGRAPH_BOX_BODY_ID).height() - DYGRAPH_PADDING
-        let dygraph_height = $(DYGRAPH_BOX_BODY_ID).width() - DYGRAPH_PADDING
+        var dygraph_width = $(DYGRAPH_BOX_BODY_ID).height() - DYGRAPH_PADDING
+        var dygraph_height = $(DYGRAPH_BOX_BODY_ID).width() - DYGRAPH_PADDING
 
-        let dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ ((dygraph_width - dygraph_height) / 2) - 25}px) translateX(${ -((dygraph_width - dygraph_height) / 2)}px)`
+        var dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ ((dygraph_width - dygraph_height) / 2) - 25}px) translateX(${ -((dygraph_width - dygraph_height) / 2)}px)`
 
         $(DYGRAPH_CONTAINER_ID).css({
             transform: dygraph_transform,
@@ -194,7 +194,7 @@ let exports = {
             webkitTransform: dygraph_transform
         })
 
-        let plot_main = new Dygraph(
+        var plot_main = new Dygraph(
             $(DYGRAPH_CONTAINER_ID)[0],
             [[0, 0]],
             {

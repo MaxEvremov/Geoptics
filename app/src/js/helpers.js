@@ -3,25 +3,25 @@
 //import $ from "jquery"
 //import _ from "lodash"
 
-// const SERVER_URL = ""
+// var SERVER_URL = ""
 
 window.helpers={}
-helpers.makeAJAXRequest = (url, method, data, done) => {
-//export let makeAJAXRequest = (url, method, data, done) => {
+helpers.makeAJAXRequest = function(url, method, data, done) {
+//export var makeAJAXRequest = function(url, method, data, done) {
 	if (_.isFunction(data) && _.isUndefined(done)) {
 		done = data
 		data = {}
 	}
 
-	let params = {
+	var params = {
 		//  url: SERVER_URL + url,
        url: url,
 		type: method,
 		dataType: "JSON",
 		contentType: "application/json",
-		success: (answer, code) => {
-			let err = answer.err
-			let result = answer.result
+		success: function(answer, code) {
+			var err = answer.err
+			var result = answer.result
 
 			if (err) {
 				return done(err)
@@ -32,7 +32,7 @@ helpers.makeAJAXRequest = (url, method, data, done) => {
         xhrFields: {
             withCredentials: true
         },
-		error: () => {
+		error: function() {
 			return done("network_err")
 		}
 	}

@@ -10,13 +10,13 @@
 // main
 
 ko.bindingHandlers.dygraph = {
-    init: (element, value_accessor) => {
-        let value = ko.unwrap(value_accessor())
+    init: function(element, value_accessor) {
+        var value = ko.unwrap(value_accessor())
 
-        let options = value.options
-        let done = value.done
+        var options = value.options
+        var done = value.done
 
-        let graph = new Dygraph(
+        var graph = new Dygraph(
             element,
             [[0, 0]],
             options
@@ -27,8 +27,8 @@ ko.bindingHandlers.dygraph = {
 }
 
 ko.bindingHandlers.jmask = {
-    init: (element, value_accessor) => {
-        let value = ko.unwrap(value_accessor())
+    init: function(element, value_accessor) {
+        var value = ko.unwrap(value_accessor())
 
         $(element).mask(value.mask, value.options || {})
     }

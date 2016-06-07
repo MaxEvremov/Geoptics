@@ -9,3 +9,4 @@ python_scripts/bin
 .Python
 python_scripts/include
 pip-selfcheck.json
+python_scripts/venv

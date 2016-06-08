@@ -452,6 +452,69 @@ api.post(
     }
 )
 
+api.post(
+    "/length_annotation",
+    helpers.validateRequestData({
+        well_id: isIDValid,
+        short_text: true,
+        description: true,
+        length: (length) => _.isNumber(length) && length >= 0
+    }),
+    (req, res) => {
+        let query = `INSERT INTO length_annotations
+            (well_id, short_text, description, length)
+            VALUES (
+                ${req.body.well_id},
+                '${req.body.short_text}',
+                '${req.body.description}',
+                '${req.body.length}'
+            )`
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.json({
+                        err: err
+                    })
+                }
+
+                return res.json({
+                    err: null
+                })
+            }
+        )
+    }
+)
+
+api.post(
+    "/length_annotations",
+    helpers.validateRequestData({
+        well_id: isIDValid
+    }),
+    (req, res) => {
+        let query = `SELECT short_text, description, length
+            FROM length_annotations
+            WHERE well_id = ${req.body.well_id}`
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.json({
+                        err: err
+                    })
+                }
+
+                return res.json({
+                    err: null,
+                    result: result
+                })
+            }
+        )
+    }
+)
+
 // exports
 
 module.exports = api

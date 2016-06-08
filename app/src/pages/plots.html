@@ -152,7 +152,7 @@
         color: white;
     }
 
-    .dygraph-annotation-event {
+    .dygraph-annotation-event, .dygraph-annotation-length {
         background-color: #666;
     }
 
@@ -323,21 +323,21 @@
                 </div>
             </div>
 
-            <div class="box box-danger" data-bind="visible: current_mode() === 'timeline_event'">
+            <div class="box box-danger" data-bind="visible: current_mode() === 'length_annotation'">
                 <div class="box-header">
-                    <h3 class="box-title">Добавление события на таймлайне</h3>
+                    <h3 class="box-title">Добавление конструкционного элемента</h3>
                 </div>
 
                 <div class="box-body">
                     <ul class="list-unstyled">
-                        <li>Дата: <span data-bind="text: timeline_event_date"></span></li>
-                        <li>Краткое обозначение: <input data-bind="textInput: timeline_event_short_text"></li>
-                        <li>Описание: <input data-bind="textInput: timeline_event_description"></li>
+                        <li>Глубина: <span data-bind="text: length_annotation_length"></span></li>
+                        <li>Краткое обозначение: <input data-bind="textInput: length_annotation_short_text"></li>
+                        <li>Описание: <input data-bind="textInput: length_annotation_description"></li>
                     </ul>
                 </div>
 
                 <div class="box-footer">
-                    <a class="btn btn-sm btn-danger" data-bind="click: saveTimelineEvent">
+                    <a class="btn btn-sm btn-danger" data-bind="click: saveLengthAnnotation">
                         <span>Сохранить</span>
                     </a>
                     <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">

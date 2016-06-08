@@ -124,6 +124,20 @@ ALTER SEQUENCE favorites_id_seq OWNED BY favorites.id;
 
 
 --
+-- Name: length_annotations; Type: TABLE; Schema: public; Owner: lwpss
+--
+
+CREATE TABLE length_annotations (
+    well_id integer,
+    short_text text,
+    description text,
+    length real
+);
+
+
+ALTER TABLE length_annotations OWNER TO lwpss;
+
+--
 -- Name: p_measurements; Type: TABLE; Schema: public; Owner: lwpss
 --
 
@@ -385,6 +399,14 @@ CREATE INDEX timeline_events_well_id_idx ON timeline_events USING btree (well_id
 
 ALTER TABLE ONLY favorites
     ADD CONSTRAINT favorites_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id);
+
+
+--
+-- Name: length_annotations_well_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: lwpss
+--
+
+ALTER TABLE ONLY length_annotations
+    ADD CONSTRAINT length_annotations_well_id_fkey FOREIGN KEY (well_id) REFERENCES wells(id);
 
 
 --

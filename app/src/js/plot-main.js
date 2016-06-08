@@ -90,6 +90,14 @@
             webkitTransform: legend_transform,
             "-webkit-filter": "blur(0.000001px)"
         })
+
+        var length_annotation_transform = 'rotateY(180deg)'
+        $(DYGRAPH_CONTAINER_ID + ' .dygraph-annotation-length').css({
+            transform: length_annotation_transform,
+            msTransform: length_annotation_transform,
+            webkitTransform: length_annotation_transform,
+            "-webkit-filter": "blur(0.000001px)"
+        })
     }
 
     var interactionModel = {

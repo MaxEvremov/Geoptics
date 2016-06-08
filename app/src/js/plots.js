@@ -183,12 +183,15 @@ var init = function() {
                 })
 
                 getTimelineEvents()
+                getLengthAnnotations()
             }
         )
     })
 
     plot_main = dygraph_main.init()
     var line = $("#dygraph_container .line")[0]
+
+    window.plot_main = plot_main
 
     plot_main.updateOptions({
         clickCallback: function(e, x, points) {
@@ -210,6 +213,12 @@ var init = function() {
                 line.style.left = x + "px"
 
                 vm.min_length(point.xval)
+            }
+
+            if(mode === "length_annotation") {
+                var point = points[0]
+
+                vm.length_annotation_length(point.xval)
             }
         }
     })
@@ -248,6 +257,10 @@ var init = function() {
                 labels: plot_labels,
                 colors: plot_colors
             })
+
+            if(annotations.length !== 0) {
+                vm.length_annotations.valueHasMutated()
+            }
         })
     })
 
@@ -311,8 +324,14 @@ var clearModeData = function(mode) {
 
     if(mode === "timeline_event") {
         vm.timeline_event_date(null)
+        vm.timeline_event_short_text(null)
         vm.timeline_event_description(null)
-        vm.timeline_event_description(null)
+    }
+
+    if(mode === "length_annotation") {
+        vm.length_annotation_length(null)
+        vm.length_annotation_short_text(null)
+        vm.length_annotation_description(null)
     }
 }
 
@@ -324,6 +343,8 @@ vm.current_mode.subscribe(clearModeData, null, "beforeChange")
 vm.returnToNormalMode = function() {
     vm.current_mode("normal")
 }
+
+// reference_point
 
 vm.editReferencePoint = function() {
     vm.current_mode("reference_point")
@@ -350,6 +371,8 @@ vm.saveReferencePoint = function() {
     )
 }
 
+// min_length
+
 vm.min_length = ko.observable(0)
 
 vm.setMinLength = function() {
@@ -370,6 +393,8 @@ vm.saveMinLength = function() {
         }
     )
 }
+
+// timeline_event
 
 vm.timeline_event_short_text = ko.observable()
 vm.timeline_event_description = ko.observable()
@@ -393,6 +418,46 @@ vm.saveTimelineEvent = function() {
 
             vm.current_mode("normal")
             getTimelineEvents()
+        }
+    )
+}
+
+// length_annotation
+
+vm.length_annotations = ko.observableArray()
+
+var getLengthAnnotations = function() {
+    current_well.getLengthAnnotations(function(err, result) {
+        if(err) {
+            return console.error(err)
+        }
+
+        vm.length_annotations(result || [])
+    })
+}
+
+vm.length_annotation_short_text = ko.observable()
+vm.length_annotation_description = ko.observable()
+vm.length_annotation_length = ko.observable()
+
+vm.addLengthAnnotation = function() {
+    vm.current_mode("length_annotation")
+}
+
+vm.saveLengthAnnotation = function() {
+    current_well.addLengthAnnotation(
+        {
+            short_text: vm.length_annotation_short_text(),
+            description: vm.length_annotation_description(),
+            length: vm.length_annotation_length()
+        },
+        function(err, result) {
+            if(err) {
+                return console.error(err)
+            }
+
+            vm.current_mode("normal")
+            getLengthAnnotations()
         }
     )
 }
@@ -572,6 +637,29 @@ vm.annotations.subscribe(function(value) {
     })
 
     plot_avg.setAnnotations(value)
+})
+
+vm.length_annotations.subscribe(function(value) {
+    var labels = plot_main.getOption("labels")
+
+    if(labels.length <= 1) {
+        return
+    }
+
+    var series = labels[1]
+
+    value = _.map(value, function(v) {
+        return {
+            series: series,
+            x: v.length,
+            shortText: v.short_text,
+            text: v.description || "",
+            attachAtBottom: true,
+            cssClass: "dygraph-annotation-length"
+        }
+    })
+
+    plot_main.setAnnotations(value)
 })
 
 // avg graph params

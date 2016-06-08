@@ -55,4 +55,29 @@ class Well {
             done
         )
     }
+
+    addLengthAnnotation(params, done) {
+        helpers.makeAJAXRequest(
+            "/api/app/plots/length_annotation",
+            "post",
+            {
+                short_text: params.short_text,
+                description: params.description,
+                length: params.length,
+                well_id: this.id
+            },
+            done
+        )
+    }
+
+    getLengthAnnotations(done) {
+        helpers.makeAJAXRequest(
+            "/api/app/plots/length_annotations",
+            "post",
+            {
+                well_id: this.id
+            },
+            done
+        )
+    }
 }

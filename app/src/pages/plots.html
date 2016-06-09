@@ -323,6 +323,29 @@
                 </div>
             </div>
 
+            <div class="box box-danger" data-bind="visible: current_mode() === 'timeline_event'">
+                <div class="box-header">
+                    <h3 class="box-title">Добавление события на таймлайне</h3>
+                </div>
+
+                <div class="box-body">
+                    <ul class="list-unstyled">
+                        <li>Дата: <span data-bind="text: timeline_event_date"></span></li>
+                        <li>Краткое обозначение: <input data-bind="textInput: timeline_event_short_text"></li>
+                        <li>Описание: <input data-bind="textInput: timeline_event_description"></li>
+                    </ul>
+                </div>
+
+                <div class="box-footer">
+                    <a class="btn btn-sm btn-danger" data-bind="click: saveTimelineEvent">
+                        <span>Сохранить</span>
+                    </a>
+                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+                        <span>Отмена</span>
+                    </a>
+                </div>
+            </div>
+
             <div class="box box-danger" data-bind="visible: current_mode() === 'length_annotation'">
                 <div class="box-header">
                     <h3 class="box-title">Добавление конструкционного элемента</h3>

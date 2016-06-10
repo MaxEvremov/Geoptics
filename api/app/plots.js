@@ -26,16 +26,38 @@ let api = express()
 api.post(
     "/measurements",
     helpers.validateRequestData({
-        dates: true,
-        well_id: isIDValid,
-        is_setting_min_length: _.isBoolean
+        plots: (plots) => {
+            if(!_.isArray(plots)) {
+                plots = [plots]
+            }
+
+            for(let i = 0; i < plots.length; i++) {
+                let plot = plots[i]
+
+                if(!plot.type) {
+                    return false
+                }
+
+                if(plot.type === "avg"
+                && (!plot.date_start || !plot.date_end)) {
+                    return false
+                }
+
+                if(plot.type === "point" && !plot.date) {
+                    return false
+                }
+            }
+
+            return true
+        },
+        well_id: isIDValid
     }),
     (req, res, next) => {
-        let dates = req.body.dates
+        let plots = req.body.plots
         let well_id = req.body.well_id
 
-        if(!_.isArray(dates)) {
-            dates = [dates]
+        if(!_.isArray(plots)) {
+            plots = [plots]
         }
 
         async.waterfall([
@@ -62,64 +84,87 @@ api.post(
                 let measurements = []
 
                 async.each(
-                    dates,
-                    (date, done) => {
-                        let query_with_rdiff = `
-                            WITH vars AS (
-                                SELECT date AS nearest_date
-                                FROM t_measurements
-                                WHERE date <= '${date}' AND well_id = ${well_id}
-                                ORDER BY date DESC
-                                LIMIT 1
-                            ),
-                            rdiff AS (
-                                SELECT t.temp - ${well.reference_temp} AS val
+                    plots,
+                    (plot, done) => {
+                        let query
+
+                        let date = helpers.formatDate(plot.date)
+                        let date_start = helpers.formatDate(plot.date_start)
+                        let date_end = helpers.formatDate(plot.date_end)
+
+                        if(plot.type === "avg") {
+                            query = `
+                                ${has_reference_point
+                                    ? `WITH rdiff AS (
+                                        SELECT avg(t.temp) - ${well.reference_temp} AS val
+                                        FROM t_measurements AS t
+                                        WHERE
+                                            t.well_id = ${well_id}
+                                            AND t.length::numeric = ${well.reference_length}
+                                            AND t.date >= '${date_start}'
+                                            AND t.date <= '${date_end}'
+                                    )`
+                                    : ""
+                                }
+                                SELECT
+                                    t.length AS length,
+                                    ${has_reference_point
+                                        ? "avg(t.temp) - (SELECT val FROM rdiff) AS temp"
+                                        : "avg(t.temp) AS temp"
+                                    }
                                 FROM t_measurements AS t
                                 WHERE
                                     t.well_id = ${well_id}
-                                    AND t.length::numeric = ${well.reference_length}
-                                    AND t.date = (SELECT nearest_date FROM vars)
-                            )
-                            SELECT
-                                t.length AS length,
-                                t.temp - (SELECT val FROM rdiff) AS temp,
-                                t.date AS date
-                            FROM t_measurements AS t
-                            WHERE
-                                t.date = (SELECT nearest_date FROM vars)
-                                AND t.well_id = ${well_id}
-                                ${req.body.is_setting_min_length
-                                    ? "" :
-                                    `AND t.length >= ${well.min_length}`
+                                    AND t.date >= '${date_start}'
+                                    AND t.date <= '${date_end}'
+                                    ${req.body.ignore_min_length
+                                        ? ""
+                                        : `AND t.length >= ${well.min_length}`
+                                    }
+                                GROUP BY t.length
+                                ORDER BY length DESC
+                                `
+                        }
+                        else if(plot.type === "point") {
+                            query = `
+                                WITH vars AS (
+                                    SELECT date AS nearest_date
+                                    FROM t_measurements
+                                    WHERE date <= '${date}' AND well_id = ${well_id}
+                                    ORDER BY date DESC
+                                    LIMIT 1
+                                )
+                                ${has_reference_point
+                                    ? `,rdiff AS (
+                                        SELECT t.temp - ${well.reference_temp} AS val
+                                        FROM t_measurements AS t
+                                        WHERE
+                                            t.well_id = ${well_id}
+                                            AND t.length::numeric = ${well.reference_length}
+                                            AND t.date = (SELECT nearest_date FROM vars)
+                                    )`
+                                    : ""
                                 }
-                            ORDER BY length DESC`
-
-                        let query_wo_rdiff = `
-                            WITH vars AS (
-                                SELECT date AS nearest_date
-                                FROM t_measurements
-                                WHERE date <= '${date}' AND well_id = ${well_id}
-                                ORDER BY date DESC
-                                LIMIT 1
-                            )
-                            SELECT
-                                t.length AS length,
-                                t.temp AS temp,
-                                t.date AS date
-                            FROM t_measurements AS t
-                            WHERE
-                                t.date = (SELECT nearest_date FROM vars)
-                                AND t.well_id = ${well_id}
-                                ${req.body.is_setting_min_length
-                                    ? "" :
-                                    `AND t.length >= ${well.min_length}`
-                                }
-                            ORDER BY length DESC`
+                                SELECT
+                                    t.length AS length,
+                                    ${has_reference_point
+                                        ? "t.temp - (SELECT val FROM rdiff) AS temp"
+                                        : "t.temp AS temp"
+                                    },
+                                    t.date AS date
+                                FROM t_measurements AS t
+                                WHERE
+                                    t.date = (SELECT nearest_date FROM vars)
+                                    AND t.well_id = ${well_id}
+                                    ${req.body.ignore_min_length
+                                        ? ""
+                                        : `AND t.length >= ${well.min_length}`
+                                    }
+                                ORDER BY length DESC`
+                        }
 
                         helpers.makePGQuery(
-                            has_reference_point
-                                ? query_with_rdiff
-                                : query_wo_rdiff,
+                            query,
                             (err, result) => {
                                 if(err) {
                                     return done(err)

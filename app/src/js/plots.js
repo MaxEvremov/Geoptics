@@ -1,22 +1,4 @@
-//"use strict"
-(function(){
-// imports
-//
-//import ko from "knockout"
-//import mapping from "knockout-mapping"
-//import moment from "moment"
-//import Dygraph from "dygraphs"
-//import $ from "jquery"
-//import _ from "lodash"
-//import randomColor from "randomcolor"
-//import async from "async"
-//
-//import * as helpers from "./helpers"
-//
-//import dygraph_main from "./plot-main"
-
-// var
-
+(function() {
 var INIT_COLORS_NUMBER = 20
 
 // helpers
@@ -29,15 +11,11 @@ var formatDate = function(date) {
 
 var is_inited = false
 
-var plots = {}
-var plot_colors = []
-
-for(var i = 0; i < INIT_COLORS_NUMBER; i++) {
-    plot_colors.push(randomColor({ luminosity: "dark" }))
-}
+var plots = []
 
 var plot_data = [[0, 0]]
 var plot_labels = ["X", "Y1"]
+var plot_colors = []
 
 var plot_avg = null
 var plot_main = null
@@ -55,31 +33,28 @@ var getTimelineEvents = function() {
 }
 
 var queue = async.queue(
-    function(date, done) {
+    function(plot, done) {
         var mode = vm.current_mode()
 
-        helpers.makeAJAXRequest(
-            "/api/app/plots/measurements",
-            "post",
+        current_well.getTempMeasurements(
             {
-                dates: formatDate(date),
-                well_id: 1, // TODO: поменять на настоящий id выбранной скважины
-                is_setting_min_length: mode === "min_length"
+                plots: plot,
+                ignore_min_length: mode === "min_length"
             },
             function(err, result) {
                 if(err) {
                     return done(err)
                 }
 
-                var plot = result[0]
+                var answer_plot = result[0]
 
                 if(mode === "reference_point") {
-                    vm.reference_date(formatDate(plot.date))
+                    vm.reference_date(formatDate(answer_plot.date))
 
-                    var plot_labels = ["Length", formatDate(plot.date)]
+                    var plot_labels = ["Length", formatDate(answer_plot.date)]
 
                     plot_main.updateOptions({
-                        file: plot.values,
+                        file: answer_plot.values,
                         labels: plot_labels
                     })
 
@@ -87,24 +62,40 @@ var queue = async.queue(
                 }
 
                 if(mode === "timeline_event") {
-                    vm.timeline_event_date(formatDate(plot.date))
+                    vm.timeline_event_date(formatDate(answer_plot.date))
 
-                    var plot_labels = ["Length", formatDate(plot.date)]
+                    var plot_labels = ["Length", formatDate(answer_plot.date)]
 
                     plot_main.updateOptions({
-                        file: plot.values,
+                        file: answer_plot.values,
                         labels: plot_labels
                     })
 
                     return done()
                 }
 
-                if(vm.selected_points.indexOf(plot.date) !== -1) {
+                let plot_ts = moment(answer_plot.date).valueOf()
+
+                if(_.find(vm.selected_plots, { date: plot_ts })) {
                     return done()
                 }
 
-                plots[plot.date] = plot.values
-                vm.selected_points.push(moment(plot.date).valueOf())
+                var selected_plot = new Plot({
+                    type: plot.type,
+                    data: answer_plot.values
+                })
+
+                if(selected_plot.type === "point") {
+                    selected_plot.date = answer_plot.date
+                }
+
+                if(selected_plot.type === "avg") {
+                    selected_plot.date_start = plot.date_start
+                    selected_plot.date_end = plot.date_end
+                }
+
+                plots.push(selected_plot)
+                vm.selected_plots.push(selected_plot)
 
                 return done()
             }
@@ -114,7 +105,8 @@ var queue = async.queue(
 )
 
 var init = function() {
-    var plot_avg_interaction_model = Dygraph.Interaction.defaultModel
+    var plot_avg_interaction_model = _.cloneDeep(Dygraph.Interaction.defaultModel)
+
     plot_avg_interaction_model.dblclick = function() {}
 
     plot_avg = new Dygraph(
@@ -125,31 +117,23 @@ var init = function() {
             labels: ["Date", "Pressure"],
             connectSeparatedPoints: true,
             clickCallback: function(e, x, points) {
+                e.stopPropagation()
+                e.preventDefault()
+
                 var selected_date = points[0].xval
-                queue.push(selected_date, function(err) {
-                    if(err) {
-                        console.error(err)
-                    }
-                })
+
+                vm.selected_date(selected_date)
+
+                vm.point_box_left(`${e.x}px`)
+                vm.point_box_top(`${e.y}px`)
+
+                vm.is_point_box_visible(true)
             },
             zoomCallback: function(min_date, max_date, y_ranges) {
                 vm.min_zoom_y(y_ranges[0][0])
                 vm.max_zoom_y(y_ranges[0][1])
             },
             drawCallback: function(dygraph, is_initial) {
-                var plot_annotations = $(".dygraphDefaultAnnotation.dygraph-annotation-plot")
-
-                plot_annotations.sort(function(a, b) {
-                    return parseInt(a.innerHTML) - parseInt(b.innerHTML)
-                })
-
-                plot_annotations.css(
-                    "background",
-                    function(index, value) {
-                        return plot_colors[index]
-                    }
-                )
-
                 if(is_initial) {
                     return
                 }
@@ -160,10 +144,34 @@ var init = function() {
                 vm.min_zoom_x(moment(x_range[0]).format("DD/MM/YYYY HH:mm:ss"))
                 vm.max_zoom_x(moment(x_range[1]).format("DD/MM/YYYY HH:mm:ss"))
             },
+            underlayCallback: function(canvas, area, g) {
+                var selected_avg_plots = _.filter(
+                    vm.selected_plots(),
+                    function(plot) { return plot.type === "avg" }
+                )
+
+                var value_range = g.yAxisRanges()
+
+                var bottom = value_range[0]
+                var top = value_range[1]
+
+                for(var i = 0; i < selected_avg_plots.length; i++) {
+                    var plot = selected_avg_plots[i]
+
+                    var bottom_left = g.toDomCoords(plot.date_start, bottom)
+                    var top_right = g.toDomCoords(plot.date_end, top)
+
+                    var left = bottom_left[0]
+                    var right = top_right[0]
+
+                    canvas.fillStyle = plot.fill_color
+                    canvas.fillRect(left, area.y, right - left, area.h)
+                }
+            },
             interactionModel: plot_avg_interaction_model
         }
     )
-    window.plot_avg = plot_avg
+    vm.plot_avg = plot_avg
 
     plot_avg.ready(function() {
         helpers.makeAJAXRequest(
@@ -191,7 +199,7 @@ var init = function() {
     plot_main = dygraph_main.init()
     var line = $("#dygraph_container .line")[0]
 
-    window.plot_main = plot_main
+    vm.plot_main = plot_main
 
     plot_main.updateOptions({
         clickCallback: function(e, x, points) {
@@ -229,25 +237,28 @@ var init = function() {
             if(annotations.length === 0) {
                 plot_data = [[0, 0]]
                 plot_labels = ["X", "Y1"]
+                plot_colors = []
             }
             else {
-                while(plot_colors.length < annotations.length) {
-                    plot_colors.push(randomColor({ luminosity: "dark" }))
-                }
+                var selected_plots = vm.selected_plots()
 
-                var dates = vm.selected_points()
-
-                plot_labels = ["Length"].concat(dates.map(formatDate))
-                plot_data = _.map(plots[dates[0]], function(v) {
-                    return [v[0]]
+                var descriptions = selected_plots.map(function(v) {
+                    return v.description
                 })
 
-                for(var i = 0; i < dates.length; i++) {
-                    var date = dates[i]
+                plot_labels = ["Length"].concat(descriptions)
+                plot_data = _.map(selected_plots[0].data, function(v) {
+                    return [v[0]]
+                })
+                plot_colors = _.map(selected_plots, function(v) {
+                    return v.color
+                })
 
-                    for(var j = 0; j < plots[date].length; j++) {
-                        var plot = plots[date]
-                        plot_data[j].push(plot[j][1])
+                for(var i = 0; i < selected_plots.length; i++) {
+                    var data = selected_plots[i].data
+
+                    for(var j = 0; j < data.length; j++) {
+                        plot_data[j].push(data[j][1])
                     }
                 }
             }
@@ -270,7 +281,6 @@ var init = function() {
 // main
 
 var vm = {
-    selected_points: ko.observableArray(),
     min_deviation: ko.observable(0),
 
     min_zoom_y: ko.observable(),
@@ -280,8 +290,55 @@ var vm = {
     max_zoom_x: ko.observable(),
 
     deviations: ko.observableArray(),
-    timeline_events: ko.observableArray()
+    timeline_events: ko.observableArray(),
+
+    selected_date: ko.observable(),
+
+    is_point_box_visible: ko.observable(false),
+    point_box_top: ko.observable(0),
+    point_box_left: ko.observable(0)
 }
+
+vm.getNearestTempPlot = function() {
+    var date = vm.selected_date()
+
+    var plot = new Plot({
+        type: "point",
+        date: date
+    })
+
+    vm.is_point_box_visible(false)
+    vm.selected_date(null)
+
+    queue.push(plot, function(err) {
+        if(err) {
+            console.error(err)
+        }
+    })
+}
+
+vm.getAvgHourTempPlot = function() {
+    var HOUR = 60 * 60 * 1000
+
+    var date = vm.selected_date()
+
+    var plot = new Plot({
+        type: "avg",
+        date_start: date,
+        date_end: date + HOUR
+    })
+
+    vm.is_point_box_visible(false)
+    vm.selected_date(null)
+
+    queue.push(plot, function(err) {
+        if(err) {
+            console.error(err)
+        }
+    })
+}
+
+vm.plots = plots
 
 vm.afterShow = function() {
     if(!is_inited) {
@@ -308,7 +365,7 @@ var clearModeData = function(mode) {
         vm.reference_temp(null)
         vm.reference_length(null)
 
-        vm.selected_points.removeAll()
+        vm.selected_plots.removeAll()
 
         plot_main.updateOptions({
             file: [[0, 0]],
@@ -319,7 +376,7 @@ var clearModeData = function(mode) {
     if(mode === "min_length") {
         $("#dygraph_container .line")[0].style.visibility = "hidden"
         vm.min_length(null)
-        vm.selected_points.removeAll()
+        vm.selected_plots.removeAll()
     }
 
     if(mode === "timeline_event") {
@@ -467,15 +524,15 @@ vm.plot_colors = plot_colors
 vm.moment = moment
 
 vm.removePoint = function(data, event) {
-    vm.selected_points.remove(function(item) {
-        return item === data.x
+    vm.selected_plots.remove(function(item) {
+        return item == data
     })
 }
 
 vm.showPoint = function(data, event) {
     var HOUR = 60 * 60 * 1000
 
-    var x = data.x
+    var x = data.date
 
     var min_date = plot_avg.file_[0][0].valueOf()
     var max_date = plot_avg.file_[plot_avg.file_.length - 1][0].valueOf()
@@ -493,18 +550,13 @@ vm.showPoint = function(data, event) {
     })
 }
 
-vm.downloadLAS = function(data, event) {
-    var date = encodeURIComponent(formatDate(data.x))
-    window.open(`/api/app/plots/las?date=${date}`)
-}
-
 vm.saveFavorite = function() {
     var x_avg = plot_avg.xAxisRange()
     var y_avg = plot_avg.yAxisRange()
     var x_main = plot_main.xAxisRange()
     var y_main = plot_main.yAxisRange()
 
-    var points = ko.mapping.toJS(vm.selected_points())
+    var points = ko.mapping.toJS(vm.selected_plots())
     points = points.map(formatDate)
 
     helpers.makeAJAXRequest(
@@ -558,22 +610,7 @@ vm.getDeviations = function() {
 
 // computed observables
 
-vm.selected_plots = ko.computed(function() {
-    var points = vm.selected_points()
-    var result = []
-
-    points.sort(function(a, b) {
-        return a - b
-    })
-
-    for(var i = 0; i < points.length; i++) {
-        result.push({
-            x: points[i]
-        })
-    }
-
-    return result
-})
+vm.selected_plots = ko.observableArray()
 
 vm.annotations = ko.computed(function() {
     var AVG_Y_AXIS = "Pressure"
@@ -585,13 +622,11 @@ vm.annotations = ko.computed(function() {
     var result = []
 
     selected_plots.forEach(function(v, i) {
-        result.push({
-            series: AVG_Y_AXIS,
-            x: v.x,
-            shortText: i + 1,
-            text: formatDate(v.x),
-            cssClass: "dygraph-annotation-plot"
-        })
+        helpers.createCSSClass(
+            `.dygraphDefaultAnnotation.dygraph-annotation-plot-${i + 1}`,
+            v.color
+        )
+        result.push(v.getAnnotation(i))
     })
 
     deviations.forEach(function(v) {
@@ -698,9 +733,8 @@ vm.resetAvgPlotZoom = function() {
     plot_avg.resetZoom()
 }
 
-vm.adjustRoll = ko.observable();
-vm.adjustRoll.subscribe( function(val) {
-	console.log("adjustRoll",val)
+vm.adjustRoll = ko.observable()
+vm.adjustRoll.subscribe(function(val) {
 	plot_avg.adjustRoll(Number(val))
 })
 
@@ -709,11 +743,10 @@ vm.is_main_plot_visible = ko.computed(function() {
         return !!vm.reference_date()
     }
 
-    return vm.selected_points().length > 0
+    return vm.selected_plots().length > 0
 })
 
 // exports
 
-//export default vm
-window.m_site.plots=vm
-	})()
+window.m_site.plots = vm
+})()

@@ -1,86 +1,70 @@
-//"use strict"
-(function(){
-// imports
-//
-//import ko from "knockout"
-//import mapping from "knockout-mapping"
-//import moment from "moment"
-//
-//import * as helpers from "./helpers"
-//
-//import plots from "./plots"
+(function() {
+    var current_well = m_site.state.current_well
 
-// main
+    var vm = {
+        favorites: ko.observableArray()
+    }
 
-var vm = {
-    favorites: ko.observableArray()
-}
+    vm.formatDate = helpers.formatDate
 
-vm.formatDate = function(date) {
-    return moment(date).format("DD-MM-YYYY HH:mm:ssZ")
-}
+    vm.load = function(data, event) {
+        current_well.getTempMeasurements(
+            {
+                plots: data.points.map(function(date) {
+                    return {
+                        date: helpers.formatDate(date),
+                        type: "point"
+                    }
+                })
+            },
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
 
-vm.load = function(data, event) {
-     helpers.makeAJAXRequest(
-         "/api/app/plots/measurements",
-         "post",
-         {
-             dates: data.points.map(function(date) {
-                 return vm.formatDate(date)
-             }),
-             well_id: 1 // TODO: заменить на настоящий id скважины
-         },
-         function(err, result) {
-             if(err) {
-                 return console.error(err)
-             }
+                m_site.plots.selected_points.removeAll()
 
-             plots.selected_points.removeAll()
+                result.forEach(function(v) {
+                    m_site.plots.plots[v.date] = v.values
+                    m_site.plots.selected_points.push(v.date)
+                })
 
-             result.forEach(function(v) {
-                 plots.plots[v.date] = v.values
-                 plots.selected_points.push(v.date)
-             })
+                m_site.plots.plot_main.updateOptions({
+                    dateWindow: [data.zoom_main_left, data.zoom_main_right]
+                })
 
-             plots.graph_main.updateOptions({
-                //  valueRange: [data.zoom_main_low, data.zoom_main_high],
-                 dateWindow: [data.zoom_main_left, data.zoom_main_right]
-             })
+                m_site.plots.plot_avg.updateOptions({
+                    dateWindow: [data.zoom_avg_left, data.zoom_avg_right]
+                })
 
-             plots.graph_avg.updateOptions({
-                //  valueRange: [data.zoom_avg_low, data.zoom_avg_high],
-                 dateWindow: [data.zoom_avg_left, data.zoom_avg_right]
-             })
-
-             pager.navigate("plots")
-         }
-     )
-}
-
-vm.loadAll = function() {
-    helpers.makeAJAXRequest(
-        "/api/app/favorites",
-        "get",
-        function(err, result) {
-            if(err) {
-                return console.error(err)
+                pager.navigate("plots")
             }
+        )
+    }
 
-            vm.favorites.removeAll()
+    vm.loadAll = function() {
+        helpers.makeAJAXRequest(
+            "/api/app/favorites",
+            "get",
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
 
-            result.forEach(function(favorite) {
-                vm.favorites.push(favorite)
-            })
-        }
-    )
-}
+                vm.favorites.removeAll()
 
-vm.onShow = function() {
-    vm.loadAll()
-}
+                result.forEach(function(favorite) {
+                    vm.favorites.push(favorite)
+                })
+            }
+        )
+    }
 
-// exports
+    vm.onShow = function() {
+        vm.loadAll()
+    }
 
-//export default vm
-window.m_site.favorites=vm
-	})()
+    // exports
+
+    window.m_site.favorites = vm
+})()

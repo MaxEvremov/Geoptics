@@ -35,7 +35,6 @@
 
 	.dygraph-legend {
 		padding: 10px;
-		/*		border: 1px solid #999;*/
 		border-radius: 3px;
 		margin-top: -80px;
 		box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.20);
@@ -159,7 +158,35 @@
     .plotpoints tr {
         cursor: pointer;
     }
+
+    #avg_click_box {
+        position: fixed;
+        width: 250px;
+        height: 120px;
+        z-index: 11;
+    }
 </style>
+
+<div id="avg_click_box" class="box box-default" data-bind="
+    visible: is_point_box_visible,
+    style: {
+        top: point_box_top,
+        left: point_box_left
+    }
+">
+    <div class="box-body">
+        <p data-bind="text: helpers.formatDate(selected_date())"></p>
+
+        <a class="btn btn-sm btn-default" data-bind="click: getNearestTempPlot">
+            <span>Получить ближайший график</span>
+        </a>
+
+        <a class="btn btn-sm btn-default" data-bind="click: getAvgHourTempPlot">
+            <span>Усреднить за час</span>
+        </a>
+    </div>
+</div>
+
 <section class="content-header">
 	<h1>
         Скважина №4
@@ -252,20 +279,20 @@
                     <!-- ko ifnot: selected_plots().length === 0 -->
                     <table class="table plotpoints" style="font-size: 0.8em;">
                         <tbody data-bind="foreach: selected_plots">
-                            <tr data-bind="click: $parent.showPoint">
+                            <tr>
                                 <td data-bind="
                                 text: $index() + 1,
                                 style: {
-                                    color: $parent.plot_colors[$index()]
+                                    color: color
                                 }
                                 "></td>
-                                <td>
-                                    <span data-bind="text: $parent.moment(x).format('DD.MM.YYYY HH:mm')"></span>
+                                <td data-bind="click: $parent.showPoint">
+                                    <span data-bind="text: description"></span>
                                 </td>
                                 <td class="btn-hoverable" data-bind="click: $parent.removePoint">
                                     <i class="fa fa-times"></i>
                                 </td>
-                                <td class="btn-hoverable" data-bind="click: $parent.downloadLAS">
+                                <td class="btn-hoverable" data-bind="click: downloadLAS">
                                     <a title=' Скачать как LAS'><i class="fa fa-download"></i></a>
                                 </td>
                             </tr>

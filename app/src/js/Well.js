@@ -80,4 +80,17 @@ class Well {
             done
         )
     }
+
+    getTempMeasurements(params, done) {
+        helpers.makeAJAXRequest(
+            "/api/app/plots/measurements",
+            "post",
+            {
+                plots: params.plots,
+                well_id: this.id,
+                ignore_min_length: params.ignore_min_length
+            },
+            done
+        )
+    }
 }

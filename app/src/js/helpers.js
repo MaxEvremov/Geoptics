@@ -1,21 +1,15 @@
 "use strict"
-//
-//import $ from "jquery"
-//import _ from "lodash"
 
-// var SERVER_URL = ""
+window.helpers = {}
 
-window.helpers={}
 helpers.makeAJAXRequest = function(url, method, data, done) {
-//export var makeAJAXRequest = function(url, method, data, done) {
 	if (_.isFunction(data) && _.isUndefined(done)) {
 		done = data
 		data = {}
 	}
 
 	var params = {
-		//  url: SERVER_URL + url,
-       url: url,
+        url: url,
 		type: method,
 		dataType: "JSON",
 		contentType: "application/json",
@@ -42,4 +36,15 @@ helpers.makeAJAXRequest = function(url, method, data, done) {
 	}
 
 	$.ajax(params)
+}
+
+helpers.formatDate = function(date) {
+    return moment(date).format("YYYY-MM-DD HH:mm:ssZ")
+}
+
+helpers.createCSSClass = function(name, color) {
+    var style = document.createElement("style")
+    style.type = "text/css"
+    style.innerHTML = `${name} { color: ${color} !important; }`
+    document.getElementsByTagName("head")[0].appendChild(style)
 }

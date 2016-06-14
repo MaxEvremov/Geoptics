@@ -35,7 +35,6 @@
 	
 	.dygraph-legend {
 		padding: 10px;
-		/*		border: 1px solid #999;*/
 		border-radius: 3px;
 		1margin-top: 80px;
 		margin: 5px;
@@ -155,43 +154,49 @@
 		border: 1px inset #eee;
 		padding: 0px 3px;
 	}
-	
-	.dygraph-annotation-deviation {
-		background-color: red;
-		color: white;
-	}
-	
-	.dygraph-annotation-event,
-	.dygraph-annotation-length {
-		background-color: #666;
-	}
-	
-	.plotpoints tr {
-		cursor: pointer;
-	}
-	/*
-	#dygraph_box{    position: absolute;
-     position: fixed; 
-    right: 0;
-    left: 0;
-    bottom: 0;
-    top: 250px;}
-*/
-	
-	.plotpoints-pointmarker {
-		display: inline-block;
-		color: #fff;
-		padding: 1px 5px;
-		border-radius: 2px;
-	}
+
+    .dygraph-annotation-deviation {
+        background-color: red;
+        color: white;
+    }
+
+    .dygraph-annotation-event, .dygraph-annotation-length {
+        background-color: #666;
+    }
+
+    .plotpoints tr {
+        cursor: pointer;
+    }
+
+    #avg_click_box {
+        position: fixed;
+        width: 250px;
+        height: 120px;
+        z-index: 11;
+    }
 </style>
-<!--
-<section class="content-header">
-	<h1>
-        Скважина №4
-    </h1>
-</section>
--->
+
+<div id="avg_click_box" class="box box-default" data-bind="
+    visible: is_point_box_visible,
+    style: {
+        top: point_box_top,
+        left: point_box_left
+    }
+">
+    <div class="box-body">
+        <p data-bind="text: helpers.formatDate(selected_date())"></p>
+
+        <a class="btn btn-sm btn-default" data-bind="click: getNearestTempPlot">
+            <span>Получить ближайший график</span>
+        </a>
+
+        <a class="btn btn-sm btn-default" data-bind="click: getAvgHourTempPlot">
+            <span>Усреднить за час</span>
+        </a>
+    </div>
+</div>
+
+
 
 <section class="content" style="height:100%">
 	<div class="row" style="height:100%">
@@ -250,11 +255,9 @@
 			</div>
 
 			<div id="dygraph_box" class="box box-danger " style="position:relative;min-height:80%">
-				<!--
-                <div class="box-header">
-                    <h3 class="box-title">Графики</h3>
-                </div>
--->
+
+
+
 
 				<div id="dygraph_box_body" class="box-body" style="height: 100%;">
 					<div id="dygraph_container" class="plot" data-bind="style: { visibility: is_main_plot_visible() ? 'visible' : 'hidden' }">
@@ -280,27 +283,29 @@
 				</div>
 
 				<div class="box-body">
-					<!-- ko ifnot: selected_plots().length === 0 -->
-					<table class="table plotpoints" style="font-size: 0.8em;">
-						<tbody data-bind="foreach: selected_plots">
-							<tr data-bind="click: $parent.showPoint">
-								<td>
-									<span class="plotpoints-pointmarker" data-bind="text: $index() + 1,
-									style: {backgroundColor: $parent.plot_colors[$index()]}"></span>
-								</td>
-								<td>
-									<span data-bind="text: $parent.moment(x).format('DD.MM.YYYY HH:mm')"></span>
-								</td>
-								<td class="btn-hoverable" data-bind="click: $parent.removePoint">
-									<i class="fa fa-times"></i>
-								</td>
-								<td class="btn-hoverable" data-bind="click: $parent.downloadLAS">
-									<a title=' Скачать как LAS'><i class="fa fa-download"></i></a>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-					<!-- /ko -->
+                    <!-- ko ifnot: selected_plots().length === 0 -->
+                    <table class="table plotpoints" style="font-size: 0.8em;">
+                        <tbody data-bind="foreach: selected_plots">
+                            <tr>
+                                <td data-bind="
+                                text: $index() + 1,
+                                style: {
+                                    color: color
+                                }
+                                "></td>
+                                <td data-bind="click: $parent.showPoint">
+                                    <span data-bind="text: description"></span>
+                                </td>
+                                <td class="btn-hoverable" data-bind="click: $parent.removePoint">
+                                    <i class="fa fa-times"></i>
+                                </td>
+                                <td class="btn-hoverable" data-bind="click: downloadLAS">
+                                    <a title=' Скачать как LAS'><i class="fa fa-download"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- /ko -->
 
 					<!-- ko if: selected_plots().length === 0 -->
 					<p class="placeholder noselect">Выберите хотя бы одну точку на графике давления</p>

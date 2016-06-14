@@ -1,7 +1,5 @@
 "use strict"
-//
-//import $ from "jquery"
-//import _ from "lodash"
+
 
 var SERVER_URL = ""
 if (window.location.hostname == "10.66.80.203") SERVER_URL = "http://10.66.80.132:7778"//admin@geoptics.com 123456
@@ -9,14 +7,17 @@ if (window.location.hostname == "10.66.80.203") SERVER_URL = "http://10.66.80.13
 window.helpers = {}
 helpers.makeAJAXRequest = function (url, method, data, done) {
 	//export var makeAJAXRequest = function(url, method, data, done) {
+
 	if (_.isFunction(data) && _.isUndefined(done)) {
 		done = data
 		data = {}
 	}
 
 	var params = {
+
 		url: SERVER_URL + url,
 		//       url: url,
+
 		type: method,
 		dataType: "JSON",
 		contentType: "application/json",
@@ -43,4 +44,17 @@ helpers.makeAJAXRequest = function (url, method, data, done) {
 	}
 
 	$.ajax(params)
+
 }
+
+helpers.formatDate = function(date) {
+    return moment(date).format("YYYY-MM-DD HH:mm:ssZ")
+}
+
+helpers.createCSSClass = function(name, color) {
+    var style = document.createElement("style")
+    style.type = "text/css"
+    style.innerHTML = `${name} { color: ${color} !important; }`
+    document.getElementsByTagName("head")[0].appendChild(style)
+}
+

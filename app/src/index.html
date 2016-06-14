@@ -49,7 +49,7 @@
 </head>
 
 
-<body class="skin-red sidebar-mini fixed" style="background: #E4E3DB;">
+<body class="skin-red sidebar-mini fixed" 1style="background: #E4E3DB;">
 	<div data-bind="page: {
         id: 'login',
         with: login,
@@ -84,8 +84,8 @@
 				<ul class="sidebar-menu">
 					<li class="header">Скважины</li>
 					<li data-bind="css: { active: state.current_page() === 'plots' }">
-						<a data-bind="'page-href': '/plots'">
-							<i class="fa fa-industry"></i> <span>Скважина №4</span> <i class="fa fa-cog pull-right btn-hoverable" data-bind="click: plots.toggleSettings"></i>
+						<a data-bind="'page-href': '/plots',click: plots.toggleSettings">
+							<i class="fa fa-industry"></i> <span>Скважина №4</span> <i class="fa fa-cog pull-right btn-hoverable"></i>
 						</a>
 
                         <ul class="treeview-menu" data-bind="visible: plots.are_settings_enabled">
@@ -96,10 +96,10 @@
                                 <a data-bind="click: plots.setMinLength"><i class="fa fa-step-forward"></i> Выбор нуля глубины</a>
                             </li>
                             <li>
-                                <a data-bind="click: plots.addTimelineEvent"><i class="fa fa-circle-o"></i> Добавить событие</a>
+                                <a data-bind="click: plots.addTimelineEvent"><i class="fa fa-clock-o"></i> События</a>
                             </li>
                             <li>
-                                <a data-bind="click: plots.addLengthAnnotation"><i class="fa fa-circle-o"></i> Добавить констр. элемент</a>
+                                <a data-bind="click: plots.addLengthAnnotation"><i class="fa fa-map-signs"></i> Добавить констр. элемент</a>
                             </li>
                         </ul>
 					</li>
@@ -113,14 +113,21 @@
 			</section>
 		</aside>
 
-		<div class="content-wrapper" style="background:inherit">
+		<div class="content-wrapper" style="background:inherit;
+		
+		    1position: fixed;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    top: 0;1height:100%
+		">
 			<div data-bind="page: {
                 id: 'plots',
                 with: plots,
                 afterShow: plots.afterShow,
                 source: 'pages/plots.html',
                 guard: state.loggedInGuard
-            }"></div>
+            }" style="height:100%"></div>
 
 			<div data-bind="page: {
                 id: 'favorites',
@@ -128,7 +135,7 @@
                 beforeShow: favorites.onShow,
                 source: 'pages/favorites.html',
                 guard: state.loggedInGuard
-            }"></div>
+            }" ></div>
 		</div>
 	</div>
 

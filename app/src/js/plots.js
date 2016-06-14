@@ -184,6 +184,9 @@ var init = function() {
 
                 getTimelineEvents()
                 getLengthAnnotations()
+				
+				plot_avg.resetZoom()
+					plot_avg.adjustRoll(100)
             }
         )
     })
@@ -696,6 +699,11 @@ vm.max_zoom_y.subscribe(updateZoomY)
 
 vm.resetAvgPlotZoom = function() {
     plot_avg.resetZoom()
+	vm.min_zoom_y(null)
+	vm.max_zoom_y(null)
+    plot_avg.updateOptions({
+        valueRange: [null, null]
+    })
 }
 
 vm.adjustRoll = ko.observable();

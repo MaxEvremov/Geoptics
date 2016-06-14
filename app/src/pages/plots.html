@@ -2,66 +2,75 @@
 	.just-padding {
 		padding: 15px;
 	}
-
+	
 	.list-group.list-group-root {
 		padding: 0;
 		overflow: hidden;
 	}
-
+	
 	.list-group.list-group-root .list-group {
 		margin-bottom: 0;
 	}
-
+	
 	.list-group.list-group-root .list-group-item {
 		border-radius: 0;
 		border-width: 1px 0 0 0;
 	}
-
+	
 	.list-group.list-group-root > .list-group-item:first-child {
 		border-top-width: 0;
 	}
-
+	
 	.list-group.list-group-root > .list-group > .list-group-item {
 		padding-left: 30px;
 	}
-
+	
 	.list-group.list-group-root > .list-group > .list-group > .list-group-item {
 		padding-left: 45px;
 	}
-
+	
 	.list-group-item .glyphicon {
 		margin-right: 5px;
 	}
-
+	
 	.dygraph-legend {
 		padding: 10px;
 		/*		border: 1px solid #999;*/
 		border-radius: 3px;
-		margin-top: -80px;
+		1margin-top: 80px;
+		margin: 5px;
 		box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.20);
+		background: rgba(255, 255, 255, 0.8)!important;
+		z-index: 100!important;
 	}
-
+	
 	.dygraph-legend > * {
 		display: block;
 	}
-
+	
 	.dygraphDefaultAnnotation {
 		line-height: 14px;
 		border: 0;
 		box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.37);
 		color: white !important;
 	}
-
+	
 	.placeholder {
-		font-size: 0.8em;
-		color: #999;
+    font-size: 0.8em;
+    color: #999;
+    padding: 1em;
+    font-size: 1em;
+    text-align: center;
+    width: 100%;
+    background: #B0B6B9;
+    color: #fff;
 	}
-
+	
 	#dygraph_box_body .placeholder {
 		position: absolute;
 		top: 50px;
 	}
-
+	
 	#dygraph_container .line {
 		visibility: hidden;
 		background-color: black;
@@ -72,24 +81,24 @@
 		top: 0;
 		margin-top: -20px;
 	}
-
+	
 	.box-toolbar {
 		position: absolute;
 		top: 0;
 		right: 0;
 		padding: 5px;
 	}
-
+	
 	.dygraph-box {
 		position: relative;
 		padding: 0
 	}
-
+	.dygraph-axis-label {text-align: center!important}
 	.axis-input-block {
 		position: absolute;
 		z-index: 10
 	}
-
+	
 	.axis-input-block input {
 		position: absolute;
 		display: none;
@@ -97,95 +106,113 @@
 		border: 1px inset #eee;
 		padding: 0px 3px;
 	}
-
+	
 	.axis-input-block:hover input {
 		display: block
 	}
-
+	
 	.axis-input-block-left {
-		left: 0;
+		left: -20px;
 		top: 0;
 		bottom: 0;
 		width: 50px;
 	}
-
+	
 	.axis-input-block-left-top {
-		left: 5px;
-		top: 0;
-		width: 50px;
+    right: 0px;
+    top: 0;
+    width: 40px;
 	}
-
+	
 	.axis-input-block-left-bottom {
-		left: 5px;
-		bottom: 20px;
-		width: 50px;
+    right: 0px;
+    bottom: 0;
+    width: 40px;
 	}
-
+	
 	.axis-input-block-bottom {
-		left: 56px;
+		left: 31px;
 		right: 5px;
 		bottom: -5px;
 		height: 20px;
 	}
-
+	
 	.axis-input-block-bottom-left {
 		left: 0;
 		bottom: 0;
 		width: 10em;
 	}
-
+	
 	.axis-input-block-bottom-right {
 		right: 0;
 		bottom: 0;
 		width: 10em;
 	}
-
+	
 	.box-toolbar .adjustRoll input {
 		width: 2em;
 		border-radius: 3px;
 		border: 1px inset #eee;
 		padding: 0px 3px;
 	}
-
-    .dygraph-annotation-deviation {
-        background-color: red;
-        color: white;
-    }
-
-    .dygraph-annotation-event, .dygraph-annotation-length {
-        background-color: #666;
-    }
-
-    .plotpoints tr {
-        cursor: pointer;
-    }
+	
+	.dygraph-annotation-deviation {
+		background-color: red;
+		color: white;
+	}
+	
+	.dygraph-annotation-event,
+	.dygraph-annotation-length {
+		background-color: #666;
+	}
+	
+	.plotpoints tr {
+		cursor: pointer;
+	}
+	/*
+	#dygraph_box{    position: absolute;
+     position: fixed; 
+    right: 0;
+    left: 0;
+    bottom: 0;
+    top: 250px;}
+*/
+	
+	.plotpoints-pointmarker {
+		display: inline-block;
+		color: #fff;
+		padding: 1px 5px;
+		border-radius: 2px;
+	}
 </style>
+<!--
 <section class="content-header">
 	<h1>
         Скважина №4
     </h1>
 </section>
+-->
 
-<section class="content">
-    <div class="row">
-        <div class="col-md-9">
-            <div class="box box-info">
-                <div class="box-header">
-                    <h3 class="box-title">Давление 	<a class="btn btn-xs" title="В Избранное" data-bind="click: saveFavorite">
+<section class="content" style="height:100%">
+	<div class="row" style="height:100%">
+		<div class="col-md-9" style="height:100%">
+			<div class="box box-info" style="position:relative;min-height:20%">
+				<div class="box-header">
+					<h3 class="box-title">Давление 	<a class="btn btn-xs" title="В Избранное" data-bind="click: saveFavorite">
                         <i class="fa fa-star"></i>
                     </a></h3>
-                </div>
+				</div>
 
-                <div class="box-body dygraph-box">
-                    <div id="dygraph_avg_container" class="plot"></div>
+				<div class="box-body dygraph-box">
+					<div id="dygraph_avg_container" class="plot" style="    margin-left: -25px;"></div>
 
-                    <div class="axis-input-block axis-input-block-left">
-                        <input class="axis-input-block-left-top" data-bind="value: max_zoom_y">
-                        <input class="axis-input-block-left-bottom" data-bind="value: min_zoom_y">
-                    </div>
+					<div class="axis-input-block axis-input-block-left">
+						<input class="axis-input-block-left-top" data-bind="value: max_zoom_y">
+						<input class="axis-input-block-left-bottom" data-bind="value: min_zoom_y">
+					</div>
 
-                    <div class="axis-input-block axis-input-block-bottom">
-                        <input class="axis-input-block-bottom-left" data-bind="
+					<div class="axis-input-block axis-input-block-bottom">
+						<input class="axis-input-block-bottom-left" data-bind="
                         textInput: min_zoom_x,
                         jmask: {
                             mask: '00/00/0000 00:00:00',
@@ -194,7 +221,7 @@
                             }
                         }
                         ">
-                        <input class="axis-input-block-bottom-right" data-bind="
+						<input class="axis-input-block-bottom-right" data-bind="
                         textInput: max_zoom_x,
                         jmask: {
                             mask: '00/00/0000 00:00:00',
@@ -203,171 +230,181 @@
                             }
                         }
                         ">
-                    </div>
-                </div>
+					</div>
+				</div>
 
-                <div class="box-toolbar">
-                    <a class="" title="Сбросить увеличение" data-bind="click: resetAvgPlotZoom">
-                        <i class="fa fa-repeat"></i>
-                    </a>
+				<div class="box-toolbar">
+					<a class="" title="Сбросить увеличение" data-bind="click: resetAvgPlotZoom">
+						<i class="fa fa-repeat"></i>
+					</a>
 
-                    <a class="adjustRoll" title="Сглаживание">
-                        <input class="" placeholder="" type=number data-bind="value: adjustRoll"></input>
-                    </a>
-                </div>
+					<a class="adjustRoll" title="Сглаживание">
+						<input class="" placeholder="" type=number data-bind="value: adjustRoll"></input>
+					</a>
+				</div>
 
+				<!--
                 <div class="box-footer">
                 </div>
-            </div>
+-->
+			</div>
 
-            <div id="dygraph_box" class="box box-danger">
+			<div id="dygraph_box" class="box box-danger " style="position:relative;min-height:80%">
+				<!--
                 <div class="box-header">
                     <h3 class="box-title">Графики</h3>
                 </div>
+-->
 
-                <div id="dygraph_box_body" class="box-body" style="height: 100%;">
-                    <div id="dygraph_container" class="plot" data-bind="style: { visibility: is_main_plot_visible() ? 'visible' : 'hidden' }">
+				<div id="dygraph_box_body" class="box-body" style="height: 100%;">
+					<div id="dygraph_container" class="plot" data-bind="style: { visibility: is_main_plot_visible() ? 'visible' : 'hidden' }">
 
-                    </div>
+					</div>
 
-                    <p class="placeholder noselect" data-bind="style: { visibility: is_main_plot_visible() ? 'hidden' : 'visible' }">
-                        <!-- ko if: current_mode() === 'reference_point' -->
-                        Выберите точку на графике давления
-                        <!-- /ko -->
+					<p class="placeholder noselect" data-bind="style: { visibility: is_main_plot_visible() ? 'hidden' : 'visible' }">
+						<!-- ko if: current_mode() === 'reference_point' -->
+						Выберите точку на графике давления
+						<!-- /ko -->
 
-                        <!-- ko ifnot: current_mode() === 'reference_point' -->
-                        Выберите хотя бы одну точку на графике давления
-                        <!-- /ko -->
-                    </p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="box box-info" data-bind="visible: current_mode() === 'normal'">
-                <div class="box-header">
-                    <h3 class="box-title">Точки</h3>
-                </div>
+						<!-- ko ifnot: current_mode() === 'reference_point' -->
+						Выберите хотя бы одну точку на графике давления
+						<!-- /ko -->
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="box box-info" data-bind="visible: current_mode() === 'normal'">
+				<div class="box-header">
+					<h3 class="box-title">Точки</h3>
+				</div>
 
-                <div class="box-body">
-                    <!-- ko ifnot: selected_plots().length === 0 -->
-                    <table class="table plotpoints" style="font-size: 0.8em;">
-                        <tbody data-bind="foreach: selected_plots">
-                            <tr data-bind="click: $parent.showPoint">
-                                <td data-bind="
-                                text: $index() + 1,
-                                style: {
-                                    color: $parent.plot_colors[$index()]
-                                }
-                                "></td>
-                                <td>
-                                    <span data-bind="text: $parent.moment(x).format('DD.MM.YYYY HH:mm')"></span>
-                                </td>
-                                <td class="btn-hoverable" data-bind="click: $parent.removePoint">
-                                    <i class="fa fa-times"></i>
-                                </td>
-                                <td class="btn-hoverable" data-bind="click: $parent.downloadLAS">
-                                    <a title=' Скачать как LAS'><i class="fa fa-download"></i></a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <!-- /ko -->
+				<div class="box-body">
+					<!-- ko ifnot: selected_plots().length === 0 -->
+					<table class="table plotpoints" style="font-size: 0.8em;">
+						<tbody data-bind="foreach: selected_plots">
+							<tr data-bind="click: $parent.showPoint">
+								<td>
+									<span class="plotpoints-pointmarker" data-bind="text: $index() + 1,
+									style: {backgroundColor: $parent.plot_colors[$index()]}"></span>
+								</td>
+								<td>
+									<span data-bind="text: $parent.moment(x).format('DD.MM.YYYY HH:mm')"></span>
+								</td>
+								<td class="btn-hoverable" data-bind="click: $parent.removePoint">
+									<i class="fa fa-times"></i>
+								</td>
+								<td class="btn-hoverable" data-bind="click: $parent.downloadLAS">
+									<a title=' Скачать как LAS'><i class="fa fa-download"></i></a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<!-- /ko -->
 
-                    <!-- ko if: selected_plots().length === 0 -->
-                    <p class="placeholder noselect">Выберите хотя бы одну точку на графике давления</p>
-                    <!-- /ko -->
-                </div>
-            </div>
+					<!-- ko if: selected_plots().length === 0 -->
+					<p class="placeholder noselect">Выберите хотя бы одну точку на графике давления</p>
+					<!-- /ko -->
+				</div>
+			</div>
 
-            <div class="box box-danger" data-bind="visible: current_mode() === 'reference_point'">
-                <div class="box-header">
-                    <h3 class="box-title">Эталонная точка</h3>
-                </div>
+			<div class="box box-danger" data-bind="visible: current_mode() === 'reference_point'">
+				<div class="box-header">
+					<h3 class="box-title">Эталонная точка</h3>
+				</div>
 
-                <div class="box-body">
-                    <ul class="list-unstyled">
-                        <li>Дата: <span data-bind="text: reference_date() || '-'"></span></li>
-                        <li>Глубина: <span data-bind="text: reference_length() || '-'"></span></li>
-                        <li>Температура: <span data-bind="text: reference_temp() || '-'"></span></li>
-                    </ul>
-                </div>
+				<div class="box-body">
+					<ul class="list-unstyled">
+						<li>Дата: <span data-bind="text: reference_date() || '-'"></span></li>
+						<li>Глубина: <span data-bind="text: reference_length() || '-'"></span></li>
+						<li>Температура: <span data-bind="text: reference_temp() || '-'"></span></li>
+					</ul>
+				</div>
 
-                <div class="box-footer">
-                    <a class="btn btn-sm btn-danger" data-bind="click: saveReferencePoint">
-                        <span>Сохранить</span>
-                    </a>
-                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
-                        <span>Отмена</span>
-                    </a>
-                </div>
-            </div>
+				<div class="box-footer">
+					<a class="btn btn-sm btn-danger" data-bind="click: saveReferencePoint">
+						<span>Сохранить</span>
+					</a>
+					<a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+						<span>Отмена</span>
+					</a>
+				</div>
+			</div>
 
-            <div class="box box-danger" data-bind="visible: current_mode() === 'min_length'">
-                <div class="box-header">
-                    <h3 class="box-title">Выбор нуля глубины</h3>
-                </div>
+			<div class="box box-danger" data-bind="visible: current_mode() === 'min_length'">
+				<div class="box-header">
+					<h3 class="box-title">Выбор нуля глубины</h3>
+				</div>
 
-                <div class="box-body">
-                    <ul class="list-unstyled">
-                        <li>Ноль глубины: <span data-bind="text: min_length"></span></li>
-                    </ul>
-                </div>
+				<div class="box-body">
+					<ul class="list-unstyled">
+						<li>Ноль глубины: <span data-bind="text: min_length"></span></li>
+					</ul>
+				</div>
 
-                <div class="box-footer">
-                    <a class="btn btn-sm btn-danger" data-bind="click: saveMinLength">
-                        <span>Сохранить</span>
-                    </a>
-                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
-                        <span>Отмена</span>
-                    </a>
-                </div>
-            </div>
+				<div class="box-footer">
+					<a class="btn btn-sm btn-danger" data-bind="click: saveMinLength">
+						<span>Сохранить</span>
+					</a>
+					<a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+						<span>Отмена</span>
+					</a>
+				</div>
+			</div>
 
-            <div class="box box-danger" data-bind="visible: current_mode() === 'timeline_event'">
-                <div class="box-header">
-                    <h3 class="box-title">Добавление события на таймлайне</h3>
-                </div>
+			<div class="box box-danger" data-bind="visible: current_mode() === 'timeline_event'">
+				<div class="box-header">
+					<h3 class="box-title">Добавление события на таймлайне</h3>
+				</div>
 
-                <div class="box-body">
-                    <ul class="list-unstyled">
-                        <li>Дата: <span data-bind="text: timeline_event_date"></span></li>
-                        <li>Краткое обозначение: <input data-bind="textInput: timeline_event_short_text"></li>
-                        <li>Описание: <input data-bind="textInput: timeline_event_description"></li>
-                    </ul>
-                </div>
+				<div class="box-body">
+					<ul class="list-unstyled">
+						<li>Дата: <span data-bind="text: timeline_event_date"></span></li>
+						<li>Краткое обозначение:
+							<input data-bind="textInput: timeline_event_short_text">
+						</li>
+						<li>Описание:
+							<input data-bind="textInput: timeline_event_description">
+						</li>
+					</ul>
+				</div>
 
-                <div class="box-footer">
-                    <a class="btn btn-sm btn-danger" data-bind="click: saveTimelineEvent">
-                        <span>Сохранить</span>
-                    </a>
-                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
-                        <span>Отмена</span>
-                    </a>
-                </div>
-            </div>
+				<div class="box-footer">
+					<a class="btn btn-sm btn-danger" data-bind="click: saveTimelineEvent">
+						<span>Сохранить</span>
+					</a>
+					<a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+						<span>Отмена</span>
+					</a>
+				</div>
+			</div>
 
-            <div class="box box-danger" data-bind="visible: current_mode() === 'length_annotation'">
-                <div class="box-header">
-                    <h3 class="box-title">Добавление конструкционного элемента</h3>
-                </div>
+			<div class="box box-danger" data-bind="visible: current_mode() === 'length_annotation'">
+				<div class="box-header">
+					<h3 class="box-title">Добавление конструкционного элемента</h3>
+				</div>
 
-                <div class="box-body">
-                    <ul class="list-unstyled">
-                        <li>Глубина: <span data-bind="text: length_annotation_length"></span></li>
-                        <li>Краткое обозначение: <input data-bind="textInput: length_annotation_short_text"></li>
-                        <li>Описание: <input data-bind="textInput: length_annotation_description"></li>
-                    </ul>
-                </div>
+				<div class="box-body">
+					<ul class="list-unstyled">
+						<li>Глубина: <span data-bind="text: length_annotation_length"></span></li>
+						<li>Краткое обозначение:
+							<input data-bind="textInput: length_annotation_short_text">
+						</li>
+						<li>Описание:
+							<input data-bind="textInput: length_annotation_description">
+						</li>
+					</ul>
+				</div>
 
-                <div class="box-footer">
-                    <a class="btn btn-sm btn-danger" data-bind="click: saveLengthAnnotation">
-                        <span>Сохранить</span>
-                    </a>
-                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
-                        <span>Отмена</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+				<div class="box-footer">
+					<a class="btn btn-sm btn-danger" data-bind="click: saveLengthAnnotation">
+						<span>Сохранить</span>
+					</a>
+					<a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+						<span>Отмена</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
 </section>

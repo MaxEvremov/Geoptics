@@ -135,7 +135,8 @@ api.post(
                                     LIMIT 1
                                 )
                                 ${has_reference_point
-                                    ? `,rdiff AS (
+                                    ? `,
+                                    rdiff AS (
                                         SELECT t.temp - ${well.reference_temp} AS val
                                         FROM t_measurements AS t
                                         WHERE
@@ -206,18 +207,7 @@ api.post(
                 return done(null, result)
             }
         ],
-        (err, result) => {
-            if(err) {
-                return res.json({
-                    err: err
-                })
-            }
-
-            return res.json({
-                err: null,
-                result: result
-            })
-        })
+        res.jsonCallback)
     }
 )
 
@@ -294,18 +284,7 @@ api.post(
                     Math.abs(v.norm_temp - v.temp) >= min_deviation)
                 )
             }],
-            (err, result) => {
-                if(err) {
-                    return res.json({
-                        err: err
-                    })
-                }
-
-                return res.json({
-                    err: null,
-                    result: result
-                })
-            }
+            res.jsonCallback
         )
     }
 )
@@ -390,17 +369,7 @@ api.post(
 
         helpers.makePGQuery(
             query,
-            (err, result) => {
-                if(err) {
-                    return res.json({
-                        err: err
-                    })
-                }
-
-                return res.json({
-                    err: null
-                })
-            }
+            res.jsonCallback
         )
     }
 )
@@ -419,17 +388,7 @@ api.post(
 
         helpers.makePGQuery(
             query,
-            (err, result) => {
-                if(err) {
-                    return res.json({
-                        err: err
-                    })
-                }
-
-                return res.json({
-                    err: null
-                })
-            }
+            res.jsonCallback
         )
     }
 )
@@ -443,28 +402,53 @@ api.post(
         date: (date) => moment(date, "YYYY-MM-DD HH:mm:ssZ").isValid()
     }),
     (req, res) => {
-        let query = `INSERT INTO timeline_events
-            (well_id, short_text, description, date)
-            VALUES (
-                ${req.body.well_id},
-                '${req.body.short_text}',
-                '${req.body.description}',
-                '${req.body.date}'
-            )`
+        let query
+
+        if(req.body.id) {
+            if(!isIDValid(req.body.id)) {
+                return res.jsonCallback("err")
+            }
+
+            query = `UPDATE timeline_events SET
+                short_text = '${req.body.short_text}',
+                description = '${req.body.description}',
+                date = '${req.body.date}'
+                WHERE id = ${req.body.id}
+                AND well_id = ${req.body.well_id}
+                `
+        }
+        else {
+            query = `INSERT INTO timeline_events
+                (well_id, short_text, description, date)
+                VALUES (
+                    ${req.body.well_id},
+                    '${req.body.short_text}',
+                    '${req.body.description}',
+                    '${req.body.date}'
+                )`
+        }
 
         helpers.makePGQuery(
             query,
-            (err, result) => {
-                if(err) {
-                    return res.json({
-                        err: err
-                    })
-                }
+            res.jsonCallback
+        )
+    }
+)
 
-                return res.json({
-                    err: null
-                })
-            }
+api.delete(
+    "/timeline_event",
+    helpers.validateRequestData({
+        well_id: isIDValid,
+        id: isIDValid
+    }),
+    function(req, res) {
+        let query = `DELETE FROM timeline_events
+            WHERE well_id = ${req.body.well_id}
+            AND id = ${req.body.id}`
+
+        helpers.makePGQuery(
+            query,
+            res.jsonCallback
         )
     }
 )
@@ -475,24 +459,13 @@ api.post(
         well_id: isIDValid
     }),
     (req, res) => {
-        let query = `SELECT short_text, description, date
+        let query = `SELECT id, short_text, description, date
             FROM timeline_events
             WHERE well_id = ${req.body.well_id}`
 
         helpers.makePGQuery(
             query,
-            (err, result) => {
-                if(err) {
-                    return res.json({
-                        err: err
-                    })
-                }
-
-                return res.json({
-                    err: null,
-                    result: result
-                })
-            }
+            res.jsonCallback
         )
     }
 )
@@ -512,22 +485,12 @@ api.post(
                 ${req.body.well_id},
                 '${req.body.short_text}',
                 '${req.body.description}',
-                '${req.body.length}'
+                ${req.body.length}
             )`
 
         helpers.makePGQuery(
             query,
-            (err, result) => {
-                if(err) {
-                    return res.json({
-                        err: err
-                    })
-                }
-
-                return res.json({
-                    err: null
-                })
-            }
+            res.jsonCallback
         )
     }
 )
@@ -544,18 +507,7 @@ api.post(
 
         helpers.makePGQuery(
             query,
-            (err, result) => {
-                if(err) {
-                    return res.json({
-                        err: err
-                    })
-                }
-
-                return res.json({
-                    err: null,
-                    result: result
-                })
-            }
+            res.jsonCallback
         )
     }
 )

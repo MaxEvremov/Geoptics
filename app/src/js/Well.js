@@ -31,7 +31,7 @@ class Well {
         )
     }
 
-    addTimelineEvent(params, done) {
+    addOrUpdateTimelineEvent(params, done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/timeline_event",
             "post",
@@ -39,7 +39,8 @@ class Well {
                 short_text: params.short_text,
                 description: params.description,
                 date: params.date,
-                well_id: this.id
+                well_id: this.id,
+                id: params.id
             },
             done
         )
@@ -51,6 +52,18 @@ class Well {
             "post",
             {
                 well_id: this.id
+            },
+            done
+        )
+    }
+
+    removeTimelineEvent(params, done) {
+        helpers.makeAJAXRequest(
+            "/api/app/plots/timeline_event",
+            "delete",
+            {
+                well_id: this.id,
+                id: params.id
             },
             done
         )

@@ -35,11 +35,6 @@ api.use(session({
 }))
 api.use(passport.initialize())
 api.use(passport.session())
-api.use((req, res, next) => {
-    console.log("req.user", req.user)
-    console.log("req.session", req.session)
-    next()
-})
 
 api.use("/favorites", helpers.validatePermissions(["admin", "user"]), favorites)
 api.use("/auth", auth.generateAPI(["admin", "user"]))

@@ -199,11 +199,33 @@ CREATE TABLE timeline_events (
     short_text text,
     description text,
     date timestamp with time zone,
-    created_at timestamp with time zone
+    created_at timestamp with time zone,
+    id integer NOT NULL
 );
 
 
 ALTER TABLE timeline_events OWNER TO lwpss;
+
+--
+-- Name: timeline_events_id_seq; Type: SEQUENCE; Schema: public; Owner: lwpss
+--
+
+CREATE SEQUENCE timeline_events_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE timeline_events_id_seq OWNER TO lwpss;
+
+--
+-- Name: timeline_events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: lwpss
+--
+
+ALTER SEQUENCE timeline_events_id_seq OWNED BY timeline_events.id;
+
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: lwpss
@@ -294,6 +316,13 @@ ALTER TABLE ONLY favorites ALTER COLUMN id SET DEFAULT nextval('favorites_id_seq
 -- Name: id; Type: DEFAULT; Schema: public; Owner: lwpss
 --
 
+ALTER TABLE ONLY timeline_events ALTER COLUMN id SET DEFAULT nextval('timeline_events_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: lwpss
+--
+
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
@@ -318,6 +347,14 @@ ALTER TABLE ONLY favorites
 
 ALTER TABLE ONLY sessions_app
     ADD CONSTRAINT session_pkey PRIMARY KEY (sid);
+
+
+--
+-- Name: timeline_events_pkey; Type: CONSTRAINT; Schema: public; Owner: lwpss
+--
+
+ALTER TABLE ONLY timeline_events
+    ADD CONSTRAINT timeline_events_pkey PRIMARY KEY (id);
 
 
 --

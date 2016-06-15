@@ -13,6 +13,7 @@ a,
 }
 
 .plotpoints tr:hover .btn-hoverable,
+.timeline-events li:hover .btn-hoverable,
 a:hover .btn-hoverable {
 	opacity: 1;
 }
@@ -31,9 +32,16 @@ a,
 	-ms-user-select: none;
 	user-select: none;
 }
-.box {
-	border:0;box-shadow: none}
-.box-body{padding: 0}
+
+.box.box-borderless {
+	border:0;
+    box-shadow: none;
+}
+
+.box-borderless > .box-body {
+    padding: 0;
+}
+
 body .dygraphDefaultAnnotation {
 	font-size: 10px;
 	line-height: 16px;
@@ -43,9 +51,8 @@ body .dygraphDefaultAnnotation {
     color: white !important;
 	width: auto!important;
 	max-width: 10em;
-	    padding: 2px 5px;
+    padding: 2px 5px;
     line-height: 11px;
-/*	overflow: visible;*/
 }
 input[type='number'] {
     -moz-appearance:textfield;

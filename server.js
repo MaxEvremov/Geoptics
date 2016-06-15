@@ -25,6 +25,25 @@ const User = require(__base + "models/User")
 
 let app = express()
 
+// небольшой враппер, чтобы не писать в коллбэках одно и то же каждый раз
+
+app.use((req, res, next) => {
+    res.jsonCallback = (err, result) => {
+        if(err) {
+            return res.json({
+                err: err
+            })
+        }
+
+        return res.json({
+            err: null,
+            result: result
+        })
+    }
+
+    return next()
+})
+
 passport.serializeUser((user, done) => {
     done(null, user.id)
 })

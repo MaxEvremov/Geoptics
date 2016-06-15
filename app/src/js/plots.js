@@ -1,17 +1,8 @@
 (function() {
-var INIT_COLORS_NUMBER = 20
-
-// helpers
-
-var formatDate = function(date) {
-    return moment(date).format("YYYY-MM-DD HH:mm:ssZ")
-}
 
 // init
 
 var is_inited = false
-
-var plots = []
 
 var plot_data = [[0, 0]]
 var plot_labels = ["X", "Y1"]
@@ -49,9 +40,9 @@ var queue = async.queue(
                 var answer_plot = result[0]
 
                 if(mode === "reference_point") {
-                    vm.reference_date(formatDate(answer_plot.date))
+                    vm.reference_date(helpers.formatDate(answer_plot.date))
 
-                    var plot_labels = ["Length", formatDate(answer_plot.date)]
+                    var plot_labels = ["Length", helpers.formatDate(answer_plot.date)]
 
                     plot_main.updateOptions({
                         file: answer_plot.values,
@@ -62,9 +53,9 @@ var queue = async.queue(
                 }
 
                 if(mode === "timeline_event") {
-                    vm.timeline_event_date(formatDate(answer_plot.date))
+                    vm.timeline_event_date(helpers.formatDate(answer_plot.date))
 
-                    var plot_labels = ["Length", formatDate(answer_plot.date)]
+                    var plot_labels = ["Length", helpers.formatDate(answer_plot.date)]
 
                     plot_main.updateOptions({
                         file: answer_plot.values,
@@ -76,7 +67,7 @@ var queue = async.queue(
 
                 let plot_ts = moment(answer_plot.date).valueOf()
 
-                if(_.find(vm.selected_plots, { date: plot_ts })) {
+                if(_.find(vm.selected_plots(), { date: plot_ts })) {
                     return done()
                 }
 
@@ -94,7 +85,6 @@ var queue = async.queue(
                     selected_plot.date_end = plot.date_end
                 }
 
-                plots.push(selected_plot)
                 vm.selected_plots.push(selected_plot)
 
                 return done()
@@ -117,6 +107,12 @@ var init = function() {
             labels: ["Date", "Pressure"],
             connectSeparatedPoints: true,
             clickCallback: function(e, x, points) {
+                if(vm.current_mode() === "timeline_event") {
+                    var selected_date = points[0].xval
+                    vm.timeline_event_date(moment(selected_date).format("DD/MM/YYYY HH:mm:ss"))
+                    return
+                }
+
                 e.stopPropagation()
                 e.preventDefault()
 
@@ -192,7 +188,7 @@ var init = function() {
 
                 getTimelineEvents()
                 getLengthAnnotations()
-				
+
 				plot_avg.resetZoom()
 					plot_avg.adjustRoll(100)
             }
@@ -341,8 +337,6 @@ vm.getAvgHourTempPlot = function() {
     })
 }
 
-vm.plots = plots
-
 vm.afterShow = function() {
     if(!is_inited) {
         init()
@@ -460,26 +454,56 @@ vm.timeline_event_short_text = ko.observable()
 vm.timeline_event_description = ko.observable()
 vm.timeline_event_date = ko.observable()
 
-vm.addTimelineEvent = function() {
+vm.current_timeline_event = ko.observable()
+vm.is_editing_timeline_event = ko.observable(false)
+
+vm.editTimelineEvents = function() {
     vm.current_mode("timeline_event")
 }
 
+vm.addTimelineEvent = function() {
+    vm.is_editing_timeline_event(true)
+}
+
+vm.editTimelineEvent = function(data, event) {
+    vm.current_timeline_event(data.id)
+    vm.timeline_event_short_text(data.short_text)
+    vm.timeline_event_date(moment(data.date).format("DD/MM/YYYY HH:mm:ss"))
+    vm.is_editing_timeline_event(true)
+}
+
+vm.cancelEditingTimelineEvent = function() {
+    vm.current_timeline_event(null)
+    vm.timeline_event_short_text(null)
+    vm.timeline_event_date(null)
+    vm.is_editing_timeline_event(false)
+}
+
 vm.saveTimelineEvent = function() {
-    current_well.addTimelineEvent(
+    current_well.addOrUpdateTimelineEvent(
         {
             short_text: vm.timeline_event_short_text(),
             description: vm.timeline_event_description(),
-            date: vm.timeline_event_date()
+            date: vm.timeline_event_date(),
+            id: vm.current_timeline_event()
         },
         function(err, result) {
             if(err) {
                 return console.error(err)
             }
 
-            vm.current_mode("normal")
+            vm.current_timeline_event(null)
+            vm.timeline_event_short_text(null)
+            vm.timeline_event_date(null)
+
+            vm.is_editing_timeline_event(false)
             getTimelineEvents()
         }
     )
+}
+
+vm.removeTimelineEvent = function(data, event) {
+    current_well.removeTimelineEvent(data, getTimelineEvents)
 }
 
 // length_annotation
@@ -560,7 +584,7 @@ vm.saveFavorite = function() {
     var y_main = plot_main.yAxisRange()
 
     var points = ko.mapping.toJS(vm.selected_plots())
-    points = points.map(formatDate)
+    points = points.map(helpers.formatDate)
 
     helpers.makeAJAXRequest(
         "/api/app/favorites",
@@ -590,8 +614,8 @@ vm.getDeviations = function() {
     var min_deviation = parseFloat(vm.min_deviation())
 
     var x_avg = plot_avg.xAxisRange()
-    var date_start = formatDate(x_avg[0])
-    var date_end = formatDate(x_avg[1])
+    var date_start = helpers.formatDate(x_avg[0])
+    var date_end = helpers.formatDate(x_avg[1])
 
     helpers.makeAJAXRequest(
         "/api/app/plots/deviations",

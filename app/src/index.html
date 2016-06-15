@@ -90,16 +90,16 @@
 						</a>
 
                         <ul class="treeview-menu" data-bind="visible: plots.are_settings_enabled">
-                            <li>
+                            <li data-bind="css: { active: plots.current_mode() === 'reference_point' }">
                                 <a data-bind="click: plots.editReferencePoint"><i class="fa fa-compress"></i> Выбор эталонной точки</a>
                             </li>
-                            <li>
+                            <li data-bind="css: { active: plots.current_mode() === 'min_length' }">
                                 <a data-bind="click: plots.setMinLength"><i class="fa fa-step-forward"></i> Выбор нуля глубины</a>
                             </li>
-                            <li>
-                                <a data-bind="click: plots.addTimelineEvent"><i class="fa fa-clock-o"></i> События</a>
+                            <li data-bind="css: { active: plots.current_mode() === 'timeline_event' }">
+                                <a data-bind="click: plots.editTimelineEvents"><i class="fa fa-clock-o"></i> События</a>
                             </li>
-                            <li>
+                            <li data-bind="css: { active: plots.current_mode() === 'length_annotation' }">
                                 <a data-bind="click: plots.addLengthAnnotation"><i class="fa fa-map-signs"></i> Добавить констр. элемент</a>
                             </li>
                         </ul>
@@ -114,13 +114,12 @@
 			</section>
 		</aside>
 
-		<div class="content-wrapper" style="background:inherit;
-		
-		    1position: fixed;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    top: 0;1height:100%
+		<div class="content-wrapper" style="
+            background: inherit;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            top: 0;
 		">
 			<div data-bind="page: {
                 id: 'plots',

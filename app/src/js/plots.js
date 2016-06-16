@@ -467,15 +467,21 @@ vm.addTimelineEvent = function() {
 
 vm.editTimelineEvent = function(data, event) {
     vm.current_timeline_event(data.id)
+
     vm.timeline_event_short_text(data.short_text)
+    vm.timeline_event_description(data.description)
     vm.timeline_event_date(moment(data.date).format("DD/MM/YYYY HH:mm:ss"))
+
     vm.is_editing_timeline_event(true)
 }
 
 vm.cancelEditingTimelineEvent = function() {
     vm.current_timeline_event(null)
+
     vm.timeline_event_short_text(null)
     vm.timeline_event_date(null)
+    vm.timeline_event_description(null)
+
     vm.is_editing_timeline_event(false)
 }
 
@@ -495,6 +501,7 @@ vm.saveTimelineEvent = function() {
             vm.current_timeline_event(null)
             vm.timeline_event_short_text(null)
             vm.timeline_event_date(null)
+            vm.timeline_event_description(null)
 
             vm.is_editing_timeline_event(false)
             getTimelineEvents()
@@ -524,26 +531,61 @@ vm.length_annotation_short_text = ko.observable()
 vm.length_annotation_description = ko.observable()
 vm.length_annotation_length = ko.observable()
 
-vm.addLengthAnnotation = function() {
+vm.current_length_annotation = ko.observable()
+vm.is_editing_length_annotation = ko.observable(false)
+
+vm.editLengthAnnotations = function() {
     vm.current_mode("length_annotation")
 }
 
+vm.addLengthAnnotation = function() {
+    vm.is_editing_length_annotation(true)
+}
+
+vm.cancelEditingLengthAnnotation = function() {
+    vm.length_annotation_short_text(null)
+    vm.length_annotation_length(null)
+    vm.length_annotation_description(null)
+    vm.current_length_annotation(null)
+
+    vm.is_editing_length_annotation(false)
+}
+
+vm.editLengthAnnotation = function(data, event) {
+    vm.current_length_annotation(data.id)
+
+    vm.length_annotation_short_text(data.short_text)
+    vm.length_annotation_length(data.length)
+    vm.length_annotation_description(data.description)
+
+    vm.is_editing_length_annotation(true)
+}
+
 vm.saveLengthAnnotation = function() {
-    current_well.addLengthAnnotation(
+    current_well.addOrUpdateLengthAnnotation(
         {
             short_text: vm.length_annotation_short_text(),
             description: vm.length_annotation_description(),
-            length: vm.length_annotation_length()
+            length: vm.length_annotation_length(),
+            id: vm.current_length_annotation()
         },
         function(err, result) {
             if(err) {
                 return console.error(err)
             }
 
-            vm.current_mode("normal")
+            vm.length_annotation_short_text(null)
+            vm.length_annotation_length(null)
+            vm.length_annotation_description(null)
+
             getLengthAnnotations()
+            vm.is_editing_length_annotation(false)
         }
     )
+}
+
+vm.removeLengthAnnotation = function(data, event) {
+    current_well.removeLengthAnnotation(data, getLengthAnnotations)
 }
 
 vm.plot_colors = plot_colors

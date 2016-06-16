@@ -421,32 +421,60 @@
 				</div>
 			</div>
 
-			<div class="box box-danger box-borderless" data-bind="visible: current_mode() === 'length_annotation'">
-				<div class="box-header">
-					<h3 class="box-title">Добавление конструкционного элемента</h3>
-				</div>
+            <div class="box box-danger box-borderless" data-bind="visible: current_mode() === 'length_annotation'">
+                <div class="box-header">
+                    <h3 class="box-title">Конструкционные элементы</h3>
+                </div>
 
-				<div class="box-body">
-					<ul class="list-unstyled">
-						<li>Глубина: <span data-bind="text: length_annotation_length"></span></li>
-						<li>Краткое обозначение:
-							<input data-bind="textInput: length_annotation_short_text">
-						</li>
-						<li>Описание:
-							<input data-bind="textInput: length_annotation_description">
-						</li>
-					</ul>
-				</div>
+                <div class="box-body">
+                    <!-- ko if: length_annotations().length === 0 -->
+                    <p class="placeholder">У вас пока не отмечены конструкционные элементы</p>
+                    <!-- /ko -->
 
-				<div class="box-footer">
-					<a class="btn btn-sm btn-danger" data-bind="click: saveLengthAnnotation">
-						<span>Сохранить</span>
-					</a>
-					<a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
-						<span>Отмена</span>
-					</a>
-				</div>
-			</div>
+                    <!-- ko ifnot: length_annotations().length === 0 -->
+                    <ul class="list-unstyled timeline-events" data-bind="foreach: length_annotations">
+                        <li>
+                            <!-- ko ifnot: $parent.is_editing_length_annotation() && $parent.current_length_annotation() == $data.id -->
+                            <div data-bind="
+                                text: short_text
+                            "></div>
+                            <div>
+                                <span data-bind="text: length"></span>
+                            </div>
+                            <div class="btn-hoverable" data-bind="click: $parent.editLengthAnnotation">
+                                <i class="fa fa-pencil"></i>
+                            </div>
+                            <div class="btn-hoverable" data-bind="click: $parent.removeLengthAnnotation">
+                                <i class="fa fa-times"></i>
+                            </div>
+                            <!-- /ko -->
+
+                            <!-- ko if: $parent.is_editing_length_annotation() && $parent.current_length_annotation() == $data.id -->
+                            <div>
+                                <!-- ko with: $parent -->
+                                <div class="box box-default box-borderless timeline-event-template" data-bind="template: { name: 'length-annotation-template' }">
+                                </div>
+                                <!-- /ko -->
+                            </div>
+                            <!-- /ko -->
+                        </li>
+                    </ul>
+                    <!-- /ko -->
+
+                    <!-- ko ifnot: is_editing_length_annotation -->
+                    <a class="btn btn-sm btn-danger" data-bind="click: addLengthAnnotation">
+                        <span>Добавить элемент</span>
+                    </a>
+                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+                        <span>Отмена</span>
+                    </a>
+                    <!-- /ko -->
+
+                    <!-- ko if: is_editing_length_annotation() && !current_length_annotation() -->
+                    <div class="box box-default box-borderless timeline-event-template" data-bind="template: 'length-annotation-template'"></div>
+                    <!-- /ko -->
+                </div>
+            </div>
 		</div>
 	</div>
 </section>
@@ -479,6 +507,33 @@
             <span>Сохранить</span>
         </a>
         <a class="btn btn-sm btn-default" data-bind="click: cancelEditingTimelineEvent">
+            <span>Отмена</span>
+        </a>
+    </div>
+</script>
+
+<script type="text/html" id="length-annotation-template">
+    <div>
+        <ul class="list-unstyled">
+            <li>Глубина:
+                <input class="axis-input-block-bottom-right" data-bind="
+                textInput: length_annotation_length
+                ">
+            </li>
+            <li>Краткое обозначение:
+                <input data-bind="textInput: length_annotation_short_text">
+            </li>
+            <li>Описание:
+                <input data-bind="textInput: length_annotation_description">
+            </li>
+        </ul>
+    </div>
+
+    <div>
+        <a class="btn btn-sm btn-danger" data-bind="click: saveLengthAnnotation">
+            <span>Сохранить</span>
+        </a>
+        <a class="btn btn-sm btn-default" data-bind="click: cancelEditingLengthAnnotation">
             <span>Отмена</span>
         </a>
     </div>

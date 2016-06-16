@@ -479,14 +479,49 @@ api.post(
         length: (length) => _.isNumber(length) && length >= 0
     }),
     (req, res) => {
-        let query = `INSERT INTO length_annotations
-            (well_id, short_text, description, length)
-            VALUES (
-                ${req.body.well_id},
-                '${req.body.short_text}',
-                '${req.body.description}',
-                ${req.body.length}
-            )`
+        let query
+
+        if(req.body.id) {
+            if(!isIDValid(req.body.id)) {
+                return res.jsonCallback("err")
+            }
+
+            query = `UPDATE length_annotations SET
+                short_text = '${req.body.short_text}',
+                description = '${req.body.description}',
+                length = ${req.body.length}
+                WHERE id = ${req.body.id}
+                AND well_id = ${req.body.well_id}
+                `
+        }
+        else {
+            query = `INSERT INTO length_annotations
+                (well_id, short_text, description, length)
+                VALUES (
+                    ${req.body.well_id},
+                    '${req.body.short_text}',
+                    '${req.body.description}',
+                    ${req.body.length}
+                )`
+        }
+
+        helpers.makePGQuery(
+            query,
+            res.jsonCallback
+        )
+    }
+)
+
+api.delete(
+    "/length_annotation",
+    helpers.validateRequestData({
+        well_id: isIDValid,
+        id: isIDValid
+    }),
+    function(req, res) {
+        let query = `DELETE FROM length_annotations
+            WHERE well_id = ${req.body.well_id}
+            AND id = ${req.body.id}`
 
         helpers.makePGQuery(
             query,
@@ -501,7 +536,7 @@ api.post(
         well_id: isIDValid
     }),
     (req, res) => {
-        let query = `SELECT short_text, description, length
+        let query = `SELECT short_text, description, length, id
             FROM length_annotations
             WHERE well_id = ${req.body.well_id}`
 

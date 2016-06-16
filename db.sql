@@ -131,11 +131,33 @@ CREATE TABLE length_annotations (
     well_id integer,
     short_text text,
     description text,
-    length real
+    length real,
+    id integer NOT NULL
 );
 
 
 ALTER TABLE length_annotations OWNER TO lwpss;
+
+--
+-- Name: length_annotations_id_seq; Type: SEQUENCE; Schema: public; Owner: lwpss
+--
+
+CREATE SEQUENCE length_annotations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE length_annotations_id_seq OWNER TO lwpss;
+
+--
+-- Name: length_annotations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: lwpss
+--
+
+ALTER SEQUENCE length_annotations_id_seq OWNED BY length_annotations.id;
+
 
 --
 -- Name: p_measurements; Type: TABLE; Schema: public; Owner: lwpss
@@ -316,6 +338,13 @@ ALTER TABLE ONLY favorites ALTER COLUMN id SET DEFAULT nextval('favorites_id_seq
 -- Name: id; Type: DEFAULT; Schema: public; Owner: lwpss
 --
 
+ALTER TABLE ONLY length_annotations ALTER COLUMN id SET DEFAULT nextval('length_annotations_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: lwpss
+--
+
 ALTER TABLE ONLY timeline_events ALTER COLUMN id SET DEFAULT nextval('timeline_events_id_seq'::regclass);
 
 
@@ -339,6 +368,14 @@ ALTER TABLE ONLY wells ALTER COLUMN id SET DEFAULT nextval('wells_id_seq'::regcl
 
 ALTER TABLE ONLY favorites
     ADD CONSTRAINT favorites_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: length_annotations_pkey; Type: CONSTRAINT; Schema: public; Owner: lwpss
+--
+
+ALTER TABLE ONLY length_annotations
+    ADD CONSTRAINT length_annotations_pkey PRIMARY KEY (id);
 
 
 --

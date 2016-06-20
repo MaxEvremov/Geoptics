@@ -10,11 +10,12 @@ class Plot {
         this.date_start = params.date_start || null
         this.date_end = params.date_end || null
         this.data = params.data || [[0, 0]]
-        this.color = randomColor({
-            luminosity: "dark",
-            hue: "random",
-            format: "rgb"
-        })
+//        this.color = randomColor({
+//            luminosity: "dark",
+//            hue: "random",
+//            format: "rgb"
+//        })       
+		this.color = helpers.randomColor2()
     }
 
     get description() {

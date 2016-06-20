@@ -2,37 +2,37 @@
 	.just-padding {
 		padding: 15px;
 	}
-
+	
 	.list-group.list-group-root {
 		padding: 0;
 		overflow: hidden;
 	}
-
+	
 	.list-group.list-group-root .list-group {
 		margin-bottom: 0;
 	}
-
+	
 	.list-group.list-group-root .list-group-item {
 		border-radius: 0;
 		border-width: 1px 0 0 0;
 	}
-
+	
 	.list-group.list-group-root > .list-group-item:first-child {
 		border-top-width: 0;
 	}
-
+	
 	.list-group.list-group-root > .list-group > .list-group-item {
 		padding-left: 30px;
 	}
-
+	
 	.list-group.list-group-root > .list-group > .list-group > .list-group-item {
 		padding-left: 45px;
 	}
-
+	
 	.list-group-item .glyphicon {
 		margin-right: 5px;
 	}
-
+	
 	.dygraph-legend {
 		padding: 10px;
 		border-radius: 3px;
@@ -41,35 +41,35 @@
 		background: rgba(255, 255, 255, 0.8)!important;
 		z-index: 100!important;
 	}
-
+	
 	.dygraph-legend > * {
 		display: block;
 	}
-
+	
 	.dygraphDefaultAnnotation {
 		line-height: 14px;
 		border: 0;
-/*		box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.37);*/
-		    box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.37);
+		/*		box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.37);*/
+		box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.37);
 		color: white !important;
 	}
-
+	
 	.placeholder {
-        font-size: 0.8em;
-        color: #999;
-        padding: 1em;
-        font-size: 1em;
-        text-align: center;
-        width: 100%;
-        background: #B0B6B9;
-        color: #fff;
+		font-size: 0.8em;
+		color: #999;
+		padding: 1em;
+		font-size: 1em;
+		text-align: center;
+		width: 100%;
+		background: #B0B6B9;
+		color: #fff;
 	}
-
+	
 	#dygraph_box_body .placeholder {
 		position: absolute;
 		top: 50px;
 	}
-
+	
 	#dygraph_container .line {
 		visibility: hidden;
 		background-color: black;
@@ -80,24 +80,28 @@
 		top: 0;
 		margin-top: -20px;
 	}
-
+	
 	.box-toolbar {
 		position: absolute;
 		top: 0;
 		right: 0;
 		padding: 5px;
 	}
-
+	
 	.dygraph-box {
 		position: relative;
 		padding: 0
 	}
-	.dygraph-axis-label {text-align: center!important}
+	
+	.dygraph-axis-label {
+		text-align: center!important
+	}
+	
 	.axis-input-block {
 		position: absolute;
 		z-index: 10
 	}
-
+	
 	.axis-input-block input {
 		position: absolute;
 		display: none;
@@ -105,116 +109,123 @@
 		border: 1px inset #eee;
 		padding: 0px 3px;
 	}
-
+	
 	.axis-input-block:hover input {
 		display: block
 	}
-
+	
 	.axis-input-block-left {
 		left: -20px;
 		top: 0;
 		bottom: 0;
 		width: 50px;
 	}
-
+	
 	.axis-input-block-left-top {
-        right: 0px;
-        top: 0;
-        width: 40px;
+		right: 0px;
+		top: 0;
+		width: 40px;
 	}
-
+	
 	.axis-input-block-left-bottom {
-        right: 0px;
-        bottom: 0;
-        width: 40px;
+		right: 0px;
+		bottom: 0;
+		width: 40px;
 	}
-
+	
 	.axis-input-block-bottom {
 		left: 31px;
 		right: 5px;
 		bottom: -5px;
 		height: 20px;
 	}
-
+	
 	.axis-input-block-bottom-left {
 		left: 0;
 		bottom: 0;
 		width: 10em;
 	}
-
+	
 	.axis-input-block-bottom-right {
 		right: 0;
 		bottom: 0;
 		width: 10em;
 	}
-
+	
 	.box-toolbar .adjustRoll input {
 		width: 2em;
 		border-radius: 3px;
 		border: 1px inset #eee;
 		padding: 0px 3px;
 	}
-
-    .dygraph-annotation-deviation {
-        background-color: red;
-        color: white;
-    }
-
-    .dygraph-annotation-event, .dygraph-annotation-length {
-        background-color: #666;
-    }
-
-    .plotpoints tr {
-        cursor: pointer;
-    }
-
-    #avg_click_box {
-        position: fixed;
+	
+	.dygraph-annotation-deviation {
+		background-color: red;
+		color: white;
+	}
+	
+	.dygraph-annotation-event,
+	.dygraph-annotation-length {
+		background-color: #666;
+	}
+	
+	.plotpoints tr {
+		cursor: pointer;
+	}
+	
+	#avg_click_box {
+		position: fixed;
 		display: block;
-        width: 250px;
-/*        height: 120px;*/
-        z-index: 11;    border: 2px solid rgba(0, 0, 0, 0.2);
-    }
-
-    .timeline-events {
-        font-size: 0.9em;
-    }
-
-    .timeline-events > li {
-        margin-bottom: 5px;
-    }
-
-    .timeline-events > li > div {
-/*        display: inline;*/
-/*        margin-right: 10px;*/
-    }
-
-    .timeline-event-template > div {
-/*        margin-bottom: 10px;*/
-    }
-
-    .box.timeline-event-template {
-/*        margin-bottom: 0;*/
-    }
+		width: 250px;
+		/*        height: 120px;*/
+		z-index: 11;
+		border: 2px solid rgba(0, 0, 0, 0.2);
+	}
+	
+	.timeline-events {
+		font-size: 0.9em;
+	}
+	
+	.timeline-events > li {
+		    padding: 0.7em 0;
+    border-bottom: 1px solid #eee;
+	}
+	.timeline-events > li:last-child {
+	border-bottom: 0}
+	
+	.timeline-events > li > div {
+		/*        display: inline;*/
+		/*        margin-right: 10px;*/
+	}
+	
+	.timeline-event-template > div {
+		/*        margin-bottom: 10px;*/
+	}
+	
+	.box.timeline-event-template {
+		/*        margin-bottom: 0;*/
+	}
 </style>
 
 <!--<div>-->
-   <ul  id="avg_click_box" 1class="box box-default" data-bind="
+<ul id="avg_click_box" 1class="box box-default" data-bind="
     visible: is_point_box_visible,
     style: {
         top: point_box_top,
         left: point_box_left
     }
-" class="dropdown-menu" role="menu" >
-                    <li style="padding:10px 20px"> <p data-bind="html: helpers.formatDate(selected_date())"></p></li>
-                    <li><a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a></li>
-                    <li data-bind="click: getAvgHourTempPlot"><a href="#">Усреднить за час</a></li>
-<!--
+" class="dropdown-menu" role="menu">
+	<li style="padding:10px 20px">
+		<p data-bind="html: helpers.formatDate(selected_date())"></p>
+	</li>
+	<li><a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a></li>
+	<li data-bind="click: getAvgHourTempPlot"><a href="#">Усреднить за час</a></li>
+	<!--
                     <li class="divider"></li>
                     <li><a href="#">Separated link</a></li>
 -->
-                  </ul>
-   
+</ul>
+
 <!--
    
     <div class="box-body">
@@ -307,29 +318,29 @@
 				</div>
 
 				<div class="box-body">
-                    <!-- ko ifnot: selected_plots().length === 0 -->
-                    <table class="table plotpoints" style="font-size: 0.8em;">
-                        <tbody data-bind="foreach: selected_plots">
-                            <tr>
-                                <td data-bind="
+					<!-- ko ifnot: selected_plots().length === 0 -->
+					<table class="table plotpoints" style="font-size: 0.8em;">
+						<tbody data-bind="foreach: selected_plots">
+							<tr>
+								<td data-bind="
                                 text: $index() + 1,
                                 style: {
                                     backgroundColor: color
                                 }
                                 " style="color: #fff;"></td>
-                                <td data-bind="click: $parent.showPoint">
-                                    <span data-bind="html: description"></span>
-                                </td>
-                                <td class="btn-hoverable" data-bind="click: $parent.removePoint">
-                                    <i class="fa fa-times"></i>
-                                </td>
-                                <td class="btn-hoverable" data-bind="click: downloadLAS">
-                                    <a title=' Скачать как LAS'><i class="fa fa-download"></i></a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <!-- /ko -->
+								<td data-bind="click: $parent.showPoint">
+									<span data-bind="html: description"></span>
+								</td>
+								<td class="btn-hoverable" data-bind="click: $parent.removePoint">
+									<a title='Удалить'><i class="fa fa-times"></i></a>
+								</td>
+								<td class="btn-hoverable" data-bind="click: downloadLAS">
+									<a title='Скачать как LAS'><i class="fa fa-download"></i></a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<!-- /ko -->
 
 					<!-- ko if: selected_plots().length === 0 -->
 					<p class="placeholder noselect">Выберите хотя бы одну точку на графике давления</p>
@@ -387,18 +398,18 @@
 				</div>
 
 				<div class="box-body">
-                    <!-- ko if: timeline_events().length === 0 -->
-                    <p class="placeholder">У вас пока нет событий</p>
-                    <!-- /ko -->
+					<!-- ko if: timeline_events().length === 0 -->
+					<p class="placeholder">У вас пока нет событий</p>
+					<!-- /ko -->
 
-                    <!-- ko ifnot: timeline_events().length === 0 -->
-                    <ul class="list-unstyled timeline-events" data-bind="foreach: timeline_events">
-                        <li>
-                            <!-- ko ifnot: $parent.is_editing_timeline_event() && $parent.current_timeline_event() == $data.id -->
-                            <b data-bind="
+					<!-- ko ifnot: timeline_events().length === 0 -->
+					<ul class="list-unstyled timeline-events" data-bind="foreach: timeline_events">
+						<li>
+							<!-- ko ifnot: $parent.is_editing_timeline_event() && $parent.current_timeline_event() == $data.id -->
+							<b data-bind="
                                 text: short_text
-                            "></b> 
-                            <span class="btn-hoverable pull-right">
+                            "></b>
+							<span class="btn-hoverable pull-right">
 								<a class="1btn" data-bind="click: $parent.editTimelineEvent">
 									<i class="fa fa-pencil"></i>
 								</a>
@@ -406,103 +417,106 @@
 									<i class="fa fa-times"></i>
 								</a>
 							</span>
-                            <div style="    overflow-wrap: break-word;">
-                                <span data-bind="text: description"></span>
-                                <span data-bind="html: helpers.formatDate(date)"></span>
-                            </div>
-                           
-                            <!-- /ko -->
+							<div style="    overflow-wrap: break-word;">
+								<span data-bind="text: description"></span>
+								<span data-bind="html: helpers.formatDateHTML(date)"></span>
+							</div>
 
-                            <!-- ko if: $parent.is_editing_timeline_event() && $parent.current_timeline_event() == $data.id -->
-<!--                            <div>-->
-                                <!-- ko with: $parent -->
-                                <div class="editbox timeline-event-template" data-bind="template: { name: 'timeline-event-template' }">
-                                </div>
-                                <!-- /ko -->
-<!--                            </div>-->
-                            <!-- /ko -->
-                        </li>
-                    </ul>
-                    <!-- /ko -->
+							<!-- /ko -->
 
-                    <!-- ko ifnot: is_editing_timeline_event -->
-                    <a class="btn btn-sm btn-danger" data-bind="click: addTimelineEvent">
-                        <span>Добавить событие</span>
-                    </a>
-                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
-                        <span>Отмена</span>
-                    </a>
-                    <!-- /ko -->
+							<!-- ko if: $parent.is_editing_timeline_event() && $parent.current_timeline_event() == $data.id -->
+							<!--                            <div>-->
+							<!-- ko with: $parent -->
+							<div class="editbox timeline-event-template" data-bind="template: { name: 'timeline-event-template' }">
+							</div>
+							<!-- /ko -->
+							<!--                            </div>-->
+							<!-- /ko -->
+						</li>
+					</ul>
+					<!-- /ko -->
 
-                    <!-- ko if: is_editing_timeline_event() && !current_timeline_event() -->
-                    <div class="editbox timeline-event-template" data-bind="template: 'timeline-event-template'"></div>
-                    <!-- /ko -->
+					<!-- ko ifnot: is_editing_timeline_event -->
+					<a class="btn btn-sm btn-danger" data-bind="click: addTimelineEvent">
+						<span>Добавить</span>
+					</a>
+					<a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+						<span>Отмена</span>
+					</a>
+					<!-- /ko -->
+
+					<!-- ko if: is_editing_timeline_event() && !current_timeline_event() -->
+					<div class="editbox timeline-event-template" data-bind="template: 'timeline-event-template'"></div>
+					<!-- /ko -->
 				</div>
 			</div>
 
-            <div class="box box-danger box-solid" data-bind="visible: current_mode() === 'length_annotation'">
-                <div class="box-header">
-                    <h3 class="box-title">Конструкционные элементы</h3>
-                </div>
+			<div class="box box-danger box-solid" data-bind="visible: current_mode() === 'length_annotation'">
+				<div class="box-header">
+					<h3 class="box-title">Конструкционные элементы</h3>
+				</div>
 
-                <div class="box-body">
-                    <!-- ko if: length_annotations().length === 0 -->
-                    <p class="placeholder">У вас пока не отмечены конструкционные элементы</p>
-                    <!-- /ko -->
+				<div class="box-body">
+					<!-- ko if: length_annotations().length === 0 -->
+					<p class="placeholder">У вас пока не отмечены конструкционные элементы</p>
+					<!-- /ko -->
 
-                    <!-- ko ifnot: length_annotations().length === 0 -->
-                    <ul class="list-unstyled timeline-events" data-bind="foreach: length_annotations">
-                        <li>
-                            <!-- ko ifnot: $parent.is_editing_length_annotation() && $parent.current_length_annotation() == $data.id -->
-                            <div data-bind="
+					<!-- ko ifnot: length_annotations().length === 0 -->
+					<ul class="list-unstyled timeline-events" data-bind="foreach: length_annotations">
+						<li>
+							<!-- ko ifnot: $parent.is_editing_length_annotation() && $parent.current_length_annotation() == $data.id -->
+							<b data-bind="
                                 text: short_text
-                            "></div>
-                            <div>
-                                <span data-bind="text: length"></span>
-                            </div>
-                            <div class="btn-hoverable" data-bind="click: $parent.editLengthAnnotation">
+                            "></b>
+                            <span class="btn-hoverable pull-right"> <a data-bind="click: $parent.editLengthAnnotation">
                                 <i class="fa fa-pencil"></i>
-                            </div>
-                            <div class="btn-hoverable" data-bind="click: $parent.removeLengthAnnotation">
+                            </a>
+                            <a  data-bind="click: $parent.removeLengthAnnotation">
                                 <i class="fa fa-times"></i>
-                            </div>
-                            <!-- /ko -->
+                            </a></span>
+							<div>
+								<span data-bind="text: length"></span>м
+							</div>
+							
 
-                            <!-- ko if: $parent.is_editing_length_annotation() && $parent.current_length_annotation() == $data.id -->
-                            <div>
-                                <!-- ko with: $parent -->
-                                <div class="box box-default box-borderless timeline-event-template" data-bind="template: { name: 'length-annotation-template' }">
-                                </div>
-                                <!-- /ko -->
-                            </div>
-                            <!-- /ko -->
-                        </li>
-                    </ul>
-                    <!-- /ko -->
+							<!-- /ko -->
 
-                    <!-- ko ifnot: is_editing_length_annotation -->
-                    <a class="btn btn-sm btn-danger" data-bind="click: addLengthAnnotation">
-                        <span>Добавить элемент</span>
-                    </a>
-                    <a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
-                        <span>Отмена</span>
-                    </a>
-                    <!-- /ko -->
+							<!-- ko if: $parent.is_editing_length_annotation() && $parent.current_length_annotation() == $data.id -->
+							<div>
+								<!-- ko with: $parent -->
+								<div class="box box-default box-borderless timeline-event-template" data-bind="template: { name: 'length-annotation-template' }">
+								</div>
+								<!-- /ko -->
+							</div>
+							<!-- /ko -->
+						</li>
+					</ul>
+					<!-- /ko -->
 
-                    <!-- ko if: is_editing_length_annotation() && !current_length_annotation() -->
-                    <div class="box box-default box-borderless timeline-event-template" data-bind="template: 'length-annotation-template'"></div>
-                    <!-- /ko -->
-                </div>
-            </div>
+					<!-- ko ifnot: is_editing_length_annotation -->
+					<a class="btn btn-sm btn-danger" data-bind="click: addLengthAnnotation">
+						<span>Добавить</span>
+					</a>
+					<a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+						<span>Отмена</span>
+					</a>
+					<!-- /ko -->
+
+					<!-- ko if: is_editing_length_annotation() && !current_length_annotation() -->
+					<div class="box box-default box-borderless timeline-event-template" data-bind="template: 'length-annotation-template'"></div>
+					<!-- /ko -->
+				</div>
+			</div>
 		</div>
 	</div>
 </section>
 
 <script type="text/html" id="timeline-event-template">
-    <div>
-        <ul class="list-unstyled">
-			<li class="form-group"><label>Дата:</label>
-                <input class="form-control" class="axis-input-block-bottom-right" data-bind="
+	<div>
+		<ul class="list-unstyled">
+			<li class="form-group">
+				<label>Дата:</label>
+				<input class="form-control" class="axis-input-block-bottom-right" data-bind="
                 textInput: timeline_event_date,
                 jmask: {
                     mask: '00/00/00 00:00',
@@ -511,53 +525,55 @@
                     }
                 }
                 ">
-            </li>
-            <li class="form-group"><label>Краткое обозначение:</label>
-                <input class="form-control" data-bind="textInput: timeline_event_short_text">
-            </li>
-			<li class="form-group"><label>Описание:</label>
+			</li>
+			<li class="form-group">
+				<label>Краткое обозначение:</label>
+				<input class="form-control" data-bind="textInput: timeline_event_short_text">
+			</li>
+			<li class="form-group">
+				<label>Описание:</label>
 				<textarea class="form-control" data-bind="textInput: timeline_event_description" style="
     width: 100%;
     min-height: 5em;
     resize: vertical;
 "></textarea>
-            </li>
-        </ul>
-    </div>
+			</li>
+		</ul>
+	</div>
 
-    <div>
-        <a class="btn btn-sm btn-danger" data-bind="click: saveTimelineEvent">
-            <span>Сохранить</span>
-        </a>
-        <a class="btn btn-sm btn-default" data-bind="click: cancelEditingTimelineEvent">
-            <span>Отмена</span>
-        </a>
-    </div>
+	<div>
+		<a class="btn btn-sm btn-danger" data-bind="click: saveTimelineEvent">
+			<span>Сохранить</span>
+		</a>
+		<a class="btn btn-sm btn-default" data-bind="click: cancelEditingTimelineEvent">
+			<span>Отмена</span>
+		</a>
+	</div>
 </script>
 
 <script type="text/html" id="length-annotation-template">
-    <div>
-        <ul class="list-unstyled">
-            <li>Глубина:
-                <input class="axis-input-block-bottom-right" data-bind="
+	<div>
+		<ul class="list-unstyled">
+			<li>Глубина:
+				<input class="axis-input-block-bottom-right" data-bind="
                 textInput: length_annotation_length
                 ">
-            </li>
-            <li>Краткое обозначение:
-                <input data-bind="textInput: length_annotation_short_text">
-            </li>
-            <li>Описание:
-                <input data-bind="textInput: length_annotation_description">
-            </li>
-        </ul>
-    </div>
+			</li>
+			<li>Краткое обозначение:
+				<input data-bind="textInput: length_annotation_short_text">
+			</li>
+			<li>Описание:
+				<input data-bind="textInput: length_annotation_description">
+			</li>
+		</ul>
+	</div>
 
-    <div>
-        <a class="btn btn-sm btn-danger" data-bind="click: saveLengthAnnotation">
-            <span>Сохранить</span>
-        </a>
-        <a class="btn btn-sm btn-default" data-bind="click: cancelEditingLengthAnnotation">
-            <span>Отмена</span>
-        </a>
-    </div>
+	<div>
+		<a class="btn btn-sm btn-danger" data-bind="click: saveLengthAnnotation">
+			<span>Сохранить</span>
+		</a>
+		<a class="btn btn-sm btn-default" data-bind="click: cancelEditingLengthAnnotation">
+			<span>Отмена</span>
+		</a>
+	</div>
 </script>

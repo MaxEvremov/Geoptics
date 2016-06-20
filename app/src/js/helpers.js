@@ -48,13 +48,15 @@ helpers.makeAJAXRequest = function (url, method, data, done) {
 }
 
 helpers.formatDate = function(date) {
-    return moment(date).format("YYYY-MM-DD HH:mm:ssZ")
+    return "<span class='formatDate'>"+moment(date).format('DD/MM/YY hh:mm')+"</span>"
+    return moment(date).format('DD/MM/YY hh:mm')
+//    return moment(date).format("YYYY-MM-DD HH:mm:ssZ")
 }
 
 helpers.createCSSClass = function(name, color) {
     var style = document.createElement("style")
     style.type = "text/css"
-    style.innerHTML = `${name} { color: ${color} !important; }`
+    style.innerHTML = `${name} { background-color: ${color} !important; }`
     document.getElementsByTagName("head")[0].appendChild(style)
 }
 

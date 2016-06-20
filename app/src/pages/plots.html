@@ -49,7 +49,8 @@
 	.dygraphDefaultAnnotation {
 		line-height: 14px;
 		border: 0;
-		box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.37);
+/*		box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.37);*/
+		    box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.37);
 		color: white !important;
 	}
 
@@ -169,9 +170,10 @@
 
     #avg_click_box {
         position: fixed;
+		display: block;
         width: 250px;
-        height: 120px;
-        z-index: 11;
+/*        height: 120px;*/
+        z-index: 11;    border: 2px solid rgba(0, 0, 0, 0.2);
     }
 
     .timeline-events {
@@ -183,28 +185,40 @@
     }
 
     .timeline-events > li > div {
-        display: inline;
-        margin-right: 10px;
+/*        display: inline;*/
+/*        margin-right: 10px;*/
     }
 
     .timeline-event-template > div {
-        margin-bottom: 10px;
+/*        margin-bottom: 10px;*/
     }
 
     .box.timeline-event-template {
-        margin-bottom: 0;
+/*        margin-bottom: 0;*/
     }
 </style>
 
-<div id="avg_click_box" class="box box-default" data-bind="
+<!--<div>-->
+   <ul  id="avg_click_box" 1class="box box-default" data-bind="
     visible: is_point_box_visible,
     style: {
         top: point_box_top,
         left: point_box_left
     }
-">
+" class="dropdown-menu" role="menu" >
+                    <li style="padding:10px 20px"> <p data-bind="html: helpers.formatDate(selected_date())"></p></li>
+                    <li><a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a></li>
+                    <li data-bind="click: getAvgHourTempPlot"><a href="#">Усреднить за час</a></li>
+<!--
+                    <li class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+-->
+                  </ul>
+   
+<!--
+   
     <div class="box-body">
-        <p data-bind="text: helpers.formatDate(selected_date())"></p>
+        <p data-bind="html: helpers.formatDate(selected_date())"></p>
 
         <a class="btn btn-sm btn-default" data-bind="click: getNearestTempPlot">
             <span>Получить ближайший график</span>
@@ -214,11 +228,12 @@
             <span>Усреднить за час</span>
         </a>
     </div>
-</div>
+-->
+<!--</div>-->
 
-<section class="content" style="height:100%">
-	<div class="row" style="height:100%">
-		<div class="col-md-9" style="height:100%">
+<section class="content" style="1height:100%">
+	<div class="row" style="1height:100%">
+		<div class="col-md-9" style="1height:100%">
 			<div class="box box-info box-borderless" style="position:relative;min-height:20%">
 				<div class="box-header">
 					<h3 class="box-title">Давление 	<a class="btn btn-xs" title="В Избранное" data-bind="click: saveFavorite">
@@ -227,7 +242,7 @@
 				</div>
 
 				<div class="box-body dygraph-box">
-					<div id="dygraph_avg_container" class="plot" style="    margin-left: -25px;"></div>
+					<div id="dygraph_avg_container" class="plot" style="    margin-left: -13px;"></div>
 
 					<div class="axis-input-block axis-input-block-left">
 						<input class="axis-input-block-left-top" data-bind="value: max_zoom_y">
@@ -267,7 +282,7 @@
 				</div>
 			</div>
 
-			<div id="dygraph_box" class="box box-danger box-borderless" style="position:relative;min-height:80%">
+			<div id="dygraph_box" class="box box-danger box-borderless" style="position:relative;min-height:80%;margin-bottom: 0px;">
 				<div id="dygraph_box_body" class="box-body" style="height: 100%;">
 					<div id="dygraph_container" class="plot" data-bind="style: { visibility: is_main_plot_visible() ? 'visible' : 'hidden' }">
 
@@ -299,11 +314,11 @@
                                 <td data-bind="
                                 text: $index() + 1,
                                 style: {
-                                    color: color
+                                    backgroundColor: color
                                 }
-                                "></td>
+                                " style="color: #fff;"></td>
                                 <td data-bind="click: $parent.showPoint">
-                                    <span data-bind="text: description"></span>
+                                    <span data-bind="html: description"></span>
                                 </td>
                                 <td class="btn-hoverable" data-bind="click: $parent.removePoint">
                                     <i class="fa fa-times"></i>
@@ -366,7 +381,7 @@
 				</div>
 			</div>
 
-			<div class="box box-danger box-borderless" data-bind="visible: current_mode() === 'timeline_event'">
+			<div class="box box-danger box-solid" data-bind="visible: current_mode() === 'timeline_event'">
 				<div class="box-header">
 					<h3 class="box-title">События на таймлайне</h3>
 				</div>
@@ -380,27 +395,31 @@
                     <ul class="list-unstyled timeline-events" data-bind="foreach: timeline_events">
                         <li>
                             <!-- ko ifnot: $parent.is_editing_timeline_event() && $parent.current_timeline_event() == $data.id -->
-                            <div data-bind="
+                            <b data-bind="
                                 text: short_text
-                            "></div>
-                            <div>
-                                <span data-bind="text: helpers.formatDate(date)"></span>
+                            "></b> 
+                            <span class="btn-hoverable pull-right">
+								<a class="1btn" data-bind="click: $parent.editTimelineEvent">
+									<i class="fa fa-pencil"></i>
+								</a>
+								<a class="1btn" data-bind="click: $parent.removeTimelineEvent">
+									<i class="fa fa-times"></i>
+								</a>
+							</span>
+                            <div style="    overflow-wrap: break-word;">
+                                <span data-bind="text: description"></span>
+                                <span data-bind="html: helpers.formatDate(date)"></span>
                             </div>
-                            <div class="btn-hoverable" data-bind="click: $parent.editTimelineEvent">
-                                <i class="fa fa-pencil"></i>
-                            </div>
-                            <div class="btn-hoverable" data-bind="click: $parent.removeTimelineEvent">
-                                <i class="fa fa-times"></i>
-                            </div>
+                           
                             <!-- /ko -->
 
                             <!-- ko if: $parent.is_editing_timeline_event() && $parent.current_timeline_event() == $data.id -->
-                            <div>
+<!--                            <div>-->
                                 <!-- ko with: $parent -->
-                                <div class="box box-default box-borderless timeline-event-template" data-bind="template: { name: 'timeline-event-template' }">
+                                <div class="editbox timeline-event-template" data-bind="template: { name: 'timeline-event-template' }">
                                 </div>
                                 <!-- /ko -->
-                            </div>
+<!--                            </div>-->
                             <!-- /ko -->
                         </li>
                     </ul>
@@ -416,12 +435,12 @@
                     <!-- /ko -->
 
                     <!-- ko if: is_editing_timeline_event() && !current_timeline_event() -->
-                    <div class="box box-default box-borderless timeline-event-template" data-bind="template: 'timeline-event-template'"></div>
+                    <div class="editbox timeline-event-template" data-bind="template: 'timeline-event-template'"></div>
                     <!-- /ko -->
 				</div>
 			</div>
 
-            <div class="box box-danger box-borderless" data-bind="visible: current_mode() === 'length_annotation'">
+            <div class="box box-danger box-solid" data-bind="visible: current_mode() === 'length_annotation'">
                 <div class="box-header">
                     <h3 class="box-title">Конструкционные элементы</h3>
                 </div>
@@ -482,22 +501,26 @@
 <script type="text/html" id="timeline-event-template">
     <div>
         <ul class="list-unstyled">
-            <li>Дата:
-                <input class="axis-input-block-bottom-right" data-bind="
+			<li class="form-group"><label>Дата:</label>
+                <input class="form-control" class="axis-input-block-bottom-right" data-bind="
                 textInput: timeline_event_date,
                 jmask: {
-                    mask: '00/00/0000 00:00:00',
+                    mask: '00/00/00 00:00',
                     options: {
-                        placeholder: '__/__/____ __:__:__'
+                        placeholder: '__/__/__ __:__'
                     }
                 }
                 ">
             </li>
-            <li>Краткое обозначение:
-                <input data-bind="textInput: timeline_event_short_text">
+            <li class="form-group"><label>Краткое обозначение:</label>
+                <input class="form-control" data-bind="textInput: timeline_event_short_text">
             </li>
-            <li>Описание:
-                <input data-bind="textInput: timeline_event_description">
+			<li class="form-group"><label>Описание:</label>
+				<textarea class="form-control" data-bind="textInput: timeline_event_description" style="
+    width: 100%;
+    min-height: 5em;
+    resize: vertical;
+"></textarea>
             </li>
         </ul>
     </div>

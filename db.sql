@@ -300,7 +300,8 @@ CREATE TABLE wells (
     reference_date timestamp with time zone,
     reference_temp real,
     reference_length real,
-    min_length real DEFAULT 0
+    min_length real DEFAULT 0,
+    well_xml_id text
 );
 
 
@@ -416,6 +417,14 @@ ALTER TABLE ONLY users
 
 ALTER TABLE ONLY wells
     ADD CONSTRAINT wells_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: wells_well_xml_id_key; Type: CONSTRAINT; Schema: public; Owner: lwpss
+--
+
+ALTER TABLE ONLY wells
+    ADD CONSTRAINT wells_well_xml_id_key UNIQUE (well_xml_id);
 
 
 --

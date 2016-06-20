@@ -1,6 +1,16 @@
 {
-    "name": "geoptics",
-    "script": "server.js",
-    "watch": ["api", "models", "lib", "node_modules", "server.js"],
-    "log_date_format": "YYYY-MM-DD HH:mm:ss"
+    "apps": [
+        {
+            "name": "geoptics",
+            "script": "server.js",
+            "watch": ["api", "models", "lib", "node_modules", "server.js"],
+            "log_date_format": "YYYY-MM-DD HH:mm:ss"
+        },
+        {
+            "name": "geoptics-data-parser",
+            "script": "well-data-parser.js",
+            "watch": ["server.js"],
+            "log_date_format": "YYYY-MM-DD HH:mm:ss"
+        }
+    ]
 }

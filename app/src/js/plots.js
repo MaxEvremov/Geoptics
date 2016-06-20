@@ -730,6 +730,10 @@ vm.annotations.subscribe(function(value) {
             return v[0]
         })
 
+        if(file[index][0].getTime() === file_element[0].getTime()) {
+            return
+        }
+
         file.splice(index, 0, file_element)
     })
 

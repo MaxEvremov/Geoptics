@@ -190,7 +190,6 @@ var init = function() {
                 getLengthAnnotations()
 
 				plot_avg.resetZoom()
-					plot_avg.adjustRoll(100)
             }
         )
     })
@@ -725,15 +724,13 @@ vm.annotations.subscribe(function(value) {
     var file = plot_avg.file_
 
     value.forEach(function(annotation) {
-        if(!file.find(function(v) {
-            return v[0].getTime() === annotation.x
-        })) {
-            file.push([new Date(annotation.x), null])
-        }
-    })
+        let file_element = [new Date(annotation.x), null]
 
-    file.sort(function(a, b) {
-        return a[0] - b[0]
+        let index = _.sortedIndexBy(file, file_element, function(v) {
+            return v[0]
+        })
+
+        file.splice(index, 0, file_element)
     })
 
     plot_avg.updateOptions({

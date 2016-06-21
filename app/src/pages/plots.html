@@ -194,6 +194,25 @@
     .box.timeline-event-template {
         margin-bottom: 0;
     }
+
+    #dygraph_avg_container {
+        margin-left: -25px;
+    }
+
+    #dygraph_avg_overlay {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        text-align: center;
+        z-index: 12;
+        font-size: 24px;
+        line-height: 150px;
+    }
+
+    #dygraph_avg_container.loading {
+        -webkit-filter: blur(2px);
+        pointer-events: none;
+    }
 </style>
 
 <div id="avg_click_box" class="box box-default" data-bind="
@@ -227,7 +246,11 @@
 				</div>
 
 				<div class="box-body dygraph-box">
-					<div id="dygraph_avg_container" class="plot" style="    margin-left: -25px;"></div>
+                    <div id="dygraph_avg_overlay" data-bind="visible: is_loading_pressure_data">
+                        <i class="fa fa-spin fa-spinner"></i> 
+                    </div>
+
+					<div id="dygraph_avg_container" class="plot" data-bind="css: { loading: is_loading_pressure_data }"></div>
 
 					<div class="axis-input-block axis-input-block-left">
 						<input class="axis-input-block-left-top" data-bind="value: max_zoom_y">
@@ -257,7 +280,7 @@
 				</div>
 
 				<div class="box-toolbar">
-					<a class="" title="Сбросить увеличение" data-bind="click: resetAvgPlotZoom">
+					<a class="" title="Сбросить увеличение" data-bind="click: resetPlotAvgState">
 						<i class="fa fa-repeat"></i>
 					</a>
 

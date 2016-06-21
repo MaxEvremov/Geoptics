@@ -65,7 +65,7 @@ var queue = async.queue(
                     return done()
                 }
 
-                let plot_ts = moment(answer_plot.date).valueOf()
+                var plot_ts = moment(answer_plot.date).valueOf()
 
                 if(_.find(vm.selected_plots(), { date: plot_ts })) {
                     return done()
@@ -93,6 +93,93 @@ var queue = async.queue(
     },
     1
 )
+
+var plot_avg_prev_min_date = null
+var plot_avg_prev_max_date = null
+
+var ZOOM_LOAD_THRESHOLD = 1 * 24 * 60 * 60 * 1000
+var DEBOUNCE_DELAY = 500
+
+var loadPressureData = _.debounce(function(params) {
+    vm.is_loading_pressure_data(true)
+
+    current_well.getPressureMeasurements(params, function(err, result) {
+        if(err) {
+            vm.is_loading_pressure_data(false)
+            return console.error(err)
+        }
+
+        plot_avg.updateOptions({
+            file: result,
+            valueRange: [null, null]
+        })
+
+        vm.is_loading_pressure_data(false)
+        redrawAnnotations()
+    })
+}, DEBOUNCE_DELAY)
+
+var POINTS_PER_PLOT = 100
+
+var generateEmptyPoints = function(params) {
+    var min_date = params.min_date
+    var max_date = params.max_date
+
+    var step = max_date.diff(min_date) / POINTS_PER_PLOT
+    var file = []
+
+    for(var i = 0; i < POINTS_PER_PLOT + 1; i++) {
+        var date = min_date.clone()
+
+        file.push([date.add(step * i, "ms").toDate(), 1])
+    }
+
+    plot_avg.updateOptions({
+        file: file
+    })
+}
+
+var drawAvgPlot = function() {
+    if(vm.is_loading_pressure_data()) {
+        return
+    }
+
+    var x_range = plot_avg.xAxisRange()
+    var y_range = plot_avg.yAxisRange()
+
+    var min_date = moment(x_range[0])
+    var max_date = moment(x_range[1])
+
+    vm.min_zoom_x(min_date.format("DD/MM/YYYY HH:mm:ss"))
+    vm.max_zoom_x(max_date.format("DD/MM/YYYY HH:mm:ss"))
+
+    vm.min_zoom_y(y_range[0][0])
+    vm.max_zoom_y(y_range[0][1])
+
+    if(max_date.diff(min_date) > ZOOM_LOAD_THRESHOLD) {
+        generateEmptyPoints({
+            min_date: min_date,
+            max_date: max_date
+        })
+
+        return
+    }
+
+    if(plot_avg_prev_min_date && plot_avg_prev_max_date) {
+        if(min_date.isSameOrAfter(plot_avg_prev_min_date)
+        && max_date.isSameOrBefore(plot_avg_prev_max_date)) {
+            return
+        }
+    }
+
+    plot_avg_prev_min_date = min_date
+    plot_avg_prev_max_date = max_date
+
+    loadPressureData({
+        date_start: helpers.formatDate(x_range[0]),
+        date_end: helpers.formatDate(x_range[1])
+    })
+}
 
 var init = function() {
     var plot_avg_interaction_model = _.cloneDeep(Dygraph.Interaction.defaultModel)
@@ -125,21 +212,7 @@ var init = function() {
 
                 vm.is_point_box_visible(true)
             },
-            zoomCallback: function(min_date, max_date, y_ranges) {
-                vm.min_zoom_y(y_ranges[0][0])
-                vm.max_zoom_y(y_ranges[0][1])
-            },
-            drawCallback: function(dygraph, is_initial) {
-                if(is_initial) {
-                    return
-                }
-
-                var x_range = dygraph.xAxisRange()
-                var y_range = dygraph.yAxisRange()
-
-                vm.min_zoom_x(moment(x_range[0]).format("DD/MM/YYYY HH:mm:ss"))
-                vm.max_zoom_x(moment(x_range[1]).format("DD/MM/YYYY HH:mm:ss"))
-            },
+            zoomCallback: drawAvgPlot,
             underlayCallback: function(canvas, area, g) {
                 var selected_avg_plots = _.filter(
                     vm.selected_plots(),
@@ -170,28 +243,24 @@ var init = function() {
     vm.plot_avg = plot_avg
 
     plot_avg.ready(function() {
-        helpers.makeAJAXRequest(
-            "/api/app/plots/p_measurements",
-            "get",
-            function(err, result) {
-                if(err) {
-                    return console.error(err)
-                }
-
-                var data = result.map(function(v) {
-                    return [new Date(v[0]), v[1]]
-                })
-
-                plot_avg.updateOptions({
-                    file: data
-                })
-
-                getTimelineEvents()
-                getLengthAnnotations()
-
-				plot_avg.resetZoom()
+        current_well.init(function(err, result) {
+            if(err) {
+                return console.error(err)
             }
-        )
+
+            plot_avg_init_state = result
+
+            plot_avg.updateOptions({
+                file: result
+            })
+
+            getTimelineEvents()
+            getLengthAnnotations()
+
+            plot_avg.resetZoom()
+
+            drawAvgPlot()
+        })
     })
 
     plot_main = dygraph_main.init()
@@ -294,7 +363,18 @@ var vm = {
 
     is_point_box_visible: ko.observable(false),
     point_box_top: ko.observable(0),
-    point_box_left: ko.observable(0)
+    point_box_left: ko.observable(0),
+
+    is_loading_pressure_data: ko.observable(false)
+}
+
+vm.resetPlotAvgState = function() {
+    plot_avg.updateOptions({
+        file: plot_avg_init_state
+    })
+
+    plot_avg.resetZoom()
+    redrawAnnotations()
 }
 
 vm.getNearestTempPlot = function() {
@@ -720,17 +800,19 @@ vm.annotations = ko.computed(function() {
 
     return result
 })
-vm.annotations.subscribe(function(value) {
+
+var redrawAnnotations = function() {
     var file = plot_avg.file_
 
-    value.forEach(function(annotation) {
-        let file_element = [new Date(annotation.x), null]
+    vm.annotations().forEach(function(annotation) {
+        var file_element = [new Date(annotation.x), null]
 
-        let index = _.sortedIndexBy(file, file_element, function(v) {
+        var index = _.sortedIndexBy(file, file_element, function(v) {
             return v[0]
         })
 
-        if(file[index][0].getTime() === file_element[0].getTime()) {
+        if(file[index]
+            && file[index][0].getTime() === file_element[0].getTime()) {
             return
         }
 
@@ -741,8 +823,10 @@ vm.annotations.subscribe(function(value) {
         file: file
     })
 
-    plot_avg.setAnnotations(value)
-})
+    plot_avg.setAnnotations(vm.annotations())
+}
+
+vm.annotations.subscribe(redrawAnnotations)
 
 vm.length_annotations.subscribe(function(value) {
     var labels = plot_main.getOption("labels")
@@ -769,7 +853,7 @@ vm.length_annotations.subscribe(function(value) {
 
 // avg graph params
 
-var updateZoomX = function(value) {
+var updateZoomX = _.debounce(function(value) {
     var min_moment = moment(vm.min_zoom_x(), "DD/MM/YYYY HH:mm:ss")
     var max_moment = moment(vm.max_zoom_x(), "DD/MM/YYYY HH:mm:ss")
 
@@ -781,7 +865,7 @@ var updateZoomX = function(value) {
         dateWindow: [min_moment.valueOf(), max_moment.valueOf()],
         isZoomedIgnoreProgrammaticZoom: true
     })
-}
+}, 10)
 
 var updateZoomY = function(value) {
     var min_zoom = parseFloat(vm.min_zoom_y())

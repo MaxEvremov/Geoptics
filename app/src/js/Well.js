@@ -119,4 +119,48 @@ class Well {
             done
         )
     }
+
+    init(done) {
+        helpers.makeAJAXRequest(
+            "/api/app/plots/init",
+            "post",
+            {
+                well_id: this.id
+            },
+            function(err, result) {
+                if(err) {
+                    return done(err)
+                }
+
+                for(let i = 0; i < result.length; i++) {
+                    result[i][0] = new Date(result[i][0])
+                }
+
+                return done(null, result)
+            }
+        )
+    }
+
+    getPressureMeasurements(params, done) {
+        helpers.makeAJAXRequest(
+            "/api/app/plots/p_measurements",
+            "post",
+            {
+                well_id: this.id,
+                date_start: params.date_start,
+                date_end: params.date_end
+            },
+            function(err, result) {
+                if(err) {
+                    return done(err)
+                }
+
+                for(let i = 0; i < result.length; i++) {
+                    result[i][0] = new Date(result[i][0])
+                }
+
+                return done(null, result)
+            }
+        )
+    }
 }

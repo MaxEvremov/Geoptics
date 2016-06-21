@@ -17,11 +17,53 @@ let isDateValid = (date) => (!date || moment(date).isValid())
 let isLengthValid = (length) => (!length || !isNaN(parseFloat(length)))
 let isIDValid = (id) => Number.isInteger(id) && id > 0
 
-let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ss")
+let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ssZ")
 
 // main
 
 let api = express()
+
+api.post(
+    "/init",
+    helpers.validateRequestData({
+        well_id: isIDValid
+    }),
+    (req, res, next) => {
+        let date_query = `SELECT min(date) as min_date,
+            max(date) as max_date
+            FROM p_measurements
+            WHERE well_id = ${req.body.well_id}`
+
+        let events_query = `SELECT date
+            FROM timeline_events
+            WHERE well_id = ${req.body.well_id}`
+
+        async.parallel(
+            {
+                dates: (done) => helpers.makePGQuery(date_query, done),
+                events: (done) => helpers.makePGQuery(events_query, done)
+            },
+            (err, result) => {
+                if(err) {
+                    return res.jsonCallback(err)
+                }
+
+                let timeline = []
+
+                timeline.push([result.dates[0].min_date, null])
+                timeline.push([result.dates[0].max_date, null])
+
+                for(let i = 0; i < result.events.length; i++) {
+                    timeline.push([result.events[i].date, null])
+                }
+
+                timeline.sort((a, b) => a[0] - b[0])
+
+                return res.jsonCallback(null, timeline)
+            }
+        )
+    }
+)
 
 api.post(
     "/measurements",
@@ -346,6 +388,35 @@ api.get(
                     err: null,
                     result: result
                 })
+            }
+        )
+    }
+)
+
+api.post(
+    "/p_measurements",
+    helpers.validateRequestData({
+        well_id: isIDValid,
+        date_start: (date) => moment(date, "YYYY-MM-DD HH:mm:ssZ", true).isValid(),
+        date_end: (date) => moment(date, "YYYY-MM-DD HH:mm:ssZ", true).isValid()
+    }),
+    (req, res) => {
+        let query = `SELECT date, pressure FROM p_measurements
+            WHERE well_id = ${req.body.well_id}
+            AND date >= '${req.body.date_start}'
+            AND date <= '${req.body.date_end}'
+            ORDER BY date`
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.jsonCallback(err)
+                }
+
+                result = result.map(v => [new Date(v.date), v.pressure])
+
+                return res.jsonCallback(null, result)
             }
         )
     }

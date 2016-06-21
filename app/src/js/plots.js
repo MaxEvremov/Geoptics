@@ -122,6 +122,8 @@ var loadPressureData = _.debounce(function(params) {
 var POINTS_PER_PLOT = 100
 
 var generateEmptyPoints = function(params) {
+    vm.is_loading_pressure_data(true)
+
     var min_date = params.min_date
     var max_date = params.max_date
 
@@ -137,6 +139,8 @@ var generateEmptyPoints = function(params) {
     plot_avg.updateOptions({
         file: file
     })
+
+    vm.is_loading_pressure_data(false)
 }
 
 var drawAvgPlot = function() {
@@ -176,8 +180,8 @@ var drawAvgPlot = function() {
     plot_avg_prev_max_date = max_date
 
     loadPressureData({
-        date_start: helpers.formatDate(x_range[0]),
-        date_end: helpers.formatDate(x_range[1])
+        date_start: min_date.format("YYYY-MM-DD HH:mm:ssZ"),
+        date_end: max_date.format("YYYY-MM-DD HH:mm:ssZ")
     })
 }
 

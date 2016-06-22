@@ -133,7 +133,7 @@ class Well {
                 }
 
                 for(let i = 0; i < result.length; i++) {
-                    result[i][0] = new Date(result[i][0])
+                    result[i][0] = helpers.convertDate(result[i][0], "iso8601", "native")
                 }
 
                 return done(null, result)
@@ -156,7 +156,7 @@ class Well {
                 }
 
                 for(let i = 0; i < result.length; i++) {
-                    result[i][0] = new Date(result[i][0])
+                    result[i][0] = helpers.convertDate(result[i][0], "iso8601", "native")
                 }
 
                 return done(null, result)

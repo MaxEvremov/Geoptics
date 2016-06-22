@@ -15,9 +15,107 @@ const las = require(__base + "lib/las")
 
 let isDateValid = (date) => (!date || moment(date).isValid())
 let isLengthValid = (length) => (!length || !isNaN(parseFloat(length)))
-let isIDValid = (id) => Number.isInteger(id) && id > 0
+let isIDValid = (id) => {
+    id = parseInt(id)
+    return Number.isInteger(id) && id > 0
+}
+let isPlotValid = (plot) => {
+    if(!plot.type) {
+        return false
+    }
+
+    if(plot.type === "avg"
+    && (!plot.date_start || !plot.date_end)) {
+        return false
+    }
+
+    if(plot.type === "point" && !plot.date) {
+        return false
+    }
+
+    return true
+}
+
+// helpers
 
 let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ssZ")
+
+let generatePlotQuery = (params) => {
+    let has_reference_point = params.well.reference_length
+        && params.well.reference_temp
+
+    if(params.plot.type === "avg") {
+        return `
+            ${has_reference_point
+                ? `WITH rdiff AS (
+                    SELECT avg(t.temp) - ${params.well.reference_temp} AS val
+                    FROM t_measurements AS t
+                    WHERE
+                        t.well_id = ${params.well.id}
+                        AND t.length::numeric = ${params.well.reference_length}
+                        AND t.date >= '${params.plot.date_start}'
+                        AND t.date <= '${params.plot.date_end}'
+                )`
+                : ""
+            }
+            SELECT
+                t.length AS length,
+                ${has_reference_point
+                    ? "avg(t.temp) - (SELECT val FROM rdiff) AS temp"
+                    : "avg(t.temp) AS temp"
+                }
+            FROM t_measurements AS t
+            WHERE
+                t.well_id = ${params.well.id}
+                AND t.date >= '${params.plot.date_start}'
+                AND t.date <= '${params.plot.date_end}'
+                ${params.ignore_min_length
+                    ? ""
+                    : `AND t.length >= ${params.well.min_length}`
+                }
+            GROUP BY t.length
+            ORDER BY length DESC
+            `
+    }
+    else if(params.plot.type === "point") {
+        return `
+            WITH vars AS (
+                SELECT date AS nearest_date
+                FROM t_measurements
+                WHERE date <= '${params.plot.date}' AND well_id = ${params.well.id}
+                ORDER BY date DESC
+                LIMIT 1
+            )
+            ${has_reference_point
+                ? `,
+                rdiff AS (
+                    SELECT t.temp - ${params.well.reference_temp} AS val
+                    FROM t_measurements AS t
+                    WHERE
+                        t.well_id = ${params.well.id}
+                        AND t.length::numeric = ${params.well.reference_length}
+                        AND t.date = (SELECT nearest_date FROM vars)
+                )`
+                : ""
+            }
+            SELECT
+                t.length AS length,
+                ${has_reference_point
+                    ? "t.temp - (SELECT val FROM rdiff) AS temp"
+                    : "t.temp AS temp"
+                },
+                t.date AS date
+            FROM t_measurements AS t
+            WHERE
+                t.date = (SELECT nearest_date FROM vars)
+                AND t.well_id = ${params.well.id}
+                ${params.ignore_min_length
+                    ? ""
+                    : `AND t.length >= ${params.well.min_length}`
+                }
+            ORDER BY length DESC`
+    }
+}
 
 // main
 
@@ -48,16 +146,21 @@ api.post(
                     return res.jsonCallback(err)
                 }
 
+                let dates = result.dates[0]
                 let timeline = []
 
-                timeline.push([result.dates[0].min_date, null])
-                timeline.push([result.dates[0].max_date, null])
+                timeline.push([dates.min_date, null])
+                timeline.push([dates.max_date, null])
 
                 for(let i = 0; i < result.events.length; i++) {
                     timeline.push([result.events[i].date, null])
                 }
 
                 timeline.sort((a, b) => a[0] - b[0])
+
+                for(let i = 0; i < timeline.length; i++) {
+                    timeline[i][0] = helpers.convertDate(timeline[i][0], "native", "iso8601")
+                }
 
                 return res.jsonCallback(null, timeline)
             }
@@ -74,18 +177,7 @@ api.post(
             }
 
             for(let i = 0; i < plots.length; i++) {
-                let plot = plots[i]
-
-                if(!plot.type) {
-                    return false
-                }
-
-                if(plot.type === "avg"
-                && (!plot.date_start || !plot.date_end)) {
-                    return false
-                }
-
-                if(plot.type === "point" && !plot.date) {
+                if(!isPlotValid(plots[i])) {
                     return false
                 }
             }
@@ -108,7 +200,8 @@ api.post(
                     SELECT
                         reference_temp,
                         reference_length,
-                        min_length
+                        min_length,
+                        id
                     FROM wells
                     WHERE id = ${well_id}
                 `
@@ -120,91 +213,17 @@ api.post(
             },
             (well_query_result, done) => {
                 let well = well_query_result[0]
-                let has_reference_point = !!well.reference_temp
-                    && !!well.reference_length
 
                 let measurements = []
 
                 async.each(
                     plots,
                     (plot, done) => {
-                        let query
-
-                        let date = helpers.formatDate(plot.date)
-                        let date_start = helpers.formatDate(plot.date_start)
-                        let date_end = helpers.formatDate(plot.date_end)
-
-                        if(plot.type === "avg") {
-                            query = `
-                                ${has_reference_point
-                                    ? `WITH rdiff AS (
-                                        SELECT avg(t.temp) - ${well.reference_temp} AS val
-                                        FROM t_measurements AS t
-                                        WHERE
-                                            t.well_id = ${well_id}
-                                            AND t.length::numeric = ${well.reference_length}
-                                            AND t.date >= '${date_start}'
-                                            AND t.date <= '${date_end}'
-                                    )`
-                                    : ""
-                                }
-                                SELECT
-                                    t.length AS length,
-                                    ${has_reference_point
-                                        ? "avg(t.temp) - (SELECT val FROM rdiff) AS temp"
-                                        : "avg(t.temp) AS temp"
-                                    }
-                                FROM t_measurements AS t
-                                WHERE
-                                    t.well_id = ${well_id}
-                                    AND t.date >= '${date_start}'
-                                    AND t.date <= '${date_end}'
-                                    ${req.body.ignore_min_length
-                                        ? ""
-                                        : `AND t.length >= ${well.min_length}`
-                                    }
-                                GROUP BY t.length
-                                ORDER BY length DESC
-                                `
-                        }
-                        else if(plot.type === "point") {
-                            query = `
-                                WITH vars AS (
-                                    SELECT date AS nearest_date
-                                    FROM t_measurements
-                                    WHERE date <= '${date}' AND well_id = ${well_id}
-                                    ORDER BY date DESC
-                                    LIMIT 1
-                                )
-                                ${has_reference_point
-                                    ? `,
-                                    rdiff AS (
-                                        SELECT t.temp - ${well.reference_temp} AS val
-                                        FROM t_measurements AS t
-                                        WHERE
-                                            t.well_id = ${well_id}
-                                            AND t.length::numeric = ${well.reference_length}
-                                            AND t.date = (SELECT nearest_date FROM vars)
-                                    )`
-                                    : ""
-                                }
-                                SELECT
-                                    t.length AS length,
-                                    ${has_reference_point
-                                        ? "t.temp - (SELECT val FROM rdiff) AS temp"
-                                        : "t.temp AS temp"
-                                    },
-                                    t.date AS date
-                                FROM t_measurements AS t
-                                WHERE
-                                    t.date = (SELECT nearest_date FROM vars)
-                                    AND t.well_id = ${well_id}
-                                    ${req.body.ignore_min_length
-                                        ? ""
-                                        : `AND t.length >= ${well.min_length}`
-                                    }
-                                ORDER BY length DESC`
-                        }
+                        let query = generatePlotQuery({
+                            plot: plot,
+                            well: well,
+                            ignore_min_length: req.body.ignore_min_length
+                        })
 
                         helpers.makePGQuery(
                             query,
@@ -238,7 +257,7 @@ api.post(
                             .value()
 
                         return {
-                            date: moment(key).valueOf(),
+                            date: helpers.convertDate(key, "native", "iso8601"),
                             values: values
                         }
                     })
@@ -334,14 +353,21 @@ api.post(
 api.get(
     "/las",
     (req, res, next) => {
-        let date = req.query.date
+        console.log(req.query)
+        next()
+    },
+    helpers.validateRequestData({
+        plot: isPlotValid,
+        well_id: isIDValid
+    }),
+    (req, res, next) => {
+        let plot = req.query.plot
 
-        if(!moment(date).isValid()) {
-            return res.sendStatus(500)
-        }
-
-        let query = `SELECT length, temp FROM t_measurements
-            WHERE date = '${date}'`
+        let query = generatePlotQuery({
+            plot: plot,
+            well: { id: req.query.well_id },
+            ignore_min_length: true
+        })
 
         helpers.makePGQuery(
             query,
@@ -349,6 +375,10 @@ api.get(
                 if(err) {
                     return res.sendStatus(500)
                 }
+
+                let date = plot.type === "avg"
+                    ? `${plot.date_start}-${plot.date_end}`
+                    : `${plot.date}`
 
                 res.attachment(`${date}.las`)
 
@@ -380,9 +410,10 @@ api.get(
                     })
                 }
 
-                result = _.chain(result)
-                    .map(v => [new Date(v.date), v.pressure])
-                    .value()
+                result = result.map(v => [
+                    helpers.convertDate(v.date, "native", "iso8601"),
+                    v.pressure
+                ])
 
                 return res.json({
                     err: null,
@@ -414,7 +445,10 @@ api.post(
                     return res.jsonCallback(err)
                 }
 
-                result = result.map(v => [new Date(v.date), v.pressure])
+                result = result.map(v => [
+                    helpers.convertDate(v.date, "native", "iso8601"),
+                    v.pressure
+                ])
 
                 return res.jsonCallback(null, result)
             }

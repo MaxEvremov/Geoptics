@@ -65,7 +65,7 @@ var queue = async.queue(
                     return done()
                 }
 
-                var plot_ts = moment(answer_plot.date).valueOf()
+                var plot_ts = helpers.convertDate(answer_plot.date, "iso8601", "ms")
 
                 if(_.find(vm.selected_plots(), { date: plot_ts })) {
                     return done()
@@ -77,12 +77,12 @@ var queue = async.queue(
                 })
 
                 if(selected_plot.type === "point") {
-                    selected_plot.date = answer_plot.date
+                    selected_plot.date = helpers.convertDate(answer_plot.date, "iso8601", "ms")
                 }
 
                 if(selected_plot.type === "avg") {
-                    selected_plot.date_start = plot.date_start
-                    selected_plot.date_end = plot.date_end
+                    selected_plot.date_start = helpers.convertDate(plot.date_start, "iso8601", "ms")
+                    selected_plot.date_end = helpers.convertDate(plot.date_end, "iso8601", "ms")
                 }
 
                 vm.selected_plots.push(selected_plot)
@@ -122,25 +122,19 @@ var loadPressureData = _.debounce(function(params) {
 var POINTS_PER_PLOT = 100
 
 var generateEmptyPoints = function(params) {
-    vm.is_loading_pressure_data(true)
-
     var min_date = params.min_date
     var max_date = params.max_date
 
-    var step = max_date.diff(min_date) / POINTS_PER_PLOT
+    var step = (max_date - min_date) / POINTS_PER_PLOT
     var file = []
 
     for(var i = 0; i < POINTS_PER_PLOT + 1; i++) {
-        var date = min_date.clone()
-
-        file.push([date.add(step * i, "ms").toDate(), 1])
+        file.push([helpers.convertDate(min_date + i * step, "ms", "native"), 1])
     }
 
     plot_avg.updateOptions({
         file: file
     })
-
-    vm.is_loading_pressure_data(false)
 }
 
 var drawAvgPlot = function() {
@@ -151,16 +145,16 @@ var drawAvgPlot = function() {
     var x_range = plot_avg.xAxisRange()
     var y_range = plot_avg.yAxisRange()
 
-    var min_date = moment(x_range[0])
-    var max_date = moment(x_range[1])
+    var min_date = x_range[0]
+    var max_date = x_range[1]
 
-    vm.min_zoom_x(min_date.format("DD/MM/YYYY HH:mm:ss"))
-    vm.max_zoom_x(max_date.format("DD/MM/YYYY HH:mm:ss"))
+    vm.min_zoom_x(helpers.convertDate(min_date, "ms", "iso8601"))
+    vm.max_zoom_x(helpers.convertDate(max_date, "ms", "iso8601"))
 
     vm.min_zoom_y(y_range[0][0])
     vm.max_zoom_y(y_range[0][1])
 
-    if(max_date.diff(min_date) > ZOOM_LOAD_THRESHOLD) {
+    if(max_date - min_date > ZOOM_LOAD_THRESHOLD) {
         generateEmptyPoints({
             min_date: min_date,
             max_date: max_date
@@ -170,8 +164,8 @@ var drawAvgPlot = function() {
     }
 
     if(plot_avg_prev_min_date && plot_avg_prev_max_date) {
-        if(min_date.isSameOrAfter(plot_avg_prev_min_date)
-        && max_date.isSameOrBefore(plot_avg_prev_max_date)) {
+        if(min_date >= plot_avg_prev_min_date
+        && max_date <= plot_avg_prev_max_date) {
             return
         }
     }
@@ -180,8 +174,8 @@ var drawAvgPlot = function() {
     plot_avg_prev_max_date = max_date
 
     loadPressureData({
-        date_start: min_date.format("YYYY-MM-DD HH:mm:ssZ"),
-        date_end: max_date.format("YYYY-MM-DD HH:mm:ssZ")
+        date_start: helpers.convertDate(min_date, "ms", "iso8601"),
+        date_end: helpers.convertDate(max_date, "ms", "iso8601")
     })
 }
 
@@ -199,8 +193,8 @@ var init = function() {
             connectSeparatedPoints: true,
             clickCallback: function(e, x, points) {
                 if(vm.current_mode() === "timeline_event") {
-                    var selected_date = points[0].xval
-                    vm.timeline_event_date(moment(selected_date).format("DD/MM/YYYY HH:mm:ss"))
+                    var selected_date = helpers.convertDate(points[0].xval, "ms", "iso8601")
+                    vm.timeline_event_date(selected_date)
                     return
                 }
 
@@ -386,7 +380,7 @@ vm.getNearestTempPlot = function() {
 
     var plot = new Plot({
         type: "point",
-        date: date
+        date: helpers.convertDate(date, "ms", "iso8601")
     })
 
     vm.is_point_box_visible(false)
@@ -406,8 +400,8 @@ vm.getAvgHourTempPlot = function() {
 
     var plot = new Plot({
         type: "avg",
-        date_start: date,
-        date_end: date + HOUR
+        date_start: helpers.convertDate(date, "ms", "iso8601"),
+        date_end: helpers.convertDate(date + HOUR, "ms", "iso8601")
     })
 
     vm.is_point_box_visible(false)
@@ -553,7 +547,7 @@ vm.editTimelineEvent = function(data, event) {
 
     vm.timeline_event_short_text(data.short_text)
     vm.timeline_event_description(data.description)
-    vm.timeline_event_date(moment(data.date).format("DD/MM/YYYY HH:mm:ss"))
+    vm.timeline_event_date(data.date)
 
     vm.is_editing_timeline_event(true)
 }
@@ -671,10 +665,6 @@ vm.removeLengthAnnotation = function(data, event) {
     current_well.removeLengthAnnotation(data, getLengthAnnotations)
 }
 
-vm.plot_colors = plot_colors
-
-vm.moment = moment
-
 vm.removePoint = function(data, event) {
     vm.selected_plots.remove(function(item) {
         return item == data
@@ -702,7 +692,7 @@ vm.showPoint = function(data, event) {
     })
 }
 
-vm.saveFavorite = function() {
+vm.saveFavorite = function() { // TODO: починить
     var x_avg = plot_avg.xAxisRange()
     var y_avg = plot_avg.yAxisRange()
     var x_main = plot_main.xAxisRange()
@@ -735,7 +725,7 @@ vm.saveFavorite = function() {
     )
 }
 
-vm.getDeviations = function() {
+vm.getDeviations = function() { // TODO: починить
     var min_deviation = parseFloat(vm.min_deviation())
 
     var x_avg = plot_avg.xAxisRange()
@@ -809,15 +799,19 @@ var redrawAnnotations = function() {
     var file = plot_avg.file_
 
     vm.annotations().forEach(function(annotation) {
-        var file_element = [new Date(annotation.x), null]
+        var date = helpers.convertDate(annotation.x, "ms", "native")
+        var file_element = [date, null]
 
         var index = _.sortedIndexBy(file, file_element, function(v) {
             return v[0]
         })
 
-        if(file[index]
-            && file[index][0].getTime() === file_element[0].getTime()) {
-            return
+        if(file[index]) {
+            var found_date = helpers.convertDate(file[index][0], "native", "ms")
+
+            if(found_date === annotation.x) {
+                return
+            }
         }
 
         file.splice(index, 0, file_element)

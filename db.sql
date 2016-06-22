@@ -84,19 +84,12 @@ SET default_with_oids = false;
 
 CREATE TABLE favorites (
     user_id integer,
-    points timestamp without time zone[],
-    zoom_avg_low real,
-    zoom_avg_high real,
-    zoom_main_low real,
-    zoom_main_high real,
     name text,
     created_at timestamp without time zone DEFAULT now(),
     updated_at timestamp without time zone,
     id integer NOT NULL,
-    zoom_avg_left real,
-    zoom_avg_right real,
-    zoom_main_left real,
-    zoom_main_right real
+    plots jsonb,
+    well_id integer
 );
 
 
@@ -482,6 +475,14 @@ CREATE INDEX timeline_events_well_id_idx ON timeline_events USING btree (well_id
 
 ALTER TABLE ONLY favorites
     ADD CONSTRAINT favorites_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id);
+
+
+--
+-- Name: favorites_well_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: lwpss
+--
+
+ALTER TABLE ONLY favorites
+    ADD CONSTRAINT favorites_well_id_fkey FOREIGN KEY (well_id) REFERENCES wells(id);
 
 
 --

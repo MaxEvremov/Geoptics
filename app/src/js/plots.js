@@ -40,9 +40,11 @@ var queue = async.queue(
                 var answer_plot = result[0]
 
                 if(mode === "reference_point") {
-                    vm.reference_date(helpers.formatDate(answer_plot.date))
+                    var date = answer_plot.date
 
-                    var plot_labels = ["Length", helpers.formatDate(answer_plot.date)]
+                    vm.reference_date(answer_plot.date)
+
+                    var plot_labels = ["Length", answer_plot.date]
 
                     plot_main.updateOptions({
                         file: answer_plot.values,

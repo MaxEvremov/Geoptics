@@ -35,6 +35,7 @@ let isPlotValid = (plot) => {
 
     return true
 }
+let isISO8601DateValid = (date) => moment(date, "YYYY-MM-DD HH:mm:ssZ", true).isValid()
 
 // helpers
 
@@ -460,7 +461,7 @@ api.post(
     "/reference_point",
     helpers.validateRequestData({
         well_id: isIDValid,
-        date: (date) => moment(date).isValid(),
+        date: isISO8601DateValid,
         length: _.isNumber,
         temp: _.isNumber
     }),

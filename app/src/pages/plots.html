@@ -228,9 +228,9 @@
 	<li data-bind="click: getAvgHourTempPlot"><a href="#">Усреднить за час</a></li>
 </ul>
 
-<section class="content" style="1height:100%">
-	<div class="row" style="1height:100%">
-		<div class="col-md-9" style="1height:100%">
+<section class="content">
+	<div class="row">
+		<div class="col-md-9">
 			<div class="box box-info box-borderless" style="position:relative;min-height:20%">
 				<div class="box-header">
 					<h3 class="box-title">Давление 	<a class="btn btn-xs" title="В Избранное" data-bind="click: saveFavorite">
@@ -400,10 +400,10 @@
                                 text: short_text
                             "></b>
 							<span class="btn-hoverable pull-right">
-								<a class="1btn" data-bind="click: $parent.editTimelineEvent">
+								<a data-bind="click: $parent.editTimelineEvent">
 									<i class="fa fa-pencil"></i>
 								</a>
-								<a class="1btn" data-bind="click: $parent.removeTimelineEvent">
+								<a data-bind="click: $parent.removeTimelineEvent">
 									<i class="fa fa-times"></i>
 								</a>
 							</span>
@@ -415,12 +415,10 @@
 							<!-- /ko -->
 
 							<!-- ko if: $parent.is_editing_timeline_event() && $parent.current_timeline_event() == $data.id -->
-							<!--                            <div>-->
 							<!-- ko with: $parent -->
 							<div class="editbox timeline-event-template" data-bind="template: { name: 'timeline-event-template' }">
 							</div>
 							<!-- /ko -->
-							<!--                            </div>-->
 							<!-- /ko -->
 						</li>
 					</ul>

@@ -55,22 +55,15 @@ var queue = async.queue(
                 }
 
                 if(mode === "timeline_event") {
-                    vm.timeline_event_date(helpers.formatDate(answer_plot.date))
-
-                    var plot_labels = ["Length", helpers.formatDate(answer_plot.date)]
-
-                    plot_main.updateOptions({
-                        file: answer_plot.values,
-                        labels: plot_labels
-                    })
-
                     return done()
                 }
 
-                var plot_ts = helpers.convertDate(answer_plot.date, "iso8601", "ms")
+                if(plot.type === "point") {
+                    var plot_ts = helpers.convertDate(answer_plot.date, "iso8601", "ms")
 
-                if(_.find(vm.selected_plots(), { date: plot_ts })) {
-                    return done()
+                    if(_.find(vm.selected_plots(), { date: plot_ts })) {
+                        return done()
+                    }
                 }
 
                 var selected_plot = new Plot({
@@ -549,7 +542,7 @@ vm.editTimelineEvent = function(data, event) {
 
     vm.timeline_event_short_text(data.short_text)
     vm.timeline_event_description(data.description)
-    vm.timeline_event_date(data.date)
+    vm.timeline_event_date(helpers.convertDate(data.date, "iso8601", "jmask"))
 
     vm.is_editing_timeline_event(true)
 }
@@ -569,7 +562,7 @@ vm.saveTimelineEvent = function() {
         {
             short_text: vm.timeline_event_short_text(),
             description: vm.timeline_event_description(),
-            date: vm.timeline_event_date(),
+            date: helpers.convertDate(vm.timeline_event_date(), "jmask", "iso8601"),
             id: vm.current_timeline_event()
         },
         function(err, result) {

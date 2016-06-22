@@ -111,6 +111,16 @@ helpers.convertDate = function(date, from, to) {
         from_moment = moment(date)
     }
 
+    if(from === "jmask") {
+        from_moment = moment(date, "DD/MM/YY HH:mm", true)
+    }
+
+    // validate
+
+    if(!from_moment.isValid()) {
+        throw new Error(`${date} is not a valid date for '${from}' format`)
+    }
+
     // convert date
 
     if(to === "moment") {
@@ -127,5 +137,9 @@ helpers.convertDate = function(date, from, to) {
 
     if(to === "native") {
         return from_moment.toDate()
+    }
+
+    if(to === "jmask") {
+        return from_moment.format("DD/MM/YY HH:mm")
     }
 }

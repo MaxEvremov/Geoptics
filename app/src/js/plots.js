@@ -667,24 +667,7 @@ vm.removePoint = function(data, event) {
 }
 
 vm.showPoint = function(data, event) {
-    var HOUR = 60 * 60 * 1000
-
-    var x = data.date
-
-    var min_date = plot_avg.file_[0][0].valueOf()
-    var max_date = plot_avg.file_[plot_avg.file_.length - 1][0].valueOf()
-
-    var zoom_left = (x - HOUR) < min_date
-        ? min_date
-        : x - HOUR
-
-    var zoom_right = (zoom_left + 2 * HOUR) > max_date
-        ? max_date
-        : zoom_left + 2 * HOUR
-
-    plot_avg.updateOptions({
-        dateWindow: [zoom_left, zoom_right]
-    })
+    data.showOnPlot(plot_avg)
 }
 
 vm.saveFavorite = function() { // TODO: починить

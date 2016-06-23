@@ -128,42 +128,19 @@ api.post(
         well_id: isIDValid
     }),
     (req, res, next) => {
-        let date_query = `SELECT min(date) as min_date,
-            max(date) as max_date
-            FROM p_measurements
-            WHERE well_id = ${req.body.well_id}`
+        let query = `SELECT min(date) AS date from p_measurements
+            WHERE well_id = ${req.body.well_id}
+            UNION SELECT max(date) from p_measurements
+            WHERE well_id = ${req.body.well_id}
+            UNION SELECT date from timeline_events
+            WHERE well_id = ${req.body.well_id}
+            ORDER BY date`
 
-        let events_query = `SELECT date
-            FROM timeline_events
-            WHERE well_id = ${req.body.well_id}`
-
-        async.parallel(
-            {
-                dates: (done) => helpers.makePGQuery(date_query, done),
-                events: (done) => helpers.makePGQuery(events_query, done)
-            },
+        helpers.makePGQuery(
+            query,
             (err, result) => {
-                if(err) {
-                    return res.jsonCallback(err)
-                }
-
-                let dates = result.dates[0]
-                let timeline = []
-
-                timeline.push([dates.min_date, null])
-                timeline.push([dates.max_date, null])
-
-                for(let i = 0; i < result.events.length; i++) {
-                    timeline.push([result.events[i].date, null])
-                }
-
-                timeline.sort((a, b) => a[0] - b[0])
-
-                for(let i = 0; i < timeline.length; i++) {
-                    timeline[i][0] = helpers.convertDate(timeline[i][0], "native", "iso8601")
-                }
-
-                return res.jsonCallback(null, timeline)
+                result = result.map(v => [v.date, null])
+                return res.jsonCallback(err, result)
             }
         )
     }
@@ -258,7 +235,7 @@ api.post(
                             .value()
 
                         return {
-                            date: helpers.convertDate(key, "native", "iso8601"),
+                            date: key,
                             values: values
                         }
                     })

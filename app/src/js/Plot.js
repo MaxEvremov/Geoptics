@@ -68,20 +68,38 @@ class Plot {
     }
 
     showOnPlot(plot) {
-        var x = this.date
+        var zoom_left
+        var zoom_right
 
         var file = plot.file_
 
         var min_date = file[0][0].valueOf()
         var max_date = file[file.length - 1][0].valueOf()
 
-        var zoom_left = (x - HOUR) < min_date
-            ? min_date
-            : x - HOUR
+        if(this.type === "point") {
+            var x = this.date
 
-        var zoom_right = (zoom_left + 2 * HOUR) > max_date
-            ? max_date
-            : zoom_left + 2 * HOUR
+            zoom_left = (x - HOUR) < min_date
+                ? min_date
+                : x - HOUR
+
+            zoom_right = (zoom_left + 2 * HOUR) > max_date
+                ? max_date
+                : zoom_left + 2 * HOUR
+        }
+
+        if(this.type === "avg") {
+            var date_start = this.date_start
+            var date_end = this.date_end
+
+            zoom_left = (date_start - HOUR) < min_date
+                ? min_date
+                : date_start - HOUR
+
+            zoom_right = (date_end + HOUR) > max_date
+                ? max_date
+                : date_end + HOUR
+        }
 
         plot.updateOptions({
             dateWindow: [zoom_left, zoom_right]

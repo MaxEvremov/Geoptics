@@ -353,24 +353,24 @@
 				</div>
 			</div>
 
-			<div class="box box-danger box-borderless" data-bind="visible: current_mode() === 'reference_point'">
+			<div class="box box-danger box-borderless" data-bind="visible: current_mode() === 'reference_point', with: reference_point">
 				<div class="box-header">
 					<h3 class="box-title">Эталонная точка</h3>
 				</div>
 
-				<div class="box-body">
+				<div class="box-body" data-bind="with: point">
 					<ul class="list-unstyled">
-						<li>Дата: <span data-bind="text: reference_date() || '-'"></span></li>
-						<li>Глубина: <span data-bind="text: reference_length() || '-'"></span></li>
-						<li>Температура: <span data-bind="text: reference_temp() || '-'"></span></li>
+						<li>Дата: <span data-bind="text: date"></span></li>
+						<li>Глубина: <span data-bind="text: length"></span></li>
+						<li>Температура: <span data-bind="text: temp"></span></li>
 					</ul>
 				</div>
 
 				<div class="box-footer">
-					<a class="btn btn-sm btn-danger" data-bind="click: saveReferencePoint">
+					<a class="btn btn-sm btn-danger" data-bind="click: save, css: { 'btn-disabled': !is_save_allowed() }">
 						<span>Сохранить</span>
 					</a>
-					<a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+					<a class="btn btn-sm btn-default" data-bind="click: cancel">
 						<span>Отмена</span>
 					</a>
 				</div>

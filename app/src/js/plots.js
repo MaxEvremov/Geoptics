@@ -42,7 +42,7 @@ var queue = async.queue(
                 if(mode === "reference_point") {
                     var date = answer_plot.date
 
-                    vm.reference_date(answer_plot.date)
+                    vm.reference_point.point().date(answer_plot.date)
 
                     var plot_labels = ["Length", answer_plot.date]
 
@@ -267,8 +267,8 @@ var init = function() {
             if(mode === "reference_point") {
                 var point = points[0]
 
-                vm.reference_length(point.xval)
-                vm.reference_temp(point.yval)
+                vm.reference_point.point().length(point.xval)
+                vm.reference_point.point().temp(point.yval)
             }
 
             if(mode === "min_length") {
@@ -439,9 +439,7 @@ vm.toggleSettings = function() {
 
 var clearModeData = function(mode) {
     if(mode === "reference_point") {
-        vm.reference_date(null)
-        vm.reference_temp(null)
-        vm.reference_length(null)
+        vm.reference_point.point(new ReferencePoint({}))
 
         vm.selected_plots.removeAll()
 
@@ -481,30 +479,33 @@ vm.returnToNormalMode = function() {
 
 // reference_point
 
-vm.editReferencePoint = function() {
-    vm.current_mode("reference_point")
-}
+vm.reference_point = {
+    point: ko.observable(new ReferencePoint({})),
+    edit: function() {
+        vm.current_mode("reference_point")
+    },
+    save: function() {
+        current_well.setReferencePoint(
+            ko.toJS(vm.reference_point.point()),
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
 
-vm.reference_date = ko.observable()
-vm.reference_temp = ko.observable()
-vm.reference_length = ko.observable()
-
-vm.saveReferencePoint = function() {
-    current_well.setReferencePoint(
-        {
-            date: vm.reference_date(),
-            temp: vm.reference_temp(),
-            length: vm.reference_length()
-        },
-        function(err, result) {
-            if(err) {
-                return console.error(err)
+                vm.current_mode("normal")
             }
-
-            vm.current_mode("normal")
-        }
-    )
+        )
+    },
+    cancel: function() {
+        vm.current_mode("normal")
+    }
 }
+
+vm.reference_point.is_save_allowed = ko.computed(function() {
+    var point = vm.reference_point.point()
+
+    return point.date() && point.temp() && point.length()
+})
 
 // min_length
 
@@ -898,7 +899,7 @@ vm.adjustRoll.subscribe(function(val) {
 
 vm.is_main_plot_visible = ko.computed(function() {
     if(vm.current_mode() === "reference_point") {
-        return !!vm.reference_date()
+        return !!vm.reference_point.point().date()
     }
 
     return vm.selected_plots().length > 0

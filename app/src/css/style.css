@@ -125,3 +125,8 @@ body .dygraphDefaultAnnotation {
     -webkit-animation-name: flash;
     animation-name: flash;
 }
+
+.btn-disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}

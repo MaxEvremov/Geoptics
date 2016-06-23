@@ -37,6 +37,7 @@
     <script src="js/Well.js"></script>
     <script src="js/Plot.js"></script>
     <script src="js/Favorite.js"></script>
+    <script src="js/ReferencePoint.js"></script>
 
     <script src="js/plot-main.js"></script>
 
@@ -92,7 +93,7 @@
 
                         <ul class="treeview-menu" data-bind="visible: plots.are_settings_enabled">
                             <li data-bind="css: { active: plots.current_mode() === 'reference_point' }">
-                                <a data-bind="click: plots.editReferencePoint"><i class="fa fa-compress"></i> Выбор эталонной точки</a>
+                                <a data-bind="click: plots.reference_point.edit"><i class="fa fa-compress"></i> Выбор эталонной точки</a>
                             </li>
                             <li data-bind="css: { active: plots.current_mode() === 'min_length' }">
                                 <a data-bind="click: plots.setMinLength"><i class="fa fa-step-forward"></i> Выбор нуля глубины</a>

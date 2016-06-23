@@ -1,12 +1,5 @@
 "use strict"
 
-// imports
-//
-//import ko from "knockout"
-//import Dygraph from "dygraphs"
-//import $ from "jquery"
-//import jMask from "jquery-mask-plugin"
-
 // main
 
 ko.bindingHandlers.dygraph = {
@@ -29,7 +22,14 @@ ko.bindingHandlers.dygraph = {
 ko.bindingHandlers.jmask = {
     init: function(element, value_accessor) {
         var value = ko.unwrap(value_accessor())
+        var options = value.options || {}
 
-        $(element).mask(value.mask, value.options || {})
+        if(value.value) {
+            options.onChange = function(text) {
+                value.value(text)
+            }
+        }
+
+        $(element).mask(value.mask, options)
     }
 }

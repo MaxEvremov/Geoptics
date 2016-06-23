@@ -246,26 +246,34 @@
 					<div id="dygraph_avg_container" class="plot" data-bind="css: { loading: is_loading_pressure_data }"></div>
 
 					<div class="axis-input-block axis-input-block-left">
-						<input class="axis-input-block-left-top" data-bind="value: max_zoom_y">
-						<input class="axis-input-block-left-bottom" data-bind="value: min_zoom_y">
+						<input class="axis-input-block-left-top" data-bind="
+                            value: max_zoom_y,
+                            event: { keypress: updateZoomY }">
+						<input class="axis-input-block-left-bottom" data-bind="
+                            value: min_zoom_y,
+                            event: { keypress: updateZoomY }">
 					</div>
 
 					<div class="axis-input-block axis-input-block-bottom">
 						<input class="axis-input-block-bottom-left" data-bind="
-                        textInput: min_zoom_x,
+                        value: min_zoom_x,
+                        event: { keypress: updateZoomX },
                         jmask: {
-                            mask: '00/00/0000 00:00:00',
+                            value: min_zoom_x,
+                            mask: '00/00/00 00:00',
                             options: {
-                                placeholder: '__/__/____ __:__:__'
+                                placeholder: '__/__/__ __:__'
                             }
                         }
                         ">
 						<input class="axis-input-block-bottom-right" data-bind="
-                        textInput: max_zoom_x,
+                        value: max_zoom_x,
+                        event: { keypress: updateZoomX },
                         jmask: {
-                            mask: '00/00/0000 00:00:00',
+                            value: max_zoom_x,
+                            mask: '00/00/00 00:00',
                             options: {
-                                placeholder: '__/__/____ __:__:__'
+                                placeholder: '__/__/__ __:__'
                             }
                         }
                         ">

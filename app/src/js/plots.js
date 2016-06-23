@@ -143,8 +143,8 @@ var drawAvgPlot = function() {
     var min_date = x_range[0]
     var max_date = x_range[1]
 
-    vm.min_zoom_x(helpers.convertDate(min_date, "ms", "iso8601"))
-    vm.max_zoom_x(helpers.convertDate(max_date, "ms", "iso8601"))
+    vm.min_zoom_x(helpers.convertDate(min_date, "ms", "jmask"))
+    vm.max_zoom_x(helpers.convertDate(max_date, "ms", "jmask"))
 
     vm.min_zoom_y(y_range[0][0])
     vm.max_zoom_y(y_range[0][1])
@@ -836,9 +836,13 @@ vm.length_annotations.subscribe(function(value) {
 
 // avg graph params
 
-var updateZoomX = _.debounce(function(value) {
-    var min_moment = moment(vm.min_zoom_x(), "DD/MM/YYYY HH:mm:ss")
-    var max_moment = moment(vm.max_zoom_x(), "DD/MM/YYYY HH:mm:ss")
+vm.updateZoomX = function(data, e) {
+    if(e.keyCode != 13 && e.which != 13) {
+        return true
+    }
+
+    var min_moment = helpers.convertDate(vm.min_zoom_x(), "jmask", "moment")
+    var max_moment = helpers.convertDate(vm.max_zoom_x(), "jmask", "moment")
 
     if(!min_moment.isValid() || !max_moment.isValid()) {
         return
@@ -848,9 +852,15 @@ var updateZoomX = _.debounce(function(value) {
         dateWindow: [min_moment.valueOf(), max_moment.valueOf()],
         isZoomedIgnoreProgrammaticZoom: true
     })
-}, 10)
 
-var updateZoomY = function(value) {
+    drawAvgPlot()
+}
+
+vm.updateZoomY = function(data, e) {
+    if(e.keyCode != 13 && e.which != 13) {
+        return true
+    }
+
     var min_zoom = parseFloat(vm.min_zoom_y())
     var max_zoom = parseFloat(vm.max_zoom_y())
 
@@ -859,12 +869,6 @@ var updateZoomY = function(value) {
         isZoomedIgnoreProgrammaticZoom: true
     })
 }
-
-vm.min_zoom_x.subscribe(updateZoomX)
-vm.max_zoom_x.subscribe(updateZoomX)
-
-vm.min_zoom_y.subscribe(updateZoomY)
-vm.max_zoom_y.subscribe(updateZoomY)
 
 vm.resetAvgPlotZoom = function() {
     plot_avg.resetZoom()

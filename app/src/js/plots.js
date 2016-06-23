@@ -308,7 +308,7 @@ var init = function() {
                     return [v[0]]
                 })
                 plot_colors = _.map(selected_plots, function(v) {
-                    return v.color
+                    return v.color()
                 })
 
                 for(var i = 0; i < selected_plots.length; i++) {
@@ -733,6 +733,12 @@ vm.getDeviations = function() { // TODO: починить
 
 vm.selected_plots = ko.observableArray()
 
+vm.selected_plots.subscribe(function(value) {
+    value.forEach(function(plot, i) {
+        plot.color(Plot.COLORS[i])
+    })
+})
+
 vm.annotations = ko.computed(function() {
     var AVG_Y_AXIS = "Pressure"
 
@@ -745,7 +751,7 @@ vm.annotations = ko.computed(function() {
     selected_plots.forEach(function(v, i) {
         helpers.createCSSClass(
             `.dygraphDefaultAnnotation.dygraph-annotation-plot-${i + 1}`,
-            v.color
+            v.color()
         )
         result.push(v.getAnnotation(i))
     })

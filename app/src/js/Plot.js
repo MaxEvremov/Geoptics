@@ -37,7 +37,7 @@ class Plot {
         if(this.type === "point") {
             return {
                 series: AVG_Y_AXIS,
-                x: this.date,
+                x: helpers.convertDate(this.date, "iso8601", "ms"),
                 shortText: idx + 1,
                 text: this.description,
                 cssClass: `dygraph-annotation-plot-${idx + 1}`,
@@ -48,7 +48,7 @@ class Plot {
         if(this.type === "avg") {
             return {
                 series: AVG_Y_AXIS,
-                x: this.date_start,
+                x: helpers.convertDate(this.date_start, "iso8601", "ms"),
                 shortText: idx + 1,
                 text: this.description,
                 cssClass: `dygraph-annotation-plot-${idx + 1}`,
@@ -61,9 +61,9 @@ class Plot {
         var query = $.param({
             plot: {
                 type: this.type,
-                date: helpers.convertDate(this.date, "ms", "iso8601"),
-                date_start: helpers.convertDate(this.date_start, "ms", "iso8601"),
-                date_end: helpers.convertDate(this.date_end, "ms", "iso8601")
+                date: this.date,
+                date_start: this.date_start,
+                date_end: this.date_end
             },
             well_id: m_site.state.current_well.id
         })

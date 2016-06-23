@@ -47,7 +47,7 @@ var queue = async.queue(
                     var plot_labels = ["Length", answer_plot.date]
 
                     plot_main.updateOptions({
-                        file: answer_plot.values,
+                        file: answer_plot.data,
                         labels: plot_labels
                     })
 
@@ -68,16 +68,16 @@ var queue = async.queue(
 
                 var selected_plot = new Plot({
                     type: plot.type,
-                    data: answer_plot.values
+                    data: answer_plot.data
                 })
 
                 if(selected_plot.type === "point") {
-                    selected_plot.date = helpers.convertDate(answer_plot.date, "iso8601", "ms")
+                    selected_plot.date = answer_plot.date
                 }
 
                 if(selected_plot.type === "avg") {
-                    selected_plot.date_start = helpers.convertDate(plot.date_start, "iso8601", "ms")
-                    selected_plot.date_end = helpers.convertDate(plot.date_end, "iso8601", "ms")
+                    selected_plot.date_start = plot.date_start
+                    selected_plot.date_end = plot.date_end
                 }
 
                 vm.selected_plots.push(selected_plot)
@@ -187,13 +187,12 @@ var init = function() {
             labels: ["Date", "Pressure"],
             connectSeparatedPoints: true,
             clickCallback: function(e, x, points) {
+                var selected_date = helpers.convertDate(points[0].xval, "ms", "iso8601")
+
                 if(vm.current_mode() === "timeline_event") {
-                    var selected_date = helpers.convertDate(points[0].xval, "ms", "iso8601")
                     vm.timeline_event_date(selected_date)
                     return
                 }
-
-                var selected_date = points[0].xval
 
                 vm.selected_date(selected_date)
 
@@ -217,8 +216,11 @@ var init = function() {
                 for(var i = 0; i < selected_avg_plots.length; i++) {
                     var plot = selected_avg_plots[i]
 
-                    var bottom_left = g.toDomCoords(plot.date_start, bottom)
-                    var top_right = g.toDomCoords(plot.date_end, top)
+                    var date_start = helpers.convertDate(plot.date_start, "iso8601", "ms")
+                    var date_end = helpers.convertDate(plot.date_end, "iso8601", "ms")
+
+                    var bottom_left = g.toDomCoords(date_start, bottom)
+                    var top_right = g.toDomCoords(date_end, top)
 
                     var left = bottom_left[0]
                     var right = top_right[0]
@@ -355,7 +357,8 @@ var vm = {
     point_box_top: ko.observable(0),
     point_box_left: ko.observable(0),
 
-    is_loading_pressure_data: ko.observable(false)
+    is_loading_pressure_data: ko.observable(false),
+    is_favorite_saved: ko.observable(false)
 }
 
 vm.resetPlotAvgState = function() {
@@ -372,7 +375,7 @@ vm.getNearestTempPlot = function() {
 
     var plot = new Plot({
         type: "point",
-        date: helpers.convertDate(date, "ms", "iso8601")
+        date: date
     })
 
     vm.is_point_box_visible(false)
@@ -388,12 +391,17 @@ vm.getNearestTempPlot = function() {
 vm.getAvgHourTempPlot = function() {
     var HOUR = 60 * 60 * 1000
 
-    var date = vm.selected_date()
+    var date_start = vm.selected_date()
+
+    var date_start_ms = helpers.convertDate(date_start, "iso8601", "ms")
+    var date_end_ms = date_start_ms + HOUR
+
+    var date_end = helpers.convertDate(date_end_ms, "ms", "iso8601")
 
     var plot = new Plot({
         type: "avg",
-        date_start: helpers.convertDate(date, "ms", "iso8601"),
-        date_end: helpers.convertDate(date + HOUR, "ms", "iso8601")
+        date_start: date_start,
+        date_end: date_end
     })
 
     vm.is_point_box_visible(false)
@@ -671,37 +679,41 @@ vm.showPoint = function(data, event) {
     data.showOnPlot(plot_avg)
 }
 
-vm.saveFavorite = function() { // TODO: починить
-    var x_avg = plot_avg.xAxisRange()
-    var y_avg = plot_avg.yAxisRange()
-    var x_main = plot_main.xAxisRange()
-    var y_main = plot_main.yAxisRange()
+vm.saveFavorite = function() {
+    var name = prompt("Введите название закладки", "")
 
-    var points = ko.mapping.toJS(vm.selected_plots())
-    points = points.map(helpers.formatDate)
-
-    helpers.makeAJAXRequest(
-        "/api/app/favorites",
-        "post",
-        {
-            name: "Favorite",
-            user_id: 2,
-            points: points,
-            zoom_avg_left: x_avg[0],
-            zoom_avg_right: x_avg[1],
-            zoom_avg_low: y_avg[0],
-            zoom_avg_high: y_avg[1],
-            zoom_main_left: x_main[0],
-            zoom_main_right: x_main[1],
-            zoom_main_low: y_main[0],
-            zoom_main_high: y_main[1]
-        },
-        function(err, result) {
-            if(err) {
-                return console.error(err)
+    var favorite = new Favorite({
+        name: name,
+        well_id: current_well.id,
+        plots: JSON.stringify(_.map(vm.selected_plots(), function(plot) {
+            var json = {
+                type: plot.type
             }
+
+            if(plot.type === "point") {
+                json.date = plot.date
+            }
+
+            if(plot.type === "avg") {
+                json.date_start = plot.date_start
+                json.date_end = plot.date_end
+            }
+
+            return json
+        }))
+    })
+
+    favorite.save(function(err, result) {
+        if(err) {
+            return console.error(err)
         }
-    )
+
+        vm.is_favorite_saved(true)
+
+        setTimeout(function() {
+            vm.is_favorite_saved(false)
+        }, 5000)
+    })
 }
 
 vm.getDeviations = function() { // TODO: починить

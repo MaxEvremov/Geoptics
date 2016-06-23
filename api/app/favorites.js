@@ -16,13 +16,11 @@ let api = express()
 api.post(
     "/",
     (req, res, next) => {
-        Favorite.create(req.body)
-        .asCallback((err, result) => {
-            res.json({
-                err: err,
-                result: result
-            })
-        })
+        let favorite = req.body
+        favorite.user_id = req.user.id
+
+        Favorite.create(favorite)
+        .asCallback(res.jsonCallback)
     }
 )
 
@@ -30,12 +28,7 @@ api.get(
     "/",
     (req, res, next) => {
         Favorite.findAll()
-        .asCallback((err, result) => {
-            res.json({
-                err: err,
-                result: result
-            })
-        })
+        .asCallback(res.jsonCallback)
     }
 )
 

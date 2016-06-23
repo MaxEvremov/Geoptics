@@ -192,9 +192,7 @@ api.post(
             (well_query_result, done) => {
                 let well = well_query_result[0]
 
-                let measurements = []
-
-                async.each(
+                async.map(
                     plots,
                     (plot, done) => {
                         let query = generatePlotQuery({
@@ -210,40 +208,26 @@ api.post(
                                     return done(err)
                                 }
 
-                                measurements = measurements.concat(result)
-                                return done(null)
+                                let plot_result = {
+                                    type: plot.type,
+                                    data: result.map(v => [v.length, v.temp])
+                                }
+
+                                if(plot.type === "point") {
+                                    plot_result.date = result[0].date
+                                }
+
+                                if(plot.type === "avg") {
+                                    plot_result.date_start = plot.date_start
+                                    plot_result.date_end = plot.date_end
+                                }
+
+                                return done(null, plot_result)
                             }
                         )
                     },
-                    (err) => {
-                        if(err) {
-                            return done(err)
-                        }
-
-                        return done(null, measurements)
-                    }
+                    done
                 )
-            },
-            (measurements, done) => {
-                console.time("filter")
-
-                let result = _.chain(measurements)
-                    .groupBy("date")
-                    .map((row, key) => {
-                        let values = _.chain(row)
-                            .map(v => [v.length, v.temp])
-                            .value()
-
-                        return {
-                            date: key,
-                            values: values
-                        }
-                    })
-                    .value()
-
-                console.timeEnd("filter")
-
-                return done(null, result)
             }
         ],
         res.jsonCallback)

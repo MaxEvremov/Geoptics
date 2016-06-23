@@ -49,7 +49,9 @@ input::-webkit-inner-spin-button {
 	border:0;
     box-shadow: none;
 }
-.box-borderless > .box-header{    padding: 10px 0;}
+.box-borderless > .box-header {
+    padding: 10px 0;
+}
 .box-borderless > .box-body {
     padding: 0;
 }
@@ -59,26 +61,17 @@ body .dygraphDefaultAnnotation {
 	line-height: 16px;
 	border-radius: 2px;
     border: 0;
-/*    box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.5);*/
     color: white !important;
 	width: auto!important;
 	max-width: 10em;
     padding: 2px 5px;
     line-height: 11px;
 }
-.editbox {background: #ddd;padding: 10px;margin: 0 -10px}
-.formatDate{color: #999}
-/*
-.dygraph-annotation-plot-1 {    background-color: #dd4b39 !important}
-.dygraph-annotation-plot-2 {    background-color: #f39c12 !important}
-.dygraph-annotation-plot-3 {    background-color: #0073b7 !important}
-.dygraph-annotation-plot-4 {    background-color: #00a65a !important}
-.dygraph-annotation-plot-5 {    background-color: #001f3f !important}
-.dygraph-annotation-plot-6{background-color: #3d9970 !important}
-.dygraph-annotation-plot-7{ background-color: #01ff70 !important}
-.dygraph-annotation-plot-8{    background-color: #00c0ef !important}
-.dygraph-annotation-plot-9 {    background-color: #ff851b !important}
-.dygraph-annotation-plot-10 {     background-color: #f012be !important}
-.dygraph-annotation-plot-11 {    background-color: #3c8dbc !important}
-.dygraph-annotation-plot-12 {       background-color: #605ca8 !important}
-.dygraph-annotation-plot-13{      background-color: #d81b60 !important}*/
+.editbox {
+    background: #ddd;
+    padding: 10px;
+    margin: 0 -10px;
+}
+.formatDate {
+    color: #999;
+}

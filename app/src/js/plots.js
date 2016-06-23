@@ -193,9 +193,6 @@ var init = function() {
                     return
                 }
 
-                e.stopPropagation()
-                e.preventDefault()
-
                 var selected_date = points[0].xval
 
                 vm.selected_date(selected_date)
@@ -407,6 +404,10 @@ vm.getAvgHourTempPlot = function() {
             console.error(err)
         }
     })
+}
+
+vm.hidePointBox = function(data, e) {
+    vm.is_point_box_visible(false)
 }
 
 vm.afterShow = function() {

@@ -214,7 +214,7 @@
     }
 </style>
 
-<ul id="avg_click_box" 1class="box box-default" data-bind="
+<ul id="avg_click_box" data-bind="
     visible: is_point_box_visible,
     style: {
         top: point_box_top,
@@ -228,7 +228,7 @@
 	<li data-bind="click: getAvgHourTempPlot"><a href="#">Усреднить за час</a></li>
 </ul>
 
-<section class="content">
+<section class="content" data-bind="event: { mouseup: hidePointBox }">
 	<div class="row">
 		<div class="col-md-9">
 			<div class="box box-info box-borderless" style="position:relative;min-height:20%">

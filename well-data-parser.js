@@ -81,6 +81,10 @@ let processGSDFile = (file_path, done) => {
                         return done("well_not_found")
                     }
 
+                    if(result.length === 0) {
+                        return done("well_not_found")
+                    }
+
                     return done(null, result[0].id, measurements)
                 }
             )

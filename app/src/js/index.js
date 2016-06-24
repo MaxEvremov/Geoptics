@@ -23,6 +23,10 @@ $(document).ready(function() {
         "/api/app/auth/init",
         "get",
         function(err, result) {
+            if(result) {
+                m_site.favorites.loadAll()
+            }
+
             m_site.state.user(result ? result : null)
 
             m_site.state.is_ready(true)

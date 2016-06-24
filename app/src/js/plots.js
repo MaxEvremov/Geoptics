@@ -196,7 +196,7 @@ var init = function() {
                 var selected_date = helpers.convertDate(points[0].xval, "ms", "iso8601")
 
                 if(vm.current_mode() === "timeline_event") {
-                    vm.timeline_event_date(selected_date)
+                    vm.timeline_event_date(helpers.convertDate(selected_date, "iso8601", "jmask"))
                     return
                 }
 
@@ -718,6 +718,7 @@ vm.saveFavorite = function() {
         }
 
         vm.is_favorite_saved(true)
+        m_site.favorites.loadAll()
 
         setTimeout(function() {
             vm.is_favorite_saved(false)

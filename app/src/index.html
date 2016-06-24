@@ -114,6 +114,9 @@
                     }">
 						<a data-bind="'page-href': '/favorites'">
 							<i class="fa fa-star"></i> <span>Избранное</span>
+                            <!-- ko if: favorites.favorites().length -->
+                            <span class="label label-primary pull-right" data-bind="text: favorites.favorites().length"></span>
+                            <!-- /ko -->
 						</a>
 					</li>
 				</ul>

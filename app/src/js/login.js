@@ -1,14 +1,5 @@
 "use strict"
 
-// imports
-
-//import ko from "knockout"
-//import mapping from "knockout-mapping"
-//
-//import * as helpers from "./helpers"
-//
-//import state from "./state"
-
 // main
 
 var errs = {
@@ -40,6 +31,8 @@ vm.logIn = function() {
                 return console.error(err)
             }
 
+            m_site.favorites.loadAll()
+
             m_site.state.user(result)
             pager.navigate("plots")
         }
@@ -58,7 +51,5 @@ vm.logOut = function() {
 }
 
 // exports
-
-//export default vm
 
 window.m_site.login=vm

@@ -176,7 +176,7 @@
 		position: fixed;
 		display: block;
 		width: 250px;
-		z-index: 11;
+		z-index: 13;
 		border: 2px solid rgba(0, 0, 0, 0.2);
 	}
 
@@ -197,7 +197,7 @@
         margin-left: -13px;
     }
 
-    #dygraph_avg_overlay {
+    .dygraph-loading-overlay {
         width: 100%;
         height: 100%;
         position: absolute;
@@ -207,7 +207,7 @@
         line-height: 150px;
     }
 
-    #dygraph_avg_container.loading {
+    .loading {
         -webkit-filter: blur(2px);
         pointer-events: none;
     }
@@ -254,7 +254,7 @@
 				</div>
 
 				<div class="box-body dygraph-box">
-                    <div id="dygraph_avg_overlay" data-bind="visible: is_loading_pressure_data">
+                    <div class="dygraph-loading-overlay" data-bind="visible: is_loading_pressure_data">
                         <i class="fa fa-spin fa-spinner"></i>
                     </div>
 
@@ -308,11 +308,25 @@
 
 			<div id="dygraph_box" class="box box-danger box-borderless" style="position:relative;min-height:80%;margin-bottom: 0px;">
 				<div id="dygraph_box_body" class="box-body" style="height: 100%;">
-					<div id="dygraph_container" class="plot" data-bind="style: { visibility: is_main_plot_visible() ? 'visible' : 'hidden' }">
+                    <div class="dygraph-loading-overlay" data-bind="visible: is_loading_temp_data">
+                        <i class="fa fa-spin fa-spinner"></i>
+                    </div>
 
+					<div id="dygraph_container" class="plot" data-bind="
+                        style: {
+                            visibility: is_main_plot_visible()
+                            ? 'visible' : 'hidden'
+                        },
+                        css: { loading: is_loading_temp_data }">
 					</div>
 
-					<p class="placeholder noselect" data-bind="style: { visibility: is_main_plot_visible() ? 'hidden' : 'visible' }">
+					<p class="placeholder noselect" data-bind="
+                        style: {
+                            visibility: is_main_plot_visible()
+                            ? 'hidden' : 'visible'
+                        },
+                        css: { loading: is_loading_temp_data }
+                    ">
 						<!-- ko if: current_mode() === 'reference_point' -->
 						Выберите точку на графике давления
 						<!-- /ko -->

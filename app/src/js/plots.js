@@ -27,6 +27,8 @@ var queue = async.queue(
     function(plot, done) {
         var mode = vm.current_mode()
 
+        vm.is_loading_temp_data(true)
+
         current_well.getTempMeasurements(
             {
                 plots: plot,
@@ -88,6 +90,10 @@ var queue = async.queue(
     },
     1
 )
+
+queue.drain = function() {
+    vm.is_loading_temp_data(false)
+}
 
 var plot_avg_prev_min_date = null
 var plot_avg_prev_max_date = null
@@ -358,6 +364,8 @@ var vm = {
     point_box_left: ko.observable(0),
 
     is_loading_pressure_data: ko.observable(false),
+    is_loading_temp_data: ko.observable(false),
+
     is_favorite_saved: ko.observable(false)
 }
 

@@ -251,7 +251,12 @@ let queue = async.queue(
     1
 )
 
-chokidar.watch(well_data_dir)
-    .on("add", (archive_path) => queue.push(archive_path))
+chokidar.watch(
+    well_data_dir,
+    {
+        awaitWriteFinish: true
+    }
+)
+.on("add", (archive_path) => queue.push(archive_path))
 
 console.log("Well data parser is running")

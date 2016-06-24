@@ -17,7 +17,6 @@ $(document).ready(function() {
     History.Adapter.bind(window, "statechange", function() {
         m_site.state.current_page(pager.activePage$().currentId)
     })
-    m_site.state.current_page(pager.activePage$().currentId)
 
     helpers.makeAJAXRequest(
         "/api/app/auth/init",
@@ -29,11 +28,13 @@ $(document).ready(function() {
 
             m_site.state.user(result ? result : null)
 
-            m_site.state.is_ready(true)
-
             if(!m_site.state.current_page()) {
                 pager.navigate("plots")
             }
+
+            m_site.state.is_ready(true)
+
+            m_site.state.current_page(pager.activePage$().currentId)
         }
     )
 })

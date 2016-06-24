@@ -59,7 +59,7 @@
         source: 'pages/login.html'
     }"></div>
 
-	<div data-bind="visible: state.current_page() !== 'login'">
+	<div data-bind="visible: state.is_ready() && state.current_page() !== 'login'" style="display: none;">
 		<!-- ko if: state.user -->
 		<header class="main-header">
 			<span class="logo">
@@ -144,7 +144,7 @@
                 beforeShow: favorites.onShow,
                 source: 'pages/favorites.html',
                 guard: state.loggedInGuard
-            }" ></div>
+            }"></div>
 		</div>
 	</div>
 </body>

@@ -1,7 +1,6 @@
 (function() {
     var DYGRAPH_BOTTOM_OFFSET = -20
-//    var DYGRAPH_PADDING = 50
-
+    
     var DYGRAPH_BOX_ID = "#dygraph_box"
     var DYGRAPH_BOX_BODY_ID = "#dygraph_box_body"
     var DYGRAPH_CONTAINER_ID = "#dygraph_container"
@@ -182,8 +181,8 @@
                 height: box_height
             })
 
-            var dygraph_width = $(DYGRAPH_BOX_BODY_ID).height()// - DYGRAPH_PADDING
-            var dygraph_height = $(DYGRAPH_BOX_BODY_ID).width() //- DYGRAPH_PADDING
+            var dygraph_width = $(DYGRAPH_BOX_BODY_ID).height()
+            var dygraph_height = $(DYGRAPH_BOX_BODY_ID).width()
 
             var dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ ((dygraph_width - dygraph_height) / 2) - 25}px) translateX(${ -((dygraph_width - dygraph_height) / 2)}px)`
 
@@ -199,7 +198,6 @@
                 {
                     height: dygraph_height,
                     width: dygraph_width,
-//                    ylabel: "Temperature (C)",
                     drawCallback: drawCallback,
                     axes: {
                         x: { pixelsPerLabel: 30 },

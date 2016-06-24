@@ -1,13 +1,4 @@
-//"use strict"
-
-// imports
-
-//import ko from "knockout"
-
-//import * as helpers from "./helpers"
-
-// main
-(function(){
+(function() {
     var processGuard = function(done) {
         if(!!vm.user()) {
             return done()
@@ -39,8 +30,5 @@
         }
     }
 
-// exports
-
-//export default vm
-m_site.state=vm
+    m_site.state=vm
 })()

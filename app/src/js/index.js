@@ -19,7 +19,6 @@ $(document).ready(function() {
         "get",
         function(err, result) {
             m_site.state.user(result ? result : null)
-            m_site.state.is_ready(true)
 
             History.Adapter.bind(window, "statechange", function() {
                 m_site.state.current_page(pager.activePage$().currentId)
@@ -29,6 +28,8 @@ $(document).ready(function() {
             if(!m_site.state.current_page()) {
                 pager.navigate("plots")
             }
+
+            m_site.state.is_ready(true)
         }
     )
 })

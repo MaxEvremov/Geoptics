@@ -420,7 +420,7 @@ vm.hidePointBox = function(data, e) {
 
 vm.afterShow = function() {
     if(!is_inited) {
-        init()
+        setTimeout(function() { init() }, 0)
     }
 
     if(plot_avg) {

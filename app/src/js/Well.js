@@ -132,7 +132,7 @@ class Well {
                     return done(err)
                 }
 
-                for(let i = 0; i < result.length; i++) {
+                for(var i = 0; i < result.length; i++) {
                     result[i][0] = helpers.convertDate(result[i][0], "iso8601", "native")
                 }
 
@@ -155,7 +155,7 @@ class Well {
                     return done(err)
                 }
 
-                for(let i = 0; i < result.length; i++) {
+                for(var i = 0; i < result.length; i++) {
                     result[i][0] = helpers.convertDate(result[i][0], "iso8601", "native")
                 }
 

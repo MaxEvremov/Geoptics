@@ -772,7 +772,7 @@ vm.annotations = ko.computed(function() {
     deviations.forEach(function(v) {
         result.push({
             series: AVG_Y_AXIS,
-            x: Date.parse(v.date),
+            x: helpers.convertDate(v.date, "iso8601", "ms"),
             shortText: "!",
             text: `Отклонение на ${v.length} м. Температура: ${v.temp}°. Образец: ${v.norm_temp}°.`,
             cssClass: "dygraph-annotation-deviation"
@@ -782,7 +782,7 @@ vm.annotations = ko.computed(function() {
     timeline_events.forEach(function(v) {
         result.push({
             series: AVG_Y_AXIS,
-            x: Date.parse(v.date),
+            x: helpers.convertDate(v.date, "iso8601", "ms"),
             shortText: v.short_text,
             text: v.description || "",
             attachAtBottom: true,

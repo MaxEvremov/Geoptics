@@ -72,6 +72,9 @@ let processGSDFile = (file_path, done) => {
 
             helpers.makePGQuery(
                 query,
+                {
+                    enable_query_log: false
+                },
                 (err, result) => {
                     if(err) {
                         return done(err)
@@ -100,6 +103,9 @@ let processGSDFile = (file_path, done) => {
 
             helpers.makePGQuery(
                 query,
+                {
+                    enable_query_log: false
+                },
                 done
             )
         }
@@ -151,6 +157,9 @@ let processGDDFile = (file_path, done) => {
 
             helpers.makePGQuery(
                 query,
+                {
+                    enable_query_log: false
+                },
                 (err, result) => {
                     if(err) {
                         return done(err)
@@ -175,6 +184,9 @@ let processGDDFile = (file_path, done) => {
 
             helpers.makePGQuery(
                 query,
+                {
+                    enable_query_log: false
+                },
                 done
             )
         }

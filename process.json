@@ -9,7 +9,7 @@
         {
             "name": "geoptics-data-parser",
             "script": "well-data-parser.js",
-            "watch": ["server.js"],
+            "watch": ["well-data-parser.js"],
             "log_date_format": "YYYY-MM-DD HH:mm:ss"
         }
     ]

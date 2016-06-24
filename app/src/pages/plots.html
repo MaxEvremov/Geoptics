@@ -224,7 +224,15 @@
 		<p data-bind="html: helpers.formatDate(selected_date())"></p>
 	</li>
 	<li><a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a></li>
-	<li data-bind="click: getAvgHourTempPlot"><a href="#">Усреднить за час</a></li>
+	<li data-bind="click: getAvgTempPlot.bind($data, 1, 'h')">
+        <a href="#">Усреднить за час</a>
+    </li>
+	<li data-bind="click: getAvgTempPlot.bind($data, 1, 'd')">
+        <a href="#">Усреднить за день</a>
+    </li>
+	<li data-bind="click: getAvgTempPlot.bind($data, 3, 'd')">
+        <a href="#">Усреднить за три дня</a>
+    </li>
 </ul>
 
 <section class="content" data-bind="event: { mouseup: hidePointBox }">

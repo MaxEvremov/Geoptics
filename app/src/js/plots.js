@@ -388,13 +388,13 @@ vm.getNearestTempPlot = function() {
     })
 }
 
-vm.getAvgHourTempPlot = function() {
-    var HOUR = 60 * 60 * 1000
+vm.getAvgTempPlot = function(length, units) {
+    var duration_ms = moment.duration(length, units).asMilliseconds()
 
     var date_start = vm.selected_date()
 
     var date_start_ms = helpers.convertDate(date_start, "iso8601", "ms")
-    var date_end_ms = date_start_ms + HOUR
+    var date_end_ms = date_start_ms + duration_ms
 
     var date_end = helpers.convertDate(date_end_ms, "ms", "iso8601")
 

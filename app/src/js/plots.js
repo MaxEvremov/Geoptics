@@ -130,7 +130,7 @@ var generateEmptyPoints = function(params) {
     var file = []
 
     for(var i = 0; i < POINTS_PER_PLOT + 1; i++) {
-        file.push([helpers.convertDate(min_date + i * step, "ms", "native"), 1])
+        file.push([helpers.convertDate(min_date + i * step, "ms", "native"), 0])
     }
 
     plot_avg.updateOptions({
@@ -388,7 +388,8 @@ var vm = {
 
 vm.resetPlotAvgState = function() {
     plot_avg.updateOptions({
-        file: plot_avg_init_state
+        file: plot_avg_init_state,
+        valueRange: [0, 1]
     })
 
     plot_avg.resetZoom()

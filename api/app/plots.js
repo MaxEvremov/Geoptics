@@ -422,14 +422,12 @@ api.post(
     "/reference_point",
     helpers.validateRequestData({
         well_id: isIDValid,
-        date: isISO8601DateValid,
         length: _.isNumber,
         temp: _.isNumber
     }),
     (req, res) => {
         let query = `UPDATE wells
-            SET reference_date = '${req.body.date}',
-                reference_temp = ${req.body.temp},
+            SET reference_temp = ${req.body.temp},
                 reference_length = ${req.body.length}
             WHERE id = ${req.body.well_id}
             `
@@ -437,6 +435,30 @@ api.post(
         helpers.makePGQuery(
             query,
             res.jsonCallback
+        )
+    }
+)
+
+api.get(
+    "/reference_point",
+    helpers.validateRequestData({
+        well_id: isIDValid
+    }),
+    (req, res) => {
+        let query = `SELECT
+            reference_length AS length,
+            reference_temp AS temp
+            FROM wells WHERE id = ${req.query.well_id}`
+
+        helpers.makePGQuery(
+            query,
+            function(err, result) {
+                if(err) {
+                    return res.jsonCallback(err)
+                }
+
+                return res.jsonCallback(null, result[0])
+            }
         )
     }
 )

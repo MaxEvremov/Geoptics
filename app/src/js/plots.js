@@ -41,21 +41,6 @@ var queue = async.queue(
 
                 var answer_plot = result[0]
 
-                if(mode === "reference_point") {
-                    var date = answer_plot.date
-
-                    vm.reference_point.point().date(answer_plot.date)
-
-                    var plot_labels = ["Length", answer_plot.date]
-
-                    plot_main.updateOptions({
-                        file: answer_plot.data,
-                        labels: plot_labels
-                    })
-
-                    return done()
-                }
-
                 if(mode === "timeline_event") {
                     return done()
                 }
@@ -465,8 +450,6 @@ vm.toggleSettings = function() {
 
 var clearModeData = function(mode) {
     if(mode === "reference_point") {
-        vm.reference_point.point(new ReferencePoint({}))
-
         vm.selected_plots.removeAll()
 
         plot_main.updateOptions({
@@ -508,7 +491,16 @@ vm.returnToNormalMode = function() {
 vm.reference_point = {
     point: ko.observable(new ReferencePoint({})),
     edit: function() {
-        vm.current_mode("reference_point")
+        current_well.getReferencePoint(
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
+
+                vm.reference_point.point(result)
+                vm.current_mode("reference_point")
+            }
+        )
     },
     save: function() {
         current_well.setReferencePoint(
@@ -530,7 +522,7 @@ vm.reference_point = {
 vm.reference_point.is_save_allowed = ko.computed(function() {
     var point = vm.reference_point.point()
 
-    return point.date() && point.temp() && point.length()
+    return point.temp() && point.length()
 })
 
 // min_length
@@ -925,10 +917,6 @@ vm.adjustRoll.subscribe(function(val) {
 })
 
 vm.is_main_plot_visible = ko.computed(function() {
-    if(vm.current_mode() === "reference_point") {
-        return !!vm.reference_point.point().date()
-    }
-
     return vm.selected_plots().length > 0
 })
 

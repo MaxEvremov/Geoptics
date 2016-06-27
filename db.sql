@@ -290,7 +290,6 @@ CREATE TABLE wells (
     name text,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
-    reference_date timestamp with time zone,
     reference_temp real,
     reference_length real,
     min_length real DEFAULT 0,

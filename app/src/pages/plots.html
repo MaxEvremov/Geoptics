@@ -211,6 +211,10 @@
         -webkit-filter: blur(2px);
         pointer-events: none;
     }
+
+    #dygraph_container > div > canvas {
+        -webkit-filter: blur(0.0000001px);
+    }
 </style>
 
 <ul id="avg_click_box" data-bind="
@@ -382,7 +386,6 @@
 
 				<div class="box-body" data-bind="with: point">
 					<ul class="list-unstyled">
-						<li>Дата: <span data-bind="text: date"></span></li>
 						<li>Глубина: <span data-bind="text: length"></span></li>
 						<li>Температура: <span data-bind="text: temp"></span></li>
 					</ul>

@@ -36,9 +36,12 @@ helpers.makeAJAXRequest = function (url, method, data, done) {
 		}
 	}
 
-	if (method !== "get") {
-		params.data = JSON.stringify(data)
+	if (method === "get") {
+        params.url = `${params.url}?${$.param(data)}`
 	}
+    else {
+        params.data = JSON.stringify(data)
+    }
 
 	$.ajax(params)
 

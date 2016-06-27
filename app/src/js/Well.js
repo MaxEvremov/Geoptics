@@ -19,6 +19,23 @@ class Well {
         )
     }
 
+    getReferencePoint(done) {
+        helpers.makeAJAXRequest(
+            "/api/app/plots/reference_point",
+            "get",
+            {
+                well_id: this.id
+            },
+            function(err, result) {
+                if(err) {
+                    return done(err)
+                }
+
+                return done(null, new ReferencePoint(result))
+            }
+        )
+    }
+
     setMinLength(params, done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/min_length",

@@ -1,6 +1,6 @@
 (function() {
     var DYGRAPH_BOTTOM_OFFSET = -20
-    
+
     var DYGRAPH_BOX_ID = "#dygraph_box"
     var DYGRAPH_BOX_BODY_ID = "#dygraph_box_body"
     var DYGRAPH_CONTAINER_ID = "#dygraph_container"
@@ -65,7 +65,7 @@
             "-webkit-filter": "blur(0.000001px)"
         })
 
-        var axis_label_x_transform = 'translateY(17.5px) translateX(0.5px) rotate(90deg) rotateY(180deg)'
+        var axis_label_x_transform = 'translateY(17px) translateX(0px) rotate(90deg) rotateY(180deg)'
         $(DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-x, ' + DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-y').parent().css({
             transform: axis_label_x_transform,
             msTransform: axis_label_x_transform,
@@ -73,7 +73,7 @@
             "-webkit-filter": "blur(0.000001px)"
         })
 
-        var axis_label_y_transform = 'translateX(17.5px) translateY(0.5px) rotate(90deg) rotateY(180deg)'
+        var axis_label_y_transform = 'translateX(17px) translateY(0px) rotate(90deg) rotateY(180deg)'
         $(DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-y').parent().css({
             transform: axis_label_y_transform,
             msTransform: axis_label_y_transform,
@@ -184,7 +184,7 @@
             var dygraph_width = $(DYGRAPH_BOX_BODY_ID).height()
             var dygraph_height = $(DYGRAPH_BOX_BODY_ID).width()
 
-            var dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ ((dygraph_width - dygraph_height) / 2) - 25}px) translateX(${ -((dygraph_width - dygraph_height) / 2)}px)`
+            var dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ Math.round(((dygraph_width - dygraph_height) / 2) - 25)}px) translateX(${ Math.round(-((dygraph_width - dygraph_height) / 2))}px)`
 
             $(DYGRAPH_CONTAINER_ID).css({
                 transform: dygraph_transform,

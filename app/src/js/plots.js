@@ -183,7 +183,24 @@ var drawAvgPlot = function() {
 var init = function() {
     var plot_avg_interaction_model = _.cloneDeep(Dygraph.Interaction.defaultModel)
 
+    var endPanCallback = function() {
+        drawAvgPlot()
+    }
+
     plot_avg_interaction_model.dblclick = function() {}
+    plot_avg_interaction_model.mousedown = function(event, g, context) {
+        var mouseup = function(event) {
+            if (context.isPanning) {
+                endPanCallback()
+            }
+
+            Dygraph.removeEvent(document, 'mouseup', mouseup)
+        }
+
+        g.addAndTrackEvent(document, 'mouseup', mouseup)
+
+        Dygraph.Interaction.defaultModel.mousedown(event, g, context)
+    }
 
     plot_avg = new Dygraph(
         $("#dygraph_avg_container")[0],

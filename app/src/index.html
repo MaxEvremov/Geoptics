@@ -34,10 +34,10 @@
 	<script src="js/helpers.js"></script>
 	<script src="js/ko-binding-handlers.js"></script>
 
-    <script src="js/Well.js"></script>
-    <script src="js/Plot.js"></script>
-    <script src="js/Favorite.js"></script>
-    <script src="js/ReferencePoint.js"></script>
+    <script src="js/classes/Well.js"></script>
+    <script src="js/classes/Plot.js"></script>
+    <script src="js/classes/Favorite.js"></script>
+    <script src="js/classes/ReferencePoint.js"></script>
 
     <script src="js/plot-main.js"></script>
 
@@ -96,7 +96,7 @@
                                 <a data-bind="click: plots.reference_point.edit"><i class="fa fa-compress"></i> Выбор эталонной точки</a>
                             </li>
                             <li data-bind="css: { active: plots.current_mode() === 'min_length' }">
-                                <a data-bind="click: plots.setMinLength"><i class="fa fa-step-forward"></i> Выбор нуля глубины</a>
+                                <a data-bind="click: plots.min_length.edit"><i class="fa fa-step-forward"></i> Выбор нуля глубины</a>
                             </li>
                             <li data-bind="css: { active: plots.current_mode() === 'timeline_event' }">
                                 <a data-bind="click: plots.editTimelineEvents"><i class="fa fa-clock-o"></i> События</a>

@@ -287,7 +287,7 @@ var init = function() {
                 line.style.visibility = "visible"
                 line.style.left = x + "px"
 
-                vm.min_length(point.xval)
+                vm.min_length.value(point.xval)
             }
 
             if(mode === "length_annotation") {
@@ -460,7 +460,7 @@ var clearModeData = function(mode) {
 
     if(mode === "min_length") {
         $("#dygraph_container .line")[0].style.visibility = "hidden"
-        vm.min_length(null)
+        vm.min_length.value(null)
         vm.selected_plots.removeAll()
     }
 
@@ -527,26 +527,42 @@ vm.reference_point.is_save_allowed = ko.computed(function() {
 
 // min_length
 
-vm.min_length = ko.observable(0)
+vm.min_length = {
+    value: ko.observable(0),
+    edit: function() {
+        current_well.getMinLength(
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
 
-vm.setMinLength = function() {
-    vm.current_mode("min_length")
-}
-
-vm.saveMinLength = function() {
-    current_well.setMinLength(
-        {
-            min_length: vm.min_length()
-        },
-        function(err, result) {
-            if(err) {
-                return console.error(err)
+                vm.min_length.value(result.min_length)
+                vm.current_mode("min_length")
             }
+        )
+    },
+    save: function() {
+        current_well.setMinLength(
+            {
+                min_length: vm.min_length.value()
+            },
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
 
-            vm.current_mode("normal")
-        }
-    )
+                vm.current_mode("normal")
+            }
+        )
+    },
+    cancel: function() {
+        vm.current_mode("normal")
+    }
 }
+
+vm.min_length.is_save_allowed = ko.computed(function() {
+    return !!vm.min_length.value()
+})
 
 // timeline_event
 

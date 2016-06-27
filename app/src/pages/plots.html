@@ -401,22 +401,22 @@
 				</div>
 			</div>
 
-			<div class="box box-danger box-borderless" data-bind="visible: current_mode() === 'min_length'">
+			<div class="box box-danger box-borderless" data-bind="visible: current_mode() === 'min_length', with: min_length">
 				<div class="box-header">
 					<h3 class="box-title">Выбор нуля глубины</h3>
 				</div>
 
 				<div class="box-body">
 					<ul class="list-unstyled">
-						<li>Ноль глубины: <span data-bind="text: min_length"></span></li>
+						<li>Ноль глубины: <span data-bind="text: value"></span></li>
 					</ul>
 				</div>
 
 				<div class="box-footer">
-					<a class="btn btn-sm btn-danger" data-bind="click: saveMinLength">
+					<a class="btn btn-sm btn-danger" data-bind="click: save, css: { 'btn-disabled': !is_save_allowed() }">
 						<span>Сохранить</span>
 					</a>
-					<a class="btn btn-sm btn-default" data-bind="click: returnToNormalMode">
+					<a class="btn btn-sm btn-default" data-bind="click: cancel">
 						<span>Отмена</span>
 					</a>
 				</div>

@@ -440,6 +440,29 @@ api.post(
 )
 
 api.get(
+    "/min_length",
+    helpers.validateRequestData({
+        well_id: isIDValid
+    }),
+    (req, res) => {
+        let query = `SELECT
+            min_length
+            FROM wells WHERE id = ${req.query.well_id}`
+
+        helpers.makePGQuery(
+            query,
+            function(err, result) {
+                if(err) {
+                    return res.jsonCallback(err)
+                }
+
+                return res.jsonCallback(null, result[0])
+            }
+        )
+    }
+)
+
+api.get(
     "/reference_point",
     helpers.validateRequestData({
         well_id: isIDValid

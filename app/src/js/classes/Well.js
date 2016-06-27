@@ -36,6 +36,17 @@ class Well {
         )
     }
 
+    getMinLength(done) {
+        helpers.makeAJAXRequest(
+            "/api/app/plots/min_length",
+            "get",
+            {
+                well_id: this.id
+            },
+            done
+        )
+    }
+
     setMinLength(params, done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/min_length",

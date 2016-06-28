@@ -175,16 +175,16 @@
         init: function() {
             var box_rect = $(DYGRAPH_BOX_ID)[0].getBoundingClientRect()
 
-            var box_height = $(window).height() - box_rect.top- DYGRAPH_BOTTOM_OFFSET
+            var box_height = $(window).height() - box_rect.top
 
             $(DYGRAPH_BOX_ID).css({
                 height: box_height
             })
 
             var dygraph_width = $(DYGRAPH_BOX_BODY_ID).height()
-            var dygraph_height = $(DYGRAPH_BOX_BODY_ID).width()
+            var dygraph_height = $(DYGRAPH_BOX_BODY_ID).width() - 28
 
-            var dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ Math.round(((dygraph_width - dygraph_height) / 2) - 25)}px) translateX(${ Math.round(-((dygraph_width - dygraph_height) / 2))}px)`
+            var dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ Math.round(((dygraph_width - dygraph_height) / 2) - 24)}px) translateX(${ Math.round(-((dygraph_width - dygraph_height) / 2))}px)`
 
             $(DYGRAPH_CONTAINER_ID).css({
                 transform: dygraph_transform,

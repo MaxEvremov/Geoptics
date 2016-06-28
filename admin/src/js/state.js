@@ -1,18 +1,32 @@
-"use strict"
+m_site.state = (function() {
+    var processGuard = function(done) {
+        if(!!self.user()) {
+            return done()
+        }
 
-// imports
+        return pager.navigate("login")
+    }
 
-import ko from "knockout"
-import mapping from "knockout-mapping"
+    var self = {
+        user: ko.observable(),
+        current_page: ko.observable(),
+        is_ready: ko.observable(false),
 
-import * as helpers from "./helpers"
+        loggedInGuard: function(page, route, done) {
+            var is_ready = self.is_ready()
 
-// main
+            if(is_ready) {
+                return processGuard(done)
+            }
 
-let vm = {
-    user: ko.observable()
-}
+            var sub = self.is_ready.subscribe(function(val) {
+                if(val) {
+                    processGuard(done)
+                    return sub.dispose()
+                }
+            })
+        }
+    }
 
-// exports
-
-export default vm
+    return self
+})()

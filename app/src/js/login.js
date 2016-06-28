@@ -1,55 +1,53 @@
 "use strict"
 
-// main
+m_site.login = (function() {
+    var errs = {
+        not_found: "Неверный пароль и / или e-mail",
+        network_err: "Не удалось установить соединение с сервером"
+    }
 
-var errs = {
-    not_found: "Неверный пароль и / или e-mail",
-    network_err: "Не удалось установить соединение с сервером"
-}
+    var DEFAULT_ERR = "Произошла ошибка"
 
-var DEFAULT_ERR = "Произошла ошибка"
+    var self = {
+        email: ko.observable(),
+        password: ko.observable(),
+        err: ko.observable(),
 
-var vm = {
-    email: ko.observable(),
-    password: ko.observable(),
-    err: ko.observable()
-}
+        logIn: function() {
+            self.err(null)
 
-vm.logIn = function() {
-    vm.err(null)
+            helpers.makeAJAXRequest(
+                "/api/app/auth/login",
+                "post",
+                {
+                    email: self.email(),
+                    password: self.password()
+                },
+                function(err, result) {
+                    if(err) {
+                        self.err(errs[err] ? errs[err] : DEFAULT_ERR)
+                        return console.error(err)
+                    }
 
-    helpers.makeAJAXRequest(
-        "/api/app/auth/login",
-        "post",
-        {
-            email: vm.email(),
-            password: vm.password()
+                    m_site.favorites.loadAll()
+
+                    m_site.state.user(result)
+                    pager.navigate("plots")
+                }
+            )
         },
-        function(err, result) {
-            if(err) {
-                vm.err(errs[err] ? errs[err] : DEFAULT_ERR)
-                return console.error(err)
-            }
 
-            m_site.favorites.loadAll()
-
-            m_site.state.user(result)
-            pager.navigate("plots")
+        logOut: function() {
+            helpers.makeAJAXRequest(
+                "/api/app/auth/logout",
+                "post",
+                function(err, result) {
+                    m_site.state.user(null)
+                    pager.navigate("login")
+                }
+            )
         }
-    )
-}
+    }
 
-vm.logOut = function() {
-    helpers.makeAJAXRequest(
-        "/api/app/auth/logout",
-        "post",
-        function(err, result) {
-            m_site.state.user(null)
-            pager.navigate("login")
-        }
-    )
-}
-
-// exports
-
-window.m_site.login=vm
+    return self
+})()

@@ -1,89 +1,78 @@
-"use strict"
-
-// imports
-
-import ko from "knockout"
-import mapping from "knockout-mapping"
-
-import * as helpers from "./helpers"
-
-import Well from "./models/Well"
-
-// main
-
-let vm = {
-    wells: ko.observableArray(),
-    current_well: ko.observable(),
-    well_id: ko.observable()
-}
-
-vm.getAll = () => {
-    vm.wells.removeAll()
-
-    helpers.makeAJAXRequest(
-        "/api/admin/wells",
-        "get",
-        (err, result) => {
-            if(err) {
-                return console.error(err)
-            }
-
-            result.forEach(well =>
-                vm.wells.push(new Well(well))
-            )
-        }
-    )
-}
-
-vm.onShow = () => {
-    console.log("onShow")
-    vm.getAll()
-}
-
-vm.onWellShow = () => {
-    console.log("onWellShow")
-    let id = vm.well_id()
-
-    if(id === "new") {
-        return vm.current_well(new Well())
+m_site.wells = (function() {
+    var self = {
+        wells: ko.observableArray(),
+        current_well: ko.observable(),
+        well_id: ko.observable()
     }
 
-    helpers.makeAJAXRequest(
-        `/api/admin/wells/${id}`,
-        "get",
-        (err, result) => {
-            if(err) {
-                return console.error(err)
+    self.getAll = function() {
+        self.wells.removeAll()
+
+        helpers.makeAJAXRequest(
+            "/api/admin/wells",
+            "get",
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
+
+                result.forEach(function(well) {
+                    self.wells.push(new Well(well))
+                })
             }
+        )
+    }
 
-            vm.current_well(new Well(result))
+    self.onShow = function() {
+        console.log("onShow")
+        self.getAll()
+    }
+
+    self.onWellShow = function() {
+        console.log("onWellShow")
+        var id = self.well_id()
+
+        if(id === "new") {
+            return self.current_well(new Well())
         }
-    )
-}
 
-vm.create = () => pager.navigate("wells/new")
+        helpers.makeAJAXRequest(
+            `/api/admin/wells/${id}`,
+            "get",
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
 
-vm.edit = (well) => {
-    pager.navigate(`wells/${well.id()}`)
-}
+                self.current_well(new Well(result))
+            }
+        )
+    }
 
-vm.cancel = () => {
-    vm.current_well(null)
-    pager.navigate("wells")
-}
+    self.create = function() {
+        pager.navigate("wells/new")
+    }
 
-vm.save = (well) => {
-    helpers.makeAJAXRequest(
-        "/api/admin/wells",
-        "post",
-        mapping.toJS(well),
-        (err, result) => {
-            vm.current_well(null)
-            pager.navigate("wells")
-        }
-    )
-}
+    self.edit = function(well) {
+        pager.navigate(`wells/${well.id()}`)
+    }
 
-// exports
+    self.cancel = function() {
+        self.current_well(null)
+        pager.navigate("wells")
+    }
 
-export default vm
+    self.save = function(well) {
+        helpers.makeAJAXRequest(
+            "/api/admin/wells",
+            "post",
+            ko.mapping.toJS(well),
+            function(err, result) {
+                self.current_well(null)
+                pager.navigate("wells")
+            }
+        )
+    }
+
+    return self
+})()

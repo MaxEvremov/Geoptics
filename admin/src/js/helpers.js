@@ -1,25 +1,27 @@
 "use strict"
 
-import $ from "jquery"
-import _ from "lodash"
+var SERVER_URL = ""
 
-// const SERVER_URL = "http://10.66.80.132:7777"
+if(window.location.hostname == "10.66.80.203") {
+    SERVER_URL = "http://10.66.80.132:7778"
+}
 
-export let makeAJAXRequest = (url, method, data, done) => {
+window.helpers = {}
+
+helpers.makeAJAXRequest = function (url, method, data, done) {
 	if (_.isFunction(data) && _.isUndefined(done)) {
 		done = data
 		data = {}
 	}
 
-	let params = {
-		// url: SERVER_URL + url,
-        url: url,
+	var params = {
+		url: SERVER_URL + url,
 		type: method,
 		dataType: "JSON",
 		contentType: "application/json",
-		success: (answer, code) => {
-			let err = answer.err
-			let result = answer.result
+		success: function (answer, code) {
+			var err = answer.err
+			var result = answer.result
 
 			if (err) {
 				return done(err)
@@ -27,17 +29,90 @@ export let makeAJAXRequest = (url, method, data, done) => {
 
 			return done(null, result)
 		},
-        xhrFields: {
-            withCredentials: true
-        },
-		error: () => {
+		xhrFields: {
+			withCredentials: true
+		},
+		error: function () {
 			return done("network_err")
 		}
 	}
 
-	if (method !== "get") {
-		params.data = JSON.stringify(data)
+	if (method === "get") {
+        params.url = `${params.url}?${$.param(data)}`
 	}
+    else {
+        params.data = JSON.stringify(data)
+    }
 
 	$.ajax(params)
+
+}
+
+helpers.formatDate = function (date) {
+	return moment(date).format('DD/MM/YY hh:mm')
+}
+
+helpers.formatDateHTML = function (date) {
+	return "<span class='formatDate'>" + moment(date).format('DD/MM/YY hh:mm') + "</span>"
+}
+
+helpers.createCSSClass = function (name, color) {
+	var style = document.createElement("style")
+	style.type = "text/css"
+	style.innerHTML = `${name} { background-color: ${color} !important; }`
+	document.getElementsByTagName("head")[0].appendChild(style)
+}
+
+helpers.convertDate = function(date, from, to) {
+    var from_moment
+
+    // parse date
+
+    if(from === "moment") {
+        from_moment = date
+    }
+
+    if(from === "ms") {
+        from_moment = moment(Math.round(date), "x", true)
+    }
+
+    if(from === "iso8601") {
+        from_moment = moment(date, "YYYY-MM-DD HH:mm:ssZ", true)
+    }
+
+    if(from === "native") {
+        from_moment = moment(date)
+    }
+
+    if(from === "jmask") {
+        from_moment = moment(date, "DD/MM/YY HH:mm", true)
+    }
+
+    // validate
+
+    if(!from_moment.isValid()) {
+        throw new Error(`${date} is not a valid date for '${from}' format`)
+    }
+
+    // convert date
+
+    if(to === "moment") {
+        return from_moment
+    }
+
+    if(to === "ms") {
+        return from_moment.valueOf()
+    }
+
+    if(to === "iso8601") {
+        return from_moment.format("YYYY-MM-DD HH:mm:ssZ")
+    }
+
+    if(to === "native") {
+        return from_moment.toDate()
+    }
+
+    if(to === "jmask") {
+        return from_moment.format("DD/MM/YY HH:mm")
+    }
 }

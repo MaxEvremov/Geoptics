@@ -1,93 +1,82 @@
-"use strict"
-
-// imports
-
-import ko from "knockout"
-import mapping from "knockout-mapping"
-
-import * as helpers from "./helpers"
-
-import User from "./models/User"
-
-// main
-
-let vm = {
-    users: ko.observableArray(),
-    current_user: ko.observable(),
-    user_id: ko.observable()
-}
-
-vm.roles = [
-    { id: "owner", name: "Суперадминистратор" },
-    { id: "admin", name: "Администратор" },
-    { id: "user", name: "Пользователь" }
-]
-
-vm.getAll = () => {
-    vm.users.removeAll()
-
-    helpers.makeAJAXRequest(
-        "/api/admin/users",
-        "get",
-        (err, result) => {
-            if(err) {
-                return console.error(err)
-            }
-
-            result.forEach(user =>
-                vm.users.push(new User(user))
-            )
-        }
-    )
-}
-
-vm.onShow = () => {
-    vm.getAll()
-}
-
-vm.onUserShow = () => {
-    let id = vm.user_id()
-
-    if(id === "new") {
-        return vm.current_user(new User())
+m_site.users = (function() {
+    var self = {
+        users: ko.observableArray(),
+        current_user: ko.observable(),
+        user_id: ko.observable()
     }
 
-    helpers.makeAJAXRequest(
-        `/api/admin/users/${id}`,
-        "get",
-        (err, result) => {
-            if(err) {
-                return console.error(err)
+    self.roles = [
+        { id: "owner", name: "Суперадминистратор" },
+        { id: "admin", name: "Администратор" },
+        { id: "user", name: "Пользователь" }
+    ]
+
+    self.getAll = function() {
+        self.users.removeAll()
+
+        helpers.makeAJAXRequest(
+            "/api/admin/users",
+            "get",
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
+
+                result.forEach(function(user) {
+                    self.users.push(new User(user))
+                })
             }
+        )
+    }
 
-            vm.current_user(new User(result))
+    self.onShow = function() {
+        self.getAll()
+    }
+
+    self.onUserShow = function() {
+        var id = self.user_id()
+
+        if(id === "new") {
+            return self.current_user(new User())
         }
-    )
-}
 
-vm.create = () => pager.navigate("users/new")
+        helpers.makeAJAXRequest(
+            `/api/admin/users/${id}`,
+            "get",
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
 
-vm.edit = (user) => {
-    pager.navigate(`users/${user.id()}`)
-}
+                self.current_user(new User(result))
+            }
+        )
+    }
 
-vm.cancel = () => {
-    vm.current_user(null)
-    pager.navigate("users")
-}
+    self.create = function() {
+        pager.navigate("users/new")
+    }
 
-vm.save = (user) => {
-    helpers.makeAJAXRequest(
-        "/api/admin/users",
-        "post",
-        mapping.toJS(user),
-        (err, result) => {
-            vm.current_user(null)
-            pager.navigate("users")
-        }
-    )
-}
+    self.edit = function(user) {
+        pager.navigate(`users/${user.id()}`)
+    }
 
-// exports
+    self.cancel = function() {
+        self.current_user(null)
+        pager.navigate("users")
+    }
 
-export default vm
+    self.save = function(user) {
+        helpers.makeAJAXRequest(
+            "/api/admin/users",
+            "post",
+            ko.mapping.toJS(user),
+            function(err, result) {
+                self.current_user(null)
+                pager.navigate("users")
+            }
+        )
+    }
+
+    return self
+})()

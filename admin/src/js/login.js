@@ -1,62 +1,51 @@
 "use strict"
 
-// imports
+m_site.login = (function() {
+    var errs = {
+        not_found: "Неверный пароль и / или e-mail",
+        network_err: "Не удалось установить соединение с сервером"
+    }
 
-import ko from "knockout"
-import mapping from "knockout-mapping"
+    var DEFAULT_ERR = "Произошла ошибка"
 
-import * as helpers from "./helpers"
+    var self = {
+        email: ko.observable(),
+        password: ko.observable(),
+        err: ko.observable(),
 
-import state from "./state"
+        logIn: function() {
+            self.err(null)
 
-// main
+            helpers.makeAJAXRequest(
+                "/api/admin/auth/login",
+                "post",
+                {
+                    email: self.email(),
+                    password: self.password()
+                },
+                function(err, result) {
+                    if(err) {
+                        self.err(errs[err] ? errs[err] : DEFAULT_ERR)
+                        return console.error(err)
+                    }
 
-let errs = {
-    not_found: "Неверный пароль и / или e-mail",
-    network_err: "Не удалось установить соединение с сервером"
-}
-
-let DEFAULT_ERR = "Произошла ошибка"
-
-let vm = {
-    email: ko.observable(),
-    password: ko.observable(),
-    err: ko.observable()
-}
-
-vm.logIn = () => {
-    vm.err(null)
-
-    helpers.makeAJAXRequest(
-        "/api/admin/auth/login",
-        "post",
-        {
-            email: vm.email(),
-            password: vm.password()
+                    m_site.state.user(result)
+                    pager.navigate("users")
+                }
+            )
         },
-        (err, result) => {
-            if(err) {
-                vm.err(errs[err] ? errs[err] : DEFAULT_ERR)
-                return console.error(err)
-            }
 
-            state.user(result)
-            pager.navigate("users")
+        logOut: function() {
+            helpers.makeAJAXRequest(
+                "/api/admin/auth/logout",
+                "post",
+                function(err, result) {
+                    m_site.state.user(null)
+                    pager.navigate("login")
+                }
+            )
         }
-    )
-}
+    }
 
-vm.logOut = () => {
-    helpers.makeAJAXRequest(
-        "/api/admin/auth/logout",
-        "post",
-        (err, result) => {
-            state.user(null)
-            pager.navigate("login")
-        }
-    )
-}
-
-// exports
-
-export default vm
+    return self
+})()

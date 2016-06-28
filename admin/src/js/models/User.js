@@ -1,11 +1,3 @@
-"use script"
-
-// imports
-
-import ko from "knockout"
-
-// main
-
 class User {
     constructor(data) {
         if(!data) {
@@ -20,7 +12,3 @@ class User {
         this.password = ko.observable()
     }
 }
-
-// exports
-
-export default User

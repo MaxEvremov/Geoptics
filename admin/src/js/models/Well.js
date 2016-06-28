@@ -1,11 +1,3 @@
-"use script"
-
-// imports
-
-import ko from "knockout"
-
-// main
-
 class Well {
     constructor(data) {
         if(!data) {
@@ -16,7 +8,3 @@ class Well {
         this.name = ko.observable(data.name || "")
     }
 }
-
-// exports
-
-export default Well

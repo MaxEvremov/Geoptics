@@ -290,6 +290,7 @@ CREATE TABLE wells (
     name text,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
+    reference_date timestamp with time zone,
     reference_temp real,
     reference_length real,
     min_length real DEFAULT 0,
@@ -514,16 +515,6 @@ ALTER TABLE ONLY t_measurements
 
 ALTER TABLE ONLY timeline_events
     ADD CONSTRAINT timeline_events_well_id_fkey FOREIGN KEY (well_id) REFERENCES wells(id);
-
-
---
--- Name: public; Type: ACL; Schema: -; Owner: lwpss
---
-
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM lwpss;
-GRANT ALL ON SCHEMA public TO lwpss;
-GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --

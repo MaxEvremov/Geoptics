@@ -7,6 +7,7 @@ if(window.location.hostname == "10.66.80.203") {
 }
 
 window.helpers = {}
+
 helpers.makeAJAXRequest = function (url, method, data, done) {
 	if (_.isFunction(data) && _.isUndefined(done)) {
 		done = data

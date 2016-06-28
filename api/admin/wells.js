@@ -6,6 +6,7 @@ const express = require("express")
 const validator = require("validator")
 
 const helpers = require(__base + "lib/helpers")
+const validators = require(__base + "lib/validators")
 
 const Well = require(__base + "models/Well")
 
@@ -16,7 +17,7 @@ let api = express()
 api.get(
     "/",
     (req, res, next) => {
-        Well.query("select", "id", "name")
+        Well.query("select", "id", "name", "well_xml_id")
         .fetchAll()
         .asCallback((err, result) => {
             res.json({
@@ -43,14 +44,17 @@ api.get(
 api.post(
     "/",
     helpers.validateRequestData({
-        name: true
+        name: true,
+        well_xml_id: true
     }),
     (req, res, next) => {
         let id = req.body.id
         let name = req.body.name
+        let well_xml_id = req.body.well_xml_id
 
         let data = {
-            name: name
+            name: name,
+            well_xml_id: well_xml_id
         }
 
         let done = (err, result) => {

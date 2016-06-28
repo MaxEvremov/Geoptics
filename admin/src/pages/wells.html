@@ -15,6 +15,7 @@
                         <thead>
                             <tr>
                                 <th>Название</th>
+                                <th>Идентификатор</th>
                                 <th>Действия</th>
                             </tr>
                         </thead>
@@ -22,6 +23,7 @@
                         <tbody data-bind="foreach: wells">
                             <tr>
                                 <td data-bind="text: name"></td>
+                                <td data-bind="text: well_xml_id"></td>
                                 <td>
                                     <button type="button" class="btn btn-block btn-default" data-bind="click: $parent.edit">
                                         Редактировать

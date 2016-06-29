@@ -267,8 +267,13 @@ var init = function() {
     var line = $("#dygraph_container .line")[0]
 
     vm.plot_main = plot_main
-
+	var oldcallback=vm.plot_main.getOption("drawCallback")
     plot_main.updateOptions({
+        drawCallback: function(e, x, points) {	
+			console.log("___m_site.plots.plot_main.xAxisRange()",m_site.plots.plot_main.xAxisRange())
+			oldcallback()
+			vm.plot_main_xAxisRange(plot_main.xAxisRange())
+		},
         clickCallback: function(e, x, points) {
             var mode = vm.current_mode()
 
@@ -339,6 +344,7 @@ var init = function() {
             if(annotations.length !== 0) {
                 vm.length_annotations.valueHasMutated()
             }
+		
         })
     })
 
@@ -931,6 +937,8 @@ vm.adjustRoll = ko.observable()
 vm.adjustRoll.subscribe(function(val) {
 	plot_avg.adjustRoll(Number(val))
 })
+
+vm.plot_main_xAxisRange = ko.observable([0,0])
 
 vm.is_main_plot_visible = ko.computed(function() {
     return vm.selected_plots().length > 0

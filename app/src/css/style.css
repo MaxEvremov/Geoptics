@@ -130,3 +130,40 @@ body .dygraphDefaultAnnotation {
     pointer-events: none;
     opacity: 0.5;
 }
+
+
+
+
+.graph-annotation-overlay{
+    position: absolute;
+    top: 5px;
+    bottom: 56px;
+    left: 44px;
+    right: 0;
+    /* background: rgba(0, 255, 116, 0.08); */
+    overflow: hidden;
+} 
+.graph-annotation-overlay__zone{
+    height: 200px;
+    width: 30px;
+    /* background: rgba(109, 109, 109, 0.32); */
+    position: absolute;
+    opacity: .5;
+    /* background-size: 340px; */
+    z-index: 1;
+} 
+.graph-annotation-overlay__zone:hover{opacity: .8;}
+.dolomite{
+    background-image: url(https://www.geolsoc.org.uk/~/media/Files/GSL/shared/images/policy/chicxulub/SmitNsmall.ashx);
+}
+.perlite{
+    background-image: url(http://thumb10.shutterstock.com/thumb_small/2537077/331597397/stock-vector-abstract-dash-pattern-vector-memphis-style-pattern-vector-with-small-dashes-retro-black-and-white-331597397.jpg);
+}
+.leftdraught{
+    background-image: url(../img/leftdraught.png);
+    background-image: url(http://thumb7.shutterstock.com/thumb_small/1737955/374599195/stock-vector-seamless-pattern-with-hand-drawn-sketch-arrows-bacground-vector-illustration-arrows-in-doodle-374599195.jpg);
+    left: 50px;
+    width: 20px;
+    background-repeat-x: no-repeat;
+    /* background-size: contain; */
+}

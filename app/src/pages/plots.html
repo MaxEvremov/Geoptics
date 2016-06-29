@@ -2,37 +2,37 @@
 	.just-padding {
 		padding: 15px;
 	}
-
+	
 	.list-group.list-group-root {
 		padding: 0;
 		overflow: hidden;
 	}
-
+	
 	.list-group.list-group-root .list-group {
 		margin-bottom: 0;
 	}
-
+	
 	.list-group.list-group-root .list-group-item {
 		border-radius: 0;
 		border-width: 1px 0 0 0;
 	}
-
+	
 	.list-group.list-group-root > .list-group-item:first-child {
 		border-top-width: 0;
 	}
-
+	
 	.list-group.list-group-root > .list-group > .list-group-item {
 		padding-left: 30px;
 	}
-
+	
 	.list-group.list-group-root > .list-group > .list-group > .list-group-item {
 		padding-left: 45px;
 	}
-
+	
 	.list-group-item .glyphicon {
 		margin-right: 5px;
 	}
-
+	
 	.dygraph-legend {
 		padding: 10px;
 		border-radius: 3px;
@@ -41,18 +41,18 @@
 		background: rgba(255, 255, 255, 0.8)!important;
 		z-index: 100!important;
 	}
-
+	
 	.dygraph-legend > * {
 		display: block;
 	}
-
+	
 	.dygraphDefaultAnnotation {
 		line-height: 14px;
 		border: 0;
 		box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.37);
 		color: white !important;
 	}
-
+	
 	.placeholder {
 		font-size: 0.8em;
 		color: #999;
@@ -63,12 +63,12 @@
 		background: #B0B6B9;
 		color: #fff;
 	}
-
+	
 	#dygraph_box_body .placeholder {
 		position: absolute;
 		top: 50px;
 	}
-
+	
 	#dygraph_container .line {
 		visibility: hidden;
 		background-color: black;
@@ -79,28 +79,28 @@
 		top: 0;
 		margin-top: -20px;
 	}
-
+	
 	.box-toolbar {
 		position: absolute;
 		top: 0;
 		right: 0;
 		padding: 5px;
 	}
-
+	
 	.dygraph-box {
 		position: relative;
 		padding: 0
 	}
-
+	
 	.dygraph-axis-label {
 		text-align: center!important
 	}
-
+	
 	.axis-input-block {
 		position: absolute;
 		z-index: 10
 	}
-
+	
 	.axis-input-block input {
 		position: absolute;
 		display: none;
@@ -108,70 +108,71 @@
 		border: 1px inset #eee;
 		padding: 0px 3px;
 	}
-
-	.axis-input-block:hover input, .axis-input-block input:focus {
+	
+	.axis-input-block:hover input,
+	.axis-input-block input:focus {
 		display: block;
 	}
-
+	
 	.axis-input-block-left {
 		left: -20px;
 		top: 0;
 		bottom: 0;
 		width: 50px;
 	}
-
+	
 	.axis-input-block-left-top {
 		right: 0px;
 		top: 0;
 		width: 40px;
 	}
-
+	
 	.axis-input-block-left-bottom {
 		right: 0px;
 		bottom: 0;
 		width: 40px;
 	}
-
+	
 	.axis-input-block-bottom {
 		left: 31px;
 		right: 5px;
 		bottom: -5px;
 		height: 20px;
 	}
-
+	
 	.axis-input-block-bottom-left {
 		left: 0;
 		bottom: 0;
 		width: 10em;
 	}
-
+	
 	.axis-input-block-bottom-right {
 		right: 0;
 		bottom: 0;
 		width: 10em;
 	}
-
+	
 	.box-toolbar .adjustRoll input {
 		width: 2em;
 		border-radius: 3px;
 		border: 1px inset #eee;
 		padding: 0px 3px;
 	}
-
+	
 	.dygraph-annotation-deviation {
 		background-color: red;
 		color: white;
 	}
-
+	
 	.dygraph-annotation-event,
 	.dygraph-annotation-length {
 		background-color: #666;
 	}
-
+	
 	.plotpoints tr {
 		cursor: pointer;
 	}
-
+	
 	#avg_click_box {
 		position: fixed;
 		display: block;
@@ -179,42 +180,42 @@
 		z-index: 13;
 		border: 2px solid rgba(0, 0, 0, 0.2);
 	}
-
+	
 	.timeline-events {
 		font-size: 0.9em;
 	}
-
+	
 	.timeline-events > li {
-        padding: 0.7em 0;
-        border-bottom: 1px solid #eee;
+		padding: 0.7em 0;
+		border-bottom: 1px solid #eee;
 	}
-
+	
 	.timeline-events > li:last-child {
-        border-bottom: 0;
-    }
-
-    #dygraph_avg_container {
-        margin-left: -13px;
-    }
-
-    .dygraph-loading-overlay {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        text-align: center;
-        z-index: 12;
-        font-size: 24px;
-        line-height: 150px;
-    }
-
-    .loading {
-        -webkit-filter: blur(2px);
-        pointer-events: none;
-    }
-
-    #dygraph_container > div > canvas {
-        -webkit-filter: blur(0.0000001px);
-    }
+		border-bottom: 0;
+	}
+	
+	#dygraph_avg_container {
+		margin-left: -13px;
+	}
+	
+	.dygraph-loading-overlay {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		text-align: center;
+		z-index: 12;
+		font-size: 24px;
+		line-height: 150px;
+	}
+	
+	.loading {
+		-webkit-filter: blur(2px);
+		pointer-events: none;
+	}
+	
+	#dygraph_container > div > canvas {
+		-webkit-filter: blur(0.0000001px);
+	}
 </style>
 
 <ul id="avg_click_box" data-bind="
@@ -229,14 +230,14 @@
 	</li>
 	<li><a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a></li>
 	<li data-bind="click: getAvgTempPlot.bind($data, 1, 'h')">
-        <a href="#">Усреднить за час</a>
-    </li>
+		<a href="#">Усреднить за час</a>
+	</li>
 	<li data-bind="click: getAvgTempPlot.bind($data, 1, 'd')">
-        <a href="#">Усреднить за день</a>
-    </li>
+		<a href="#">Усреднить за день</a>
+	</li>
 	<li data-bind="click: getAvgTempPlot.bind($data, 3, 'd')">
-        <a href="#">Усреднить за три дня</a>
-    </li>
+		<a href="#">Усреднить за три дня</a>
+	</li>
 </ul>
 
 <section class="content" data-bind="event: { mouseup: hidePointBox }">
@@ -258,9 +259,9 @@
 				</div>
 
 				<div class="box-body dygraph-box">
-                    <div class="dygraph-loading-overlay" data-bind="visible: is_loading_pressure_data">
-                        <i class="fa fa-spin fa-spinner"></i>
-                    </div>
+					<div class="dygraph-loading-overlay" data-bind="visible: is_loading_pressure_data">
+						<i class="fa fa-spin fa-spinner"></i>
+					</div>
 
 					<div id="dygraph_avg_container" class="plot" data-bind="css: { loading: is_loading_pressure_data }"></div>
 
@@ -312,9 +313,33 @@
 
 			<div id="dygraph_box" class="box box-danger box-borderless" style="position:relative;min-height:80%;margin-bottom: 0px;">
 				<div id="dygraph_box_body" class="box-body" style="height: 100%;">
-                    <div class="dygraph-loading-overlay" data-bind="visible: is_loading_temp_data">
-                        <i class="fa fa-spin fa-spinner"></i>
-                    </div>
+					<div class="dygraph-loading-overlay" data-bind="visible: is_loading_temp_data">
+						<i class="fa fa-spin fa-spinner"></i>
+					</div>
+
+					<div class="graph-annotation-overlay" data-bind="
+					visible: is_main_plot_visible(),
+					foreach:[
+					{y1:500,length:200,name:'Доломит',cssclass:'dolomite'},
+					{y1:600,length:150,name:'Приток скважной жидкости',cssclass:'leftdraught'},
+					{y1:700,length:1000,name:'Перлитные структуры',cssclass:'perlite'},
+					]" >
+						<!--						<div class="graph-annotation-overlay__column">-->
+						<div class="graph-annotation-overlay__zone" 
+							
+						data-bind="css:cssclass,
+							
+						style:{
+							
+						top:((y1-$parent.plot_main_xAxisRange()[1])/($parent.plot_main_xAxisRange()[0]-$parent.plot_main_xAxisRange()[1]))*100+'%',
+							
+						height:(length/($parent.plot_main_xAxisRange()[0]-$parent.plot_main_xAxisRange()[1]))*100+'%'
+							
+						}"></div>
+
+						<!--						</div>-->
+
+					</div>
 
 					<div id="dygraph_container" class="plot" data-bind="
                         style: {
@@ -496,7 +521,7 @@
 							<b data-bind="
                                 text: short_text
                             "></b>
-                            <span class="btn-hoverable pull-right"> <a data-bind="click: $parent.editLengthAnnotation">
+							<span class="btn-hoverable pull-right"> <a data-bind="click: $parent.editLengthAnnotation">
                                 <i class="fa fa-pencil"></i>
                             </a>
                             <a  data-bind="click: $parent.removeLengthAnnotation">

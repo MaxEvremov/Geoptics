@@ -1,0 +1,49 @@
+<section class="content-header">
+    <h1>
+        Права доступа к скважине
+    </h1>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-body">
+                    <form role="form" data-bind="with: current_well">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label>Пользователи с доступом</label>
+                                <ul data-bind="foreach: users">
+                                    <li>
+                                        <div>
+                                            <span data-bind="text: name"></span>
+                                        </div>
+                                        <div data-bind="click: $parent.revokeUserAccess">
+                                            <i class="fa fa-times"></i>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Дать доступ пользователю</label>
+                                <select class="form-control" data-bind="
+                                    options: users_without_access,
+                                    optionsCaption: 'Выберите пользователя...',
+                                    optionsText: 'name',
+                                    value: $parent.user_access
+                                "></select>
+                                <button type="submit" class="btn btn-primary" data-bind="click: $parent.grantUserAccess">Дать доступ</button>
+                            </div>
+                        </div>
+
+                        <div class="box-footer">
+                            <button type="submit" class="btn btn-primary" data-bind="click: $parent.savePermissions">Сохранить</button>
+                            <button type="submit" class="btn btn-default" data-bind="click: $parent.cancel">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

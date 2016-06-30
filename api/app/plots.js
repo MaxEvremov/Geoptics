@@ -139,8 +139,20 @@ api.post(
         helpers.makePGQuery(
             query,
             (err, result) => {
-                result = result.map(v => [v.date, null])
-                return res.jsonCallback(err, result)
+                if(err) {
+                    return res.jsonCallback(err)
+                }
+
+                let dates = []
+                result.forEach(v => {
+                    if(!v.date) {
+                        return
+                    }
+
+                    dates.push([v.date, null])
+                })
+
+                return res.jsonCallback(null, dates)
             }
         )
     }
@@ -314,10 +326,6 @@ api.post(
 
 api.get(
     "/las",
-    (req, res, next) => {
-        console.log(req.query)
-        next()
-    },
     helpers.validateRequestData({
         plot: isPlotValid,
         well_id: isIDValid

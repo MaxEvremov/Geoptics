@@ -16,6 +16,7 @@
                             <tr>
                                 <th>Имя</th>
                                 <th>E-mail</th>
+                                <th>Роль</th>
                                 <th>Действия</th>
                             </tr>
                         </thead>
@@ -24,6 +25,7 @@
                             <tr>
                                 <td data-bind="text: name"></td>
                                 <td data-bind="text: email"></td>
+                                <td data-bind="text: role_name"></td>
                                 <td>
                                     <button type="button" class="btn btn-block btn-default" data-bind="click: $parent.edit">
                                         Редактировать

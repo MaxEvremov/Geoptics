@@ -11,4 +11,18 @@ class User {
 
         this.password = ko.observable()
     }
+
+    get role_name() {
+        var self = this
+
+        return _.find(User.ROLES, function(role) {
+            return role.id === self.role()
+        }).name
+    }
 }
+
+User.ROLES = [
+    { id: "owner", name: "Суперадминистратор" },
+    { id: "admin", name: "Администратор" },
+    { id: "user", name: "Пользователь" }
+]

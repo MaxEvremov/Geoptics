@@ -25,8 +25,11 @@
                                 <td data-bind="text: name"></td>
                                 <td data-bind="text: well_xml_id"></td>
                                 <td>
-                                    <button type="button" class="btn btn-block btn-default" data-bind="click: $parent.edit">
+                                    <button type="button" class="btn btn-default" data-bind="click: $parent.edit">
                                         Редактировать
+                                    </button>
+                                    <button type="button" class="btn btn-default" data-bind="click: $parent.editPermissions">
+                                        Настроить права доступа
                                     </button>
                                 </td>
                             </tr>
@@ -47,10 +50,3 @@
     </div>
 </section>
 <!-- /ko -->
-
-<div data-bind="page: {
-    id: '?',
-    nameParam: well_id,
-    beforeShow: onWellShow,
-    sourceOnShow: 'pages/well.html'
-}"></div>

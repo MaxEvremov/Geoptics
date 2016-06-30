@@ -3,6 +3,8 @@
 class Well {
     constructor(params) {
         this.id = params.id || null
+        this.name = params.name || null
+        this.well_xml_id = params.well_xml_id || null
     }
 
     setReferencePoint(params, done) {

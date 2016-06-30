@@ -12,7 +12,8 @@ m_site.state = (function() {
         current_page: ko.observable(),
         is_ready: ko.observable(false),
 
-        current_well: new Well({ id: 1 }),
+        current_well: null,
+        wells: ko.observableArray(),
 
         loggedInGuard: function(page, route, done) {
             var is_ready = self.is_ready()

@@ -15,6 +15,7 @@ const config = require(__base + "config")
 const favorites = require(__base + "api/app/favorites")
 const auth = require(__base + "api/auth")
 const plots = require(__base + "api/app/plots")
+const state = require(__base + "api/app/state")
 
 // main
 
@@ -39,6 +40,7 @@ api.use(passport.session())
 api.use("/favorites", helpers.validatePermissions(["admin", "user"]), favorites)
 api.use("/auth", auth.generateAPI(["admin", "user"]))
 api.use("/plots", helpers.validatePermissions(["admin", "user"]), plots)
+api.use("/state", state)
 
 // exports
 

@@ -16,7 +16,7 @@ let api = express()
 api.get(
     "/",
     (req, res, next) => {
-        User.query("select", "id", "name", "email")
+        User.query("select", "id", "name", "email", "role")
         .fetchAll()
         .asCallback((err, result) => {
             res.json({

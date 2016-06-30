@@ -15,26 +15,25 @@ $(document).ready(function() {
     pager.startHistoryJs()
 
     History.Adapter.bind(window, "statechange", function() {
-        m_site.state.current_page(pager.activePage$().currentId)
+        m_site.state.current_page(pager.page.route[0])
     })
 
     helpers.makeAJAXRequest(
-        "/api/app/auth/init",
+        "/api/app/state/init",
         "get",
         function(err, result) {
-            if(result) {
+            if(result.user) {
                 m_site.favorites.loadAll()
             }
 
-            m_site.state.user(result ? result : null)
+            m_site.state.user(result.user)
 
-            if(!m_site.state.current_page()) {
-                pager.navigate("plots")
-            }
+            result.wells.forEach(function(well) {
+                m_site.state.wells.push(new Well(well))
+            })
 
             m_site.state.is_ready(true)
-
-            m_site.state.current_page(pager.activePage$().currentId)
+            m_site.state.current_page(pager.page.route[0])
         }
     )
 })

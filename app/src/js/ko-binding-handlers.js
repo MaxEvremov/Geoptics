@@ -33,3 +33,14 @@ ko.bindingHandlers.jmask = {
         $(element).mask(value.mask, options)
     }
 }
+
+ko.bindingHandlers.visibility = {
+    init: function(element, value_accessor) {
+        var value = ko.unwrap(value_accessor())
+        element.style.visibility = value ? "visible" : "hidden"
+    },
+    update: function(element, value_accessor) {
+        var value = ko.unwrap(value_accessor())
+        element.style.visibility = value ? "visible" : "hidden"
+    }
+}

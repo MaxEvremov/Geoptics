@@ -258,11 +258,17 @@
 				</div>
 
 				<div class="box-body dygraph-box">
-                    <div class="dygraph-loading-overlay" data-bind="visible: is_loading_pressure_data">
+                    <div class="dygraph-loading-overlay" data-bind="visible: is_loading_pressure_data() || !has_data()">
+                        <!-- ko if: is_loading_pressure_data -->
                         <i class="fa fa-spin fa-spinner"></i>
+                        <!-- /ko -->
+
+                        <!-- ko ifnot: has_data -->
+                        У этой скважины еще нет данных
+                        <!-- /ko -->
                     </div>
 
-					<div id="dygraph_avg_container" class="plot" data-bind="css: { loading: is_loading_pressure_data }"></div>
+					<div id="dygraph_avg_container" class="plot" data-bind="css: { loading: is_loading_pressure_data }, visibility: has_data"></div>
 
 					<div class="axis-input-block axis-input-block-left">
 						<input class="axis-input-block-left-top" data-bind="
@@ -318,7 +324,7 @@
 
 					<div id="dygraph_container" class="plot" data-bind="
                         style: {
-                            visibility: is_main_plot_visible()
+                            visibility: is_main_plot_visible() && has_data()
                             ? 'visible' : 'hidden'
                         },
                         css: { loading: is_loading_temp_data }">
@@ -326,7 +332,7 @@
 
 					<p class="placeholder noselect" data-bind="
                         style: {
-                            visibility: is_main_plot_visible()
+                            visibility: is_main_plot_visible() || !has_data()
                             ? 'hidden' : 'visible'
                         },
                         css: { loading: is_loading_temp_data }
@@ -343,7 +349,7 @@
 			</div>
 		</div>
 		<div class="col-md-3">
-			<div class="box box-info box-borderless" data-bind="visible: current_mode() === 'normal'">
+			<div class="box box-info box-borderless" data-bind="visible: current_mode() === 'normal' && has_data()">
 				<div class="box-header">
 					<h3 class="box-title">Точки</h3>
 				</div>

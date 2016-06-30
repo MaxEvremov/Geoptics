@@ -7,36 +7,36 @@
 	<title>Geoptics Admin</title>
 	<meta name="description" content="Geoptics">
 
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/AdminLTE.min.css" rel="stylesheet">
-    <link href="css/skin-black.min.css" rel="stylesheet">
-    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/AdminLTE.min.css" rel="stylesheet">
+    <link href="/css/skin-black.min.css" rel="stylesheet">
+    <link href="/css/font-awesome.min.css" rel="stylesheet">
 
-    <script src="lib/jquery.min.js"></script>
-    <script src="lib/jquery.mask.min.js"></script>
-    <script src="lib/knockout-latest.debug.js"></script>
-    <script src="lib/knockout.mapping.js"></script>
+    <script src="/lib/jquery.min.js"></script>
+    <script src="/lib/jquery.mask.min.js"></script>
+    <script src="/lib/knockout-latest.debug.js"></script>
+    <script src="/lib/knockout.mapping.js"></script>
 
-    <script src="lib/pagerjs/history.js"></script>
-    <script src="lib/pagerjs/history.adapter.native.js"></script>
-    <script src="lib/pagerjs/pager.js"></script>
+    <script src="/lib/pagerjs/history.js"></script>
+    <script src="/lib/pagerjs/history.adapter.native.js"></script>
+    <script src="/lib/pagerjs/pager.js"></script>
 
-    <script src="lib/randomColor.js"></script>
-    <script src="lib/moment-with-locales.min.js"></script>
-    <script src="lib/lodash.min.js"></script>
-    <script src="lib/async.min.js"></script>
+    <script src="/lib/randomColor.js"></script>
+    <script src="/lib/moment-with-locales.min.js"></script>
+    <script src="/lib/lodash.min.js"></script>
+    <script src="/lib/async.min.js"></script>
 
-    <script src="js/index.js"></script>
+    <script src="/js/index.js"></script>
 
-    <script src="js/helpers.js"></script>
+    <script src="/js/helpers.js"></script>
 
-    <script src="js/models/Well.js"></script>
-    <script src="js/models/User.js"></script>
+    <script src="/js/models/Well.js"></script>
+    <script src="/js/models/User.js"></script>
 
-    <script src="js/state.js"></script>
-    <script src="js/login.js"></script>
-    <script src="js/users.js"></script>
-    <script src="js/wells.js"></script>
+    <script src="/js/state.js"></script>
+    <script src="/js/login.js"></script>
+    <script src="/js/users.js"></script>
+    <script src="/js/wells.js"></script>
 
     <script type="text/javascript">
         document.write("<base href='" + document.location.origin + "/admin/' />")
@@ -104,6 +104,32 @@
                 with: wells,
                 beforeShow: wells.onShow
             }"></div>
+
+            <div data-bind="page: {
+                id: 'well'
+            }">
+                <div data-bind="page: {
+                    id: '?',
+                    nameParam: wells.well_id,
+                    beforeShow: wells.onWellShow,
+                    sourceOnShow: 'pages/well.html',
+                    with: wells
+                }">
+                </div>
+            </div>
+
+            <div data-bind="page: {
+                id: 'well_permissions'
+            }">
+                <div data-bind="page: {
+                    id: '?',
+                    nameParam: wells.well_id,
+                    beforeShow: wells.onWellPermissionsShow,
+                    sourceOnShow: 'pages/well_permissions.html',
+                    with: wells
+                }">
+                </div>
+            </div>
         </div>
     </div>
     <!-- /ko -->

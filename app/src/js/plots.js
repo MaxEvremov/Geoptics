@@ -242,27 +242,6 @@ var init = function() {
     )
     vm.plot_avg = plot_avg
 
-    plot_avg.ready(function() {
-        current_well.init(function(err, result) {
-            if(err) {
-                return console.error(err)
-            }
-
-            plot_avg_init_state = result
-
-            plot_avg.updateOptions({
-                file: result
-            })
-
-            getTimelineEvents()
-            getLengthAnnotations()
-
-            plot_avg.resetZoom()
-
-            drawAvgPlot()
-        })
-    })
-
     plot_main = dygraph_main.init()
     var line = $("#dygraph_container .line")[0]
 
@@ -367,8 +346,11 @@ var vm = {
 
     is_loading_pressure_data: ko.observable(false),
     is_loading_temp_data: ko.observable(false),
+    has_data: ko.observable(true),
 
-    is_favorite_saved: ko.observable(false)
+    is_favorite_saved: ko.observable(false),
+
+    well_id: ko.observable()
 }
 
 vm.resetPlotAvgState = function() {
@@ -433,6 +415,46 @@ vm.afterShow = function() {
     if(!is_inited) {
         setTimeout(function() { init() }, 0)
     }
+
+    setTimeout(function() {
+        vm.well_id(pager.page.route[1])
+
+        vm.plot_avg.ready(function() {
+            vm.has_data(true)
+
+            current_well = _.find(m_site.state.wells(), function(well) {
+                return well.id == vm.well_id()
+            })
+
+            vm.selected_plots.removeAll()
+
+            current_well.init(function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
+
+                plot_avg_prev_min_date = null
+                plot_avg_prev_max_date = null
+
+                if(result.length === 0) {
+                    return vm.has_data(false)
+                }
+
+                plot_avg_init_state = result
+
+                vm.plot_avg.updateOptions({
+                    file: result
+                })
+
+                getTimelineEvents()
+                getLengthAnnotations()
+
+                vm.plot_avg.resetZoom()
+
+                drawAvgPlot()
+            })
+        })
+    }, 0)
 
     if(plot_avg) {
         setTimeout(function() { plot_avg.resize(), 0 })

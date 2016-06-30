@@ -5,12 +5,6 @@ m_site.users = (function() {
         user_id: ko.observable()
     }
 
-    self.roles = [
-        { id: "owner", name: "Суперадминистратор" },
-        { id: "admin", name: "Администратор" },
-        { id: "user", name: "Пользователь" }
-    ]
-
     self.getAll = function() {
         self.users.removeAll()
 

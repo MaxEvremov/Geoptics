@@ -23,63 +23,6 @@ var getTimelineEvents = function() {
     })
 }
 
-var queue = async.queue(
-    function(plot, done) {
-        var mode = vm.current_mode()
-
-        vm.is_loading_temp_data(true)
-
-        current_well.getTempMeasurements(
-            {
-                plots: plot,
-                ignore_min_length: mode === "min_length"
-            },
-            function(err, result) {
-                if(err) {
-                    return done(err)
-                }
-
-                var answer_plot = result[0]
-
-                if(mode === "timeline_event") {
-                    return done()
-                }
-
-                if(plot.type === "point") {
-                    var plot_ts = helpers.convertDate(answer_plot.date, "iso8601", "ms")
-
-                    if(_.find(vm.selected_plots(), { date: plot_ts })) {
-                        return done()
-                    }
-                }
-
-                var selected_plot = new Plot({
-                    type: plot.type,
-                    data: answer_plot.data
-                })
-
-                if(selected_plot.type === "point") {
-                    selected_plot.date = answer_plot.date
-                }
-
-                if(selected_plot.type === "avg") {
-                    selected_plot.date_start = plot.date_start
-                    selected_plot.date_end = plot.date_end
-                }
-
-                vm.selected_plots.push(selected_plot)
-
-                return done()
-            }
-        )
-    },
-    1
-)
-
-queue.drain = function() {
-    vm.is_loading_temp_data(false)
-}
-
 var plot_avg_prev_min_date = null
 var plot_avg_prev_max_date = null
 
@@ -248,7 +191,7 @@ var init = function() {
     vm.plot_main = plot_main
 	var oldcallback=vm.plot_main.getOption("drawCallback")
     plot_main.updateOptions({
-        drawCallback: function(e, x, points) {	
+        drawCallback: function(e, x, points) {
 			console.log("___m_site.plots.plot_main.xAxisRange()",m_site.plots.plot_main.xAxisRange())
 			oldcallback()
 			vm.plot_main_xAxisRange(plot_main.xAxisRange())
@@ -323,7 +266,7 @@ var init = function() {
             if(annotations.length !== 0) {
                 vm.length_annotations.valueHasMutated()
             }
-		
+
         })
     })
 
@@ -374,16 +317,29 @@ vm.getNearestTempPlot = function() {
 
     var plot = new Plot({
         type: "point",
-        date: date
+        date: date,
+        well_id: current_well.id
     })
 
     vm.is_point_box_visible(false)
     vm.selected_date(null)
 
-    queue.push(plot, function(err) {
+    vm.is_loading_temp_data(true)
+
+    plot.load(function(err, result) {
+        vm.is_loading_temp_data(false)
+
         if(err) {
-            console.error(err)
+            return console.error(err)
         }
+
+        var plot_ts = helpers.convertDate(result.date, "iso8601", "ms")
+
+        if(_.find(vm.selected_plots(), { date: plot_ts })) {
+            return done()
+        }
+
+        vm.selected_plots.push(plot)
     })
 }
 
@@ -400,16 +356,23 @@ vm.getAvgTempPlot = function(length, units) {
     var plot = new Plot({
         type: "avg",
         date_start: date_start,
-        date_end: date_end
+        date_end: date_end,
+        well_id: current_well.id
     })
 
     vm.is_point_box_visible(false)
     vm.selected_date(null)
 
-    queue.push(plot, function(err) {
+    vm.is_loading_temp_data(true)
+
+    plot.load(function(err, result) {
+        vm.is_loading_temp_data(false)
+
         if(err) {
-            console.error(err)
+            return console.error(err)
         }
+
+        vm.selected_plots.push(plot)
     })
 }
 

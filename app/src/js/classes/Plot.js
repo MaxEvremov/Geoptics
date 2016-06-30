@@ -11,6 +11,47 @@ class Plot {
         this.date_end = params.date_end || null
         this.data = params.data || [[0, 0]]
 		this.color = ko.observable(params.color || "rgb(0, 0, 0)")
+        this.well_id = params.well_id || null
+    }
+
+    load(params, done) {
+        var self = this
+
+        if(_.isFunction(params)) {
+            done = params
+            params = {}
+        }
+
+        var ignore_min_length = _.isUndefined(params.ignore_min_length)
+            ? false
+            : params.ignore_min_length
+
+        helpers.makeAJAXRequest(
+            "/api/app/plots/t_measurements",
+            "post",
+            {
+                plot: {
+                    type: this.type,
+                    date: this.date,
+                    date_start: this.date_start,
+                    date_end: this.date_end
+                },
+                well_id: this.well_id,
+                ignore_min_length: ignore_min_length
+            },
+            function(err, result) {
+                if(err) {
+                    return done(err)
+                }
+
+                if(self.type === "point") {
+                    self.date = result.date
+                }
+
+                self.data = result.data
+                return done(null, result)
+            }
+        )
     }
 
     static get COLORS() {
@@ -79,7 +120,7 @@ class Plot {
                 date_start: this.date_start,
                 date_end: this.date_end
             },
-            well_id: m_site.state.current_well.id
+            well_id: this.well_id
         })
 
         window.open(`/api/app/plots/las?${query}`)

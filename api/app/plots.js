@@ -9,6 +9,7 @@ const moment = require("moment")
 const async = require("async")
 
 const helpers = require(__base + "lib/helpers")
+const validators = require(__base + "lib/validators")
 const las = require(__base + "lib/las")
 
 // validators
@@ -159,30 +160,14 @@ api.post(
 )
 
 api.post(
-    "/measurements",
+    "/t_measurements",
     helpers.validateRequestData({
-        plots: (plots) => {
-            if(!_.isArray(plots)) {
-                plots = [plots]
-            }
-
-            for(let i = 0; i < plots.length; i++) {
-                if(!isPlotValid(plots[i])) {
-                    return false
-                }
-            }
-
-            return true
-        },
-        well_id: isIDValid
+        plot: validators.isPlotValid,
+        well_id: validators.isIDValid
     }),
     (req, res, next) => {
-        let plots = req.body.plots
+        let plot = req.body.plot
         let well_id = req.body.well_id
-
-        if(!_.isArray(plots)) {
-            plots = [plots]
-        }
 
         async.waterfall([
             (done) => {
@@ -204,41 +189,35 @@ api.post(
             (well_query_result, done) => {
                 let well = well_query_result[0]
 
-                async.map(
-                    plots,
-                    (plot, done) => {
-                        let query = generatePlotQuery({
-                            plot: plot,
-                            well: well,
-                            ignore_min_length: req.body.ignore_min_length
-                        })
+                let query = generatePlotQuery({
+                    plot: plot,
+                    well: well,
+                    ignore_min_length: req.body.ignore_min_length
+                })
 
-                        helpers.makePGQuery(
-                            query,
-                            (err, result) => {
-                                if(err) {
-                                    return done(err)
-                                }
+                helpers.makePGQuery(
+                    query,
+                    (err, result) => {
+                        if(err) {
+                            return done(err)
+                        }
 
-                                let plot_result = {
-                                    type: plot.type,
-                                    data: result.map(v => [v.length, v.temp])
-                                }
+                        let plot_result = {
+                            type: plot.type,
+                            data: result.map(v => [v.length, v.temp])
+                        }
 
-                                if(plot.type === "point") {
-                                    plot_result.date = result[0].date
-                                }
+                        if(plot.type === "point") {
+                            plot_result.date = result[0].date
+                        }
 
-                                if(plot.type === "avg") {
-                                    plot_result.date_start = plot.date_start
-                                    plot_result.date_end = plot.date_end
-                                }
+                        if(plot.type === "avg") {
+                            plot_result.date_start = plot.date_start
+                            plot_result.date_end = plot.date_end
+                        }
 
-                                return done(null, plot_result)
-                            }
-                        )
-                    },
-                    done
+                        return done(null, plot_result)
+                    }
                 )
             }
         ],

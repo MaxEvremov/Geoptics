@@ -6,7 +6,7 @@ const chokidar = require("chokidar")
 const fs = require("fs-extra")
 const xml2js = require("xml2js")
 const moment = require("moment")
-const exec = require("child_process").exec
+const spawn = require("child_process").spawn
 const path = require("path")
 const os = require("os")
 const async = require("async")
@@ -25,6 +25,9 @@ let tmp_dir = os.tmpdir()
 fs.ensureDirSync(well_data_archive)
 
 let processGSDFile = (file_path, done) => {
+    let record_count = 0
+    let file_name = path.basename(file_path)
+
     async.waterfall([
         (done) => {
             fs.readFile(file_path, done)
@@ -49,6 +52,8 @@ let processGSDFile = (file_path, done) => {
             let first_value_date = moment((values[0].Ticks - EPOCH_TICKS) / TICKS_PER_MS, "x")
 
             let time_diff = first_value_date.diff(start_date)
+
+            record_count = values.length
 
             for(let i = 0; i < values.length; i++) {
                 let value = values[i]
@@ -109,10 +114,21 @@ let processGSDFile = (file_path, done) => {
                 done
             )
         }
-    ], done)
+    ], function(err) {
+        if(err) {
+            console.error(`An error occurred while processing ${file_name}: ${err}`)
+            return done(err)
+        }
+
+        console.log(`${file_name} has been successfully processed! ${record_count} records added.`)
+        return done(null)
+    })
 }
 
 let processGDDFile = (file_path, done) => {
+    let record_count = 0
+    let file_name = path.basename(file_path)
+
     async.waterfall([
         (done) => {
             fs.readFile(file_path, done)
@@ -138,6 +154,8 @@ let processGDDFile = (file_path, done) => {
             let values = data.D
             let start_length = parseFloat(data.StartLenght)
             let length_step = parseFloat(data.IncrementalLenght)
+
+            record_count = values.length
 
             for(let i = 0; i < values.length; i++) {
                 let value = values[i]
@@ -190,7 +208,15 @@ let processGDDFile = (file_path, done) => {
                 done
             )
         }
-    ], done)
+    ], function(err) {
+        if(err) {
+            console.error(`An error occurred while processing ${file_name}: ${err}`)
+            return done(err)
+        }
+
+        console.log(`${file_name} has been successfully processed! ${record_count} records added.`)
+        return done(null)
+    })
 }
 
 let processArchive = (archive_path, done) => {
@@ -203,11 +229,27 @@ let processArchive = (archive_path, done) => {
             fs.ensureDir(tmp_archive_dir, done)
         },
         (dir, done) => {
-            let unrar_cmd = `unrar e -o+ ${archive_path} ${tmp_archive_dir}`
+            let unrar = spawn(
+                "unrar",
+                [
+                    "e",
+                    "-o+",
+                    archive_path,
+                    tmp_archive_dir
+                ],
+                {
+                    stdio: ["ignore", "ignore", "pipe"]
+                }
+            )
 
-            exec(unrar_cmd, (err, stdout, stderr) => {
-                if(err) {
-                    return done(err)
+            let stderr = ""
+
+            unrar.stderr.on("data", (data) => stderr += data)
+
+            unrar.on("close", (code) => {
+                if(code !== 0) {
+                    console.error(stderr)
+                    return done(`unrar exited with code ${code}`)
                 }
 
                 if(stderr) {

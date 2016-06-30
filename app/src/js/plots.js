@@ -276,15 +276,12 @@ var init = function() {
 // main
 
 var vm = {
-    min_deviation: ko.observable(0),
-
     min_zoom_y: ko.observable(),
     max_zoom_y: ko.observable(),
 
     min_zoom_x: ko.observable(),
     max_zoom_x: ko.observable(),
 
-    deviations: ko.observableArray(),
     timeline_events: ko.observableArray(),
 
     selected_date: ko.observable(),
@@ -743,31 +740,6 @@ vm.saveFavorite = function() {
     })
 }
 
-vm.getDeviations = function() { // TODO: починить
-    var min_deviation = parseFloat(vm.min_deviation())
-
-    var x_avg = plot_avg.xAxisRange()
-    var date_start = helpers.formatDate(x_avg[0])
-    var date_end = helpers.formatDate(x_avg[1])
-
-    helpers.makeAJAXRequest(
-        "/api/app/plots/deviations",
-        "post",
-        {
-            min_deviation: min_deviation,
-            date_start: date_start,
-            date_end: date_end
-        },
-        function(err, result) {
-            if(err) {
-                return console.error(err)
-            }
-
-            vm.deviations(result)
-        }
-    )
-}
-
 // computed observables
 
 vm.selected_plots = ko.observableArray()
@@ -782,7 +754,6 @@ vm.annotations = ko.computed(function() {
     var AVG_Y_AXIS = "Pressure"
 
     var selected_plots = vm.selected_plots()
-    var deviations = vm.deviations()
     var timeline_events = vm.timeline_events()
 
     var result = []
@@ -793,16 +764,6 @@ vm.annotations = ko.computed(function() {
             v.color()
         )
         result.push(v.getAnnotation(i))
-    })
-
-    deviations.forEach(function(v) {
-        result.push({
-            series: AVG_Y_AXIS,
-            x: helpers.convertDate(v.date, "iso8601", "ms"),
-            shortText: "!",
-            text: `Отклонение на ${v.length} м. Температура: ${v.temp}°. Образец: ${v.norm_temp}°.`,
-            cssClass: "dygraph-annotation-deviation"
-        })
     })
 
     timeline_events.forEach(function(v) {

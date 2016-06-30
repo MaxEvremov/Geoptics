@@ -109,7 +109,8 @@
 		padding: 0px 3px;
 	}
 
-	.axis-input-block:hover input, .axis-input-block input:focus {
+	.axis-input-block:hover input,
+	.axis-input-block input:focus {
 		display: block;
 	}
 
@@ -185,36 +186,36 @@
 	}
 
 	.timeline-events > li {
-        padding: 0.7em 0;
-        border-bottom: 1px solid #eee;
+		padding: 0.7em 0;
+		border-bottom: 1px solid #eee;
 	}
 
 	.timeline-events > li:last-child {
-        border-bottom: 0;
-    }
+		border-bottom: 0;
+	}
 
-    #dygraph_avg_container {
-        margin-left: -13px;
-    }
+	#dygraph_avg_container {
+		margin-left: -13px;
+	}
 
-    .dygraph-loading-overlay {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        text-align: center;
-        z-index: 12;
-        font-size: 24px;
-        line-height: 150px;
-    }
+	.dygraph-loading-overlay {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		text-align: center;
+		z-index: 12;
+		font-size: 24px;
+		line-height: 150px;
+	}
 
-    .loading {
-        -webkit-filter: blur(2px);
-        pointer-events: none;
-    }
+	.loading {
+		-webkit-filter: blur(2px);
+		pointer-events: none;
+	}
 
-    #dygraph_container > div > canvas {
-        -webkit-filter: blur(0.0000001px);
-    }
+	#dygraph_container > div > canvas {
+		-webkit-filter: blur(0.0000001px);
+	}
 </style>
 
 <ul id="avg_click_box" data-bind="
@@ -229,14 +230,14 @@
 	</li>
 	<li><a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a></li>
 	<li data-bind="click: getAvgTempPlot.bind($data, 1, 'h')">
-        <a href="#">Усреднить за час</a>
-    </li>
+		<a href="#">Усреднить за час</a>
+	</li>
 	<li data-bind="click: getAvgTempPlot.bind($data, 1, 'd')">
-        <a href="#">Усреднить за день</a>
-    </li>
+		<a href="#">Усреднить за день</a>
+	</li>
 	<li data-bind="click: getAvgTempPlot.bind($data, 3, 'd')">
-        <a href="#">Усреднить за три дня</a>
-    </li>
+		<a href="#">Усреднить за три дня</a>
+	</li>
 </ul>
 
 <section class="content" data-bind="event: { mouseup: hidePointBox }">
@@ -318,9 +319,33 @@
 
 			<div id="dygraph_box" class="box box-danger box-borderless" style="position:relative;min-height:80%;margin-bottom: 0px;">
 				<div id="dygraph_box_body" class="box-body" style="height: 100%;">
-                    <div class="dygraph-loading-overlay" data-bind="visible: is_loading_temp_data">
-                        <i class="fa fa-spin fa-spinner"></i>
-                    </div>
+					<div class="dygraph-loading-overlay" data-bind="visible: is_loading_temp_data">
+						<i class="fa fa-spin fa-spinner"></i>
+					</div>
+
+					<div class="graph-annotation-overlay" data-bind="
+					visible: is_main_plot_visible(),
+					foreach:[
+					{y1:500,length:200,name:'Доломит',cssclass:'dolomite'},
+					{y1:600,length:150,name:'Приток скважной жидкости',cssclass:'leftdraught'},
+					{y1:700,length:1000,name:'Перлитные структуры',cssclass:'perlite'},
+					]" >
+						<!--						<div class="graph-annotation-overlay__column">-->
+						<div class="graph-annotation-overlay__zone"
+
+						data-bind="css:cssclass,
+
+						style:{
+
+						top:((y1-$parent.plot_main_xAxisRange()[1])/($parent.plot_main_xAxisRange()[0]-$parent.plot_main_xAxisRange()[1]))*100+'%',
+
+						height:(length/($parent.plot_main_xAxisRange()[0]-$parent.plot_main_xAxisRange()[1]))*100+'%'
+
+						}"></div>
+
+						<!--						</div>-->
+
+					</div>
 
 					<div id="dygraph_container" class="plot" data-bind="
                         style: {
@@ -502,7 +527,7 @@
 							<b data-bind="
                                 text: short_text
                             "></b>
-                            <span class="btn-hoverable pull-right"> <a data-bind="click: $parent.editLengthAnnotation">
+							<span class="btn-hoverable pull-right"> <a data-bind="click: $parent.editLengthAnnotation">
                                 <i class="fa fa-pencil"></i>
                             </a>
                             <a  data-bind="click: $parent.removeLengthAnnotation">

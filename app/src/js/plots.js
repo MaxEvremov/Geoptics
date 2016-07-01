@@ -11,18 +11,6 @@ var plot_colors = []
 var plot_avg = null
 var plot_main = null
 
-var current_well = m_site.state.current_well
-
-var getTimelineEvents = function() {
-    current_well.getTimelineEvents(function(err, result) {
-        if(err) {
-            return console.error(err)
-        }
-
-        vm.timeline_events(result || [])
-    })
-}
-
 var plot_avg_prev_min_date = null
 var plot_avg_prev_max_date = null
 
@@ -32,7 +20,7 @@ var DEBOUNCE_DELAY = 500
 var loadPressureData = _.debounce(function(params) {
     vm.is_loading_pressure_data(true)
 
-    current_well.getPressureMeasurements(params, function(err, result) {
+    vm.current_well.getPressureMeasurements(params, function(err, result) {
         if(err) {
             vm.is_loading_pressure_data(false)
             return console.error(err)
@@ -141,7 +129,9 @@ var init = function() {
                 var selected_date = helpers.convertDate(points[0].xval, "ms", "iso8601")
 
                 if(vm.current_mode() === "timeline_event") {
-                    vm.timeline_event_date(helpers.convertDate(selected_date, "iso8601", "jmask"))
+                    var date = helpers.convertDate(selected_date, "iso8601", "jmask")
+
+                    vm.timeline_events.current_event.date(date)
                     return
                 }
 
@@ -192,7 +182,6 @@ var init = function() {
 	var oldcallback=vm.plot_main.getOption("drawCallback")
     plot_main.updateOptions({
         drawCallback: function(e, x, points) {
-			console.log("___m_site.plots.plot_main.xAxisRange()",m_site.plots.plot_main.xAxisRange())
 			oldcallback()
 			vm.plot_main_xAxisRange(plot_main.xAxisRange())
 		},
@@ -220,7 +209,7 @@ var init = function() {
             if(mode === "length_annotation") {
                 var point = points[0]
 
-                vm.length_annotation_length(point.xval)
+                vm.length_annotations.current_annotation().length(point.xval)
             }
         }
     })
@@ -264,7 +253,7 @@ var init = function() {
             })
 
             if(annotations.length !== 0) {
-                vm.length_annotations.valueHasMutated()
+                vm.length_annotations.annotations.valueHasMutated()
             }
 
         })
@@ -282,8 +271,6 @@ var vm = {
     min_zoom_x: ko.observable(),
     max_zoom_x: ko.observable(),
 
-    timeline_events: ko.observableArray(),
-
     selected_date: ko.observable(),
 
     is_point_box_visible: ko.observable(false),
@@ -296,7 +283,8 @@ var vm = {
 
     is_favorite_saved: ko.observable(false),
 
-    well_id: ko.observable()
+    well_id: ko.observable(),
+    current_well: null
 }
 
 vm.resetPlotAvgState = function() {
@@ -315,7 +303,7 @@ vm.getNearestTempPlot = function() {
     var plot = new Plot({
         type: "point",
         date: date,
-        well_id: current_well.id
+        well_id: vm.current_well.id
     })
 
     vm.is_point_box_visible(false)
@@ -354,7 +342,7 @@ vm.getAvgTempPlot = function(length, units) {
         type: "avg",
         date_start: date_start,
         date_end: date_end,
-        well_id: current_well.id
+        well_id: vm.current_well.id
     })
 
     vm.is_point_box_visible(false)
@@ -388,13 +376,13 @@ vm.afterShow = function() {
         vm.plot_avg.ready(function() {
             vm.has_data(true)
 
-            current_well = _.find(m_site.state.wells(), function(well) {
+            vm.current_well = _.find(m_site.state.wells(), function(well) {
                 return well.id == vm.well_id()
             })
 
             vm.selected_plots.removeAll()
 
-            current_well.init(function(err, result) {
+            vm.current_well.init(function(err, result) {
                 if(err) {
                     return console.error(err)
                 }
@@ -412,8 +400,8 @@ vm.afterShow = function() {
                     file: result
                 })
 
-                getTimelineEvents()
-                getLengthAnnotations()
+                vm.timeline_events.getAll()
+                vm.length_annotations.getAll()
 
                 vm.plot_avg.resetZoom()
 
@@ -436,261 +424,7 @@ vm.toggleSettings = function() {
     vm.are_settings_enabled(!vm.are_settings_enabled())
 }
 
-var clearModeData = function(mode) {
-    if(mode === "reference_point") {
-        vm.selected_plots.removeAll()
-
-        plot_main.updateOptions({
-            file: [[0, 0]],
-            labels: ["X", "Y1"]
-        })
-    }
-
-    if(mode === "min_length") {
-        $("#dygraph_container .line")[0].style.visibility = "hidden"
-        vm.min_length.value(null)
-        vm.selected_plots.removeAll()
-    }
-
-    if(mode === "timeline_event") {
-        vm.timeline_event_date(null)
-        vm.timeline_event_short_text(null)
-        vm.timeline_event_description(null)
-    }
-
-    if(mode === "length_annotation") {
-        vm.length_annotation_length(null)
-        vm.length_annotation_short_text(null)
-        vm.length_annotation_description(null)
-    }
-}
-
 vm.current_mode = ko.observable("normal")
-
-vm.current_mode.subscribe(clearModeData)
-vm.current_mode.subscribe(clearModeData, null, "beforeChange")
-
-vm.returnToNormalMode = function() {
-    vm.current_mode("normal")
-}
-
-// reference_point
-
-vm.reference_point = {
-    point: ko.observable(new ReferencePoint({})),
-    edit: function() {
-        current_well.getReferencePoint(
-            function(err, result) {
-                if(err) {
-                    return console.error(err)
-                }
-
-                vm.reference_point.point(result)
-                vm.current_mode("reference_point")
-            }
-        )
-    },
-    save: function() {
-        current_well.setReferencePoint(
-            ko.toJS(vm.reference_point.point()),
-            function(err, result) {
-                if(err) {
-                    return console.error(err)
-                }
-
-                vm.current_mode("normal")
-            }
-        )
-    },
-    cancel: function() {
-        vm.current_mode("normal")
-    }
-}
-
-vm.reference_point.is_save_allowed = ko.computed(function() {
-    var point = vm.reference_point.point()
-
-    return point.temp() && point.length()
-})
-
-// min_length
-
-vm.min_length = {
-    value: ko.observable(0),
-    edit: function() {
-        current_well.getMinLength(
-            function(err, result) {
-                if(err) {
-                    return console.error(err)
-                }
-
-                vm.min_length.value(result.min_length)
-                vm.current_mode("min_length")
-            }
-        )
-    },
-    save: function() {
-        current_well.setMinLength(
-            {
-                min_length: vm.min_length.value()
-            },
-            function(err, result) {
-                if(err) {
-                    return console.error(err)
-                }
-
-                vm.current_mode("normal")
-            }
-        )
-    },
-    cancel: function() {
-        vm.current_mode("normal")
-    }
-}
-
-vm.min_length.is_save_allowed = ko.computed(function() {
-    return !!vm.min_length.value()
-})
-
-// timeline_event
-
-vm.timeline_event_short_text = ko.observable()
-vm.timeline_event_description = ko.observable()
-vm.timeline_event_date = ko.observable()
-
-vm.current_timeline_event = ko.observable()
-vm.is_editing_timeline_event = ko.observable(false)
-
-vm.editTimelineEvents = function() {
-    vm.current_mode("timeline_event")
-}
-
-vm.addTimelineEvent = function() {
-    vm.is_editing_timeline_event(true)
-}
-
-vm.editTimelineEvent = function(data, event) {
-    vm.current_timeline_event(data.id)
-
-    vm.timeline_event_short_text(data.short_text)
-    vm.timeline_event_description(data.description)
-    vm.timeline_event_date(helpers.convertDate(data.date, "iso8601", "jmask"))
-
-    vm.is_editing_timeline_event(true)
-}
-
-vm.cancelEditingTimelineEvent = function() {
-    vm.current_timeline_event(null)
-
-    vm.timeline_event_short_text(null)
-    vm.timeline_event_date(null)
-    vm.timeline_event_description(null)
-
-    vm.is_editing_timeline_event(false)
-}
-
-vm.saveTimelineEvent = function() {
-    current_well.addOrUpdateTimelineEvent(
-        {
-            short_text: vm.timeline_event_short_text(),
-            description: vm.timeline_event_description(),
-            date: helpers.convertDate(vm.timeline_event_date(), "jmask", "iso8601"),
-            id: vm.current_timeline_event()
-        },
-        function(err, result) {
-            if(err) {
-                return console.error(err)
-            }
-
-            vm.current_timeline_event(null)
-            vm.timeline_event_short_text(null)
-            vm.timeline_event_date(null)
-            vm.timeline_event_description(null)
-
-            vm.is_editing_timeline_event(false)
-            getTimelineEvents()
-        }
-    )
-}
-
-vm.removeTimelineEvent = function(data, event) {
-    current_well.removeTimelineEvent(data, getTimelineEvents)
-}
-
-// length_annotation
-
-vm.length_annotations = ko.observableArray()
-
-var getLengthAnnotations = function() {
-    current_well.getLengthAnnotations(function(err, result) {
-        if(err) {
-            return console.error(err)
-        }
-
-        vm.length_annotations(result || [])
-    })
-}
-
-vm.length_annotation_short_text = ko.observable()
-vm.length_annotation_description = ko.observable()
-vm.length_annotation_length = ko.observable()
-
-vm.current_length_annotation = ko.observable()
-vm.is_editing_length_annotation = ko.observable(false)
-
-vm.editLengthAnnotations = function() {
-    vm.current_mode("length_annotation")
-}
-
-vm.addLengthAnnotation = function() {
-    vm.is_editing_length_annotation(true)
-}
-
-vm.cancelEditingLengthAnnotation = function() {
-    vm.length_annotation_short_text(null)
-    vm.length_annotation_length(null)
-    vm.length_annotation_description(null)
-    vm.current_length_annotation(null)
-
-    vm.is_editing_length_annotation(false)
-}
-
-vm.editLengthAnnotation = function(data, event) {
-    vm.current_length_annotation(data.id)
-
-    vm.length_annotation_short_text(data.short_text)
-    vm.length_annotation_length(data.length)
-    vm.length_annotation_description(data.description)
-
-    vm.is_editing_length_annotation(true)
-}
-
-vm.saveLengthAnnotation = function() {
-    current_well.addOrUpdateLengthAnnotation(
-        {
-            short_text: vm.length_annotation_short_text(),
-            description: vm.length_annotation_description(),
-            length: vm.length_annotation_length(),
-            id: vm.current_length_annotation()
-        },
-        function(err, result) {
-            if(err) {
-                return console.error(err)
-            }
-
-            vm.length_annotation_short_text(null)
-            vm.length_annotation_length(null)
-            vm.length_annotation_description(null)
-
-            getLengthAnnotations()
-            vm.is_editing_length_annotation(false)
-        }
-    )
-}
-
-vm.removeLengthAnnotation = function(data, event) {
-    current_well.removeLengthAnnotation(data, getLengthAnnotations)
-}
 
 vm.removePoint = function(data, event) {
     vm.selected_plots.remove(function(item) {
@@ -707,7 +441,7 @@ vm.saveFavorite = function() {
 
     var favorite = new Favorite({
         name: name,
-        well_id: current_well.id,
+        well_id: vm.current_well.id,
         plots: JSON.stringify(_.map(vm.selected_plots(), function(plot) {
             var json = {
                 type: plot.type
@@ -754,7 +488,6 @@ vm.annotations = ko.computed(function() {
     var AVG_Y_AXIS = "Pressure"
 
     var selected_plots = vm.selected_plots()
-    var timeline_events = vm.timeline_events()
 
     var result = []
 
@@ -766,16 +499,13 @@ vm.annotations = ko.computed(function() {
         result.push(v.getAnnotation(i))
     })
 
-    timeline_events.forEach(function(v) {
-        result.push({
-            series: AVG_Y_AXIS,
-            x: helpers.convertDate(v.date, "iso8601", "ms"),
-            shortText: v.short_text,
-            text: v.description || "",
-            attachAtBottom: true,
-            cssClass: "dygraph-annotation-event"
+    if(vm.timeline_events) {
+        var timeline_events = vm.timeline_events.events()
+
+        timeline_events.forEach(function(v) {
+            result.push(v.getAnnotation())
         })
-    })
+    }
 
     return result
 })
@@ -810,29 +540,6 @@ var redrawAnnotations = function() {
 }
 
 vm.annotations.subscribe(redrawAnnotations)
-
-vm.length_annotations.subscribe(function(value) {
-    var labels = plot_main.getOption("labels")
-
-    if(labels.length <= 1) {
-        return
-    }
-
-    var series = labels[1]
-
-    value = _.map(value, function(v) {
-        return {
-            series: series,
-            x: v.length,
-            shortText: v.short_text,
-            text: v.description || "",
-            attachAtBottom: true,
-            cssClass: "dygraph-annotation-length"
-        }
-    })
-
-    plot_main.setAnnotations(value)
-})
 
 // avg graph params
 

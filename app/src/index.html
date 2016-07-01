@@ -38,12 +38,18 @@
     <script src="/js/classes/Plot.js"></script>
     <script src="/js/classes/Favorite.js"></script>
     <script src="/js/classes/ReferencePoint.js"></script>
+    <script src="/js/classes/LengthAnnotation.js"></script>
+    <script src="/js/classes/TimelineEvent.js"></script>
 
     <script src="/js/plot-main.js"></script>
 
     <script src="/js/state.js"></script>
 	<script src="/js/login.js"></script>
 	<script src="/js/plots.js"></script>
+    <script src="/js/plots-reference-point.js"></script>
+    <script src="/js/plots-min-length.js"></script>
+    <script src="/js/plots-length-annotations.js"></script>
+    <script src="/js/plots-timeline-events.js"></script>
 	<script src="/js/favorites.js"></script>
 
 	<script type="text/javascript">
@@ -101,10 +107,10 @@
                                 <a data-bind="click: $parent.plots.min_length.edit"><i class="fa fa-step-forward"></i> Выбор нуля глубины</a>
                             </li>
                             <li data-bind="css: { active: $parent.plots.current_mode() === 'timeline_event' }">
-                                <a data-bind="click: $parent.plots.editTimelineEvents"><i class="fa fa-clock-o"></i> События</a>
+                                <a data-bind="click: $parent.plots.timeline_events.edit"><i class="fa fa-clock-o"></i> События</a>
                             </li>
                             <li data-bind="css: { active: $parent.plots.current_mode() === 'length_annotation' }">
-                                <a data-bind="click: $parent.plots.editLengthAnnotations"><i class="fa fa-map-signs"></i> Констр. элементы</a>
+                                <a data-bind="click: $parent.plots.length_annotations.edit"><i class="fa fa-map-signs"></i> Констр. элементы</a>
                             </li>
                         </ul>
 					</li>

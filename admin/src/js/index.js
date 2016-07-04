@@ -15,22 +15,17 @@ $(document).ready(function() {
     pager.startHistoryJs()
 
     History.Adapter.bind(window, "statechange", function() {
-        m_site.state.current_page(pager.activePage$().currentId)
+        m_site.state.current_page(pager.page.route[0])
     })
 
     helpers.makeAJAXRequest(
-        "/api/admin/auth/init",
+        "/api/admin/state/init",
         "get",
         function(err, result) {
-            m_site.state.user(result ? result : null)
-
-            if(!m_site.state.current_page()) {
-                pager.navigate("users")
-            }
+            m_site.state.user(result.user)
 
             m_site.state.is_ready(true)
-
-            m_site.state.current_page(pager.activePage$().currentId)
+            m_site.state.current_page(pager.page.route[0])
         }
     )
 })

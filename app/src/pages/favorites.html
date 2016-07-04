@@ -15,6 +15,7 @@
 							<tr>
 								<th>#</th>
 								<th>Название</th>
+                                <th>Скважина</th>
 								<th>Создано</th>
 								<th>Действия</th>
 							</tr>
@@ -23,8 +24,9 @@
 							<tr>
 								<td data-bind="text: $index() + 1"></td>
 								<td data-bind="text: name"></td>
+                                <td data-bind="text: well_name"></td>
 								<td data-bind="
-                                text: $parent.formatDate(created_at)">
+                                text: helpers.convertDate(created_at, 'iso8601', 'jmask')">
 								</td>
 								<td>
 									<button class="btn btn-block  btn-xs btn-primary" data-bind="click: $parent.load">

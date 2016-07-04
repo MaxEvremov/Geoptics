@@ -129,31 +129,56 @@ api.post(
         well_id: isIDValid
     }),
     (req, res, next) => {
-        let query = `SELECT min(date) AS date from p_measurements
+        let p_query = `SELECT min(date) AS date from p_measurements
             WHERE well_id = ${req.body.well_id}
             UNION SELECT max(date) from p_measurements
-            WHERE well_id = ${req.body.well_id}
-            UNION SELECT date from timeline_events
-            WHERE well_id = ${req.body.well_id}
-            ORDER BY date`
+            WHERE well_id = ${req.body.well_id}`
 
-        helpers.makePGQuery(
-            query,
+        let t_query = `SELECT min(date) AS date from t_measurements
+            WHERE well_id = ${req.body.well_id}
+            UNION SELECT max(date) from t_measurements
+            WHERE well_id = ${req.body.well_id}`
+
+        let events_query = `SELECT min(date) AS date from timeline_events
+            WHERE well_id = ${req.body.well_id}
+            UNION SELECT max(date) from timeline_events
+            WHERE well_id = ${req.body.well_id}`
+
+        async.parallel(
+            [
+                (done) => helpers.makePGQuery(p_query, done),
+                (done) => helpers.makePGQuery(t_query, done),
+                (done) => helpers.makePGQuery(events_query, done)
+            ],
             (err, result) => {
+                console.log(result)
                 if(err) {
                     return res.jsonCallback(err)
                 }
 
-                let dates = []
+                let min_dates = []
+                let max_dates = []
+
                 result.forEach(v => {
-                    if(!v.date) {
-                        return
+                    if(v[0] && v[0].date) {
+                        min_dates.push(helpers.convertDate(v[0].date, "iso8601", "moment"))
                     }
 
-                    dates.push([v.date, null])
+                    if(v[1] && v[1].date) {
+                        max_dates.push(helpers.convertDate(v[1].date, "iso8601", "moment"))
+                    }
                 })
 
-                return res.jsonCallback(null, dates)
+                min_dates.sort((a, b) => b.isBefore(a))
+                max_dates.sort((a, b) => a.isBefore(b))
+
+                let min_date = helpers.convertDate(min_dates[0], "moment", "iso8601")
+                let max_date = helpers.convertDate(max_dates[0], "moment", "iso8601")
+
+                return res.jsonCallback(null, [
+                    [min_date, null],
+                    [max_date, null]
+                ])
             }
         )
     }

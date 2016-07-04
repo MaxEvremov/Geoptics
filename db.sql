@@ -85,8 +85,8 @@ SET default_with_oids = false;
 CREATE TABLE favorites (
     user_id integer,
     name text,
-    created_at timestamp without time zone DEFAULT now(),
-    updated_at timestamp without time zone,
+    created_at timestamp with time zone DEFAULT (now())::timestamp(0) with time zone,
+    updated_at timestamp with time zone,
     id integer NOT NULL,
     plots jsonb,
     well_id integer
@@ -306,7 +306,9 @@ CREATE TABLE wells (
     reference_temp real,
     reference_length real,
     min_length real DEFAULT 0,
-    well_xml_id text
+    well_xml_id text,
+    has_t_sensor boolean,
+    has_p_sensor boolean
 );
 
 

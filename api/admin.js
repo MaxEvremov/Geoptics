@@ -13,6 +13,7 @@ const helpers = require(__base + "lib/helpers")
 const auth = require(__base + "api/auth")
 const users = require(__base + "api/admin/users")
 const wells = require(__base + "api/admin/wells")
+const state = require(__base + "api/admin/state")
 
 const config = require(__base + "config")
 
@@ -42,9 +43,9 @@ api.use((req, res, next) => {
 })
 
 api.use("/auth", auth.generateAPI(["admin"]))
-
 api.use("/users", helpers.validatePermissions("admin"), users)
 api.use("/wells", helpers.validatePermissions("admin"), wells)
+api.use("/state", state)
 
 // exports
 

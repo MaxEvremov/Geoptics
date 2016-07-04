@@ -1,6 +1,12 @@
 (function() {
 
-// init
+// const
+
+var ZOOM_LOAD_THRESHOLD = 1 * 24 * 60 * 60 * 1000
+var DEBOUNCE_DELAY = 500
+var POINTS_PER_PLOT = 100
+
+// local state variables
 
 var is_inited = false
 
@@ -14,8 +20,7 @@ var plot_main = null
 var plot_avg_prev_min_date = null
 var plot_avg_prev_max_date = null
 
-var ZOOM_LOAD_THRESHOLD = 1 * 24 * 60 * 60 * 1000
-var DEBOUNCE_DELAY = 500
+// helper methods
 
 var loadPressureData = _.debounce(function(params) {
     vm.is_loading_pressure_data(true)
@@ -35,8 +40,6 @@ var loadPressureData = _.debounce(function(params) {
         redrawAnnotations()
     })
 }, DEBOUNCE_DELAY)
-
-var POINTS_PER_PLOT = 100
 
 var generateEmptyPoints = function(params) {
     var min_date = params.min_date
@@ -97,92 +100,67 @@ var drawAvgPlot = function() {
 }
 
 var init = function() {
-    var plot_avg_interaction_model = _.cloneDeep(Dygraph.Interaction.defaultModel)
+    plot_avg = dygraph_pressure.init(drawAvgPlot)
 
-    var endPanCallback = function() {
-        drawAvgPlot()
-    }
+    plot_avg.updateOptions({
+        clickCallback: function(e, x, points) {
+            var selected_date = helpers.convertDate(points[0].xval, "ms", "iso8601")
 
-    plot_avg_interaction_model.dblclick = function() {}
-    plot_avg_interaction_model.mousedown = function(event, g, context) {
-        var mouseup = function(event) {
-            if (context.isPanning) {
-                endPanCallback()
+            if(vm.current_mode() === "timeline_event") {
+                var date = helpers.convertDate(selected_date, "iso8601", "jmask")
+
+                vm.timeline_events.current_event.date(date)
+                return
             }
 
-            Dygraph.removeEvent(document, 'mouseup', mouseup)
+            vm.selected_date(selected_date)
+
+            vm.point_box_left(`${e.x}px`)
+            vm.point_box_top(`${e.y}px`)
+
+            vm.is_point_box_visible(true)
+        },
+        underlayCallback: function(canvas, area, g) {
+            var selected_avg_plots = _.filter(
+                vm.selected_plots(),
+                function(plot) { return plot.type === "avg" }
+            )
+
+            var value_range = g.yAxisRanges()
+
+            var bottom = value_range[0]
+            var top = value_range[1]
+
+            for(var i = 0; i < selected_avg_plots.length; i++) {
+                var plot = selected_avg_plots[i]
+
+                var date_start = helpers.convertDate(plot.date_start, "iso8601", "ms")
+                var date_end = helpers.convertDate(plot.date_end, "iso8601", "ms")
+
+                var bottom_left = g.toDomCoords(date_start, bottom)
+                var top_right = g.toDomCoords(date_end, top)
+
+                var left = bottom_left[0]
+                var right = top_right[0]
+
+                canvas.fillStyle = plot.fill_color
+                canvas.fillRect(left, area.y, right - left, area.h)
+            }
         }
+    })
 
-        g.addAndTrackEvent(document, 'mouseup', mouseup)
-
-        Dygraph.Interaction.defaultModel.mousedown(event, g, context)
-    }
-
-    plot_avg = new Dygraph(
-        $("#dygraph_avg_container")[0],
-        [[0, 0]],
-        {
-            height: 150,
-            labels: ["Date", "Pressure"],
-            connectSeparatedPoints: true,
-            clickCallback: function(e, x, points) {
-                var selected_date = helpers.convertDate(points[0].xval, "ms", "iso8601")
-
-                if(vm.current_mode() === "timeline_event") {
-                    var date = helpers.convertDate(selected_date, "iso8601", "jmask")
-
-                    vm.timeline_events.current_event.date(date)
-                    return
-                }
-
-                vm.selected_date(selected_date)
-
-                vm.point_box_left(`${e.x}px`)
-                vm.point_box_top(`${e.y}px`)
-
-                vm.is_point_box_visible(true)
-            },
-            zoomCallback: drawAvgPlot,
-            underlayCallback: function(canvas, area, g) {
-                var selected_avg_plots = _.filter(
-                    vm.selected_plots(),
-                    function(plot) { return plot.type === "avg" }
-                )
-
-                var value_range = g.yAxisRanges()
-
-                var bottom = value_range[0]
-                var top = value_range[1]
-
-                for(var i = 0; i < selected_avg_plots.length; i++) {
-                    var plot = selected_avg_plots[i]
-
-                    var date_start = helpers.convertDate(plot.date_start, "iso8601", "ms")
-                    var date_end = helpers.convertDate(plot.date_end, "iso8601", "ms")
-
-                    var bottom_left = g.toDomCoords(date_start, bottom)
-                    var top_right = g.toDomCoords(date_end, top)
-
-                    var left = bottom_left[0]
-                    var right = top_right[0]
-
-                    canvas.fillStyle = plot.fill_color
-                    canvas.fillRect(left, area.y, right - left, area.h)
-                }
-            },
-            interactionModel: plot_avg_interaction_model
-        }
-    )
     vm.plot_avg = plot_avg
 
     plot_main = dygraph_main.init()
     var line = $("#dygraph_container .line")[0]
 
     vm.plot_main = plot_main
-	var oldcallback=vm.plot_main.getOption("drawCallback")
+
+	var mainDrawCallback = vm.plot_main.getOption("drawCallback")
+
     plot_main.updateOptions({
         drawCallback: function(e, x, points) {
-			oldcallback()
+			mainDrawCallback()
 			vm.plot_main_xAxisRange(plot_main.xAxisRange())
 		},
         clickCallback: function(e, x, points) {
@@ -386,6 +364,8 @@ vm.afterShow = function() {
                 if(err) {
                     return console.error(err)
                 }
+
+                vm.current_mode("normal")
 
                 plot_avg_prev_min_date = null
                 plot_avg_prev_max_date = null

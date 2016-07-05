@@ -2,9 +2,19 @@
 
 class Well {
     constructor(params) {
+        if(_.isUndefined(params)) {
+            params = {}
+        }
+
         this.id = params.id || null
         this.name = params.name || null
         this.well_xml_id = params.well_xml_id || null
+        this.has_p_sensor = _.isUndefined(params.has_p_sensor)
+            ? false
+            : params.has_p_sensor
+        this.has_t_sensor = _.isUndefined(params.has_t_sensor)
+            ? false
+            : params.has_t_sensor
     }
 
     setReferencePoint(params, done) {
@@ -138,6 +148,8 @@ class Well {
     }
 
     init(done) {
+        var self = this
+
         helpers.makeAJAXRequest(
             "/api/app/plots/init",
             "post",
@@ -161,7 +173,7 @@ class Well {
     getPressureMeasurements(params, done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/p_measurements",
-            "post",
+            "get",
             {
                 well_id: this.id,
                 date_start: params.date_start,
@@ -172,8 +184,8 @@ class Well {
                     return done(err)
                 }
 
-                for(var i = 0; i < result.length; i++) {
-                    result[i][0] = helpers.convertDate(result[i][0], "iso8601", "native")
+                for(var i = 0; i < result.data.length; i++) {
+                    result.data[i][0] = helpers.convertDate(result.data[i][0], "iso8601", "native")
                 }
 
                 return done(null, result)

@@ -282,7 +282,7 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: well_permissions; Type: TABLE; Schema: public; Owner: lwpss
+-- Name: well_permissions; Type: TABLE; Schema: public; Owner: root
 --
 
 CREATE TABLE well_permissions (
@@ -292,7 +292,7 @@ CREATE TABLE well_permissions (
 );
 
 
-ALTER TABLE well_permissions OWNER TO lwpss;
+ALTER TABLE well_permissions OWNER TO root;
 
 --
 -- Name: wells; Type: TABLE; Schema: public; Owner: lwpss
@@ -419,14 +419,6 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: well_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: lwpss
---
-
-ALTER TABLE ONLY well_permissions
-    ADD CONSTRAINT well_permissions_pkey PRIMARY KEY (user_id, well_id);
-
-
---
 -- Name: wells_pkey; Type: CONSTRAINT; Schema: public; Owner: lwpss
 --
 
@@ -540,19 +532,14 @@ ALTER TABLE ONLY timeline_events
 
 
 --
--- Name: well_permissions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: lwpss
+-- Name: public; Type: ACL; Schema: -; Owner: lwpss
 --
 
-ALTER TABLE ONLY well_permissions
-    ADD CONSTRAINT well_permissions_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id);
-
-
---
--- Name: well_permissions_well_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: lwpss
---
-
-ALTER TABLE ONLY well_permissions
-    ADD CONSTRAINT well_permissions_well_id_fkey FOREIGN KEY (well_id) REFERENCES wells(id);
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM lwpss;
+GRANT ALL ON SCHEMA public TO lwpss;
+GRANT ALL ON SCHEMA public TO root;
+GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --

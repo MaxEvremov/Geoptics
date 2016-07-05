@@ -368,49 +368,75 @@ api.get(
 
 api.get(
     "/p_measurements",
-    (req, res, next) => {
-        let query = `SELECT
-                p_measurements.date AS date,
-                p_measurements.pressure AS pressure
-            FROM p_measurements
-            ORDER BY date`
-
-        helpers.makePGQuery(
-            query,
-            (err, result) => {
-                if(err) {
-                    return res.json({
-                        err: err
-                    })
-                }
-
-                result = result.map(v => [
-                    helpers.convertDate(v.date, "native", "iso8601"),
-                    v.pressure
-                ])
-
-                return res.json({
-                    err: null,
-                    result: result
-                })
-            }
-        )
-    }
-)
-
-api.post(
-    "/p_measurements",
     helpers.validateRequestData({
-        well_id: isIDValid,
-        date_start: (date) => moment(date, "YYYY-MM-DD HH:mm:ssZ", true).isValid(),
-        date_end: (date) => moment(date, "YYYY-MM-DD HH:mm:ssZ", true).isValid()
+        well_id: validators.isIDValid,
+        date_start: validators.isISO8601DateValid,
+        date_end: validators.isISO8601DateValid
     }),
     (req, res) => {
-        let query = `SELECT date, pressure FROM p_measurements
-            WHERE well_id = ${req.body.well_id}
-            AND date >= '${req.body.date_start}'
-            AND date <= '${req.body.date_end}'
-            ORDER BY date`
+        const POINTS_PER_PLOT = 1000
+        const LOAD_RAW_DATA_THRESHOLD = 1 * 24 * 60 * 60 * 1000
+
+        let well_id = req.query.well_id
+        let date_start = req.query.date_start
+        let date_end = req.query.date_end
+
+        let date_diff = helpers.convertDate(date_end, "iso8601", "ms")
+            - helpers.convertDate(date_start, "iso8601", "ms")
+
+        if(date_diff < LOAD_RAW_DATA_THRESHOLD) {
+            let query = `SELECT date, pressure
+                FROM p_measurements
+                WHERE well_id = ${well_id}
+                AND date >= '${date_start}'
+                AND date <= '${date_end}'
+                ORDER BY date`
+
+            helpers.makePGQuery(
+                query,
+                (err, result) => {
+                    if(err) {
+                        return res.jsonCallback(err)
+                    }
+
+                    return res.jsonCallback(null, {
+                        is_raw: true,
+                        data: result.map(v => [
+                            v.date,
+                            v.pressure
+                        ])
+                    })
+                }
+            )
+
+            return
+        }
+
+        let interval = Math.floor(date_diff / POINTS_PER_PLOT)
+
+        let query = `
+            WITH params AS (
+               SELECT '${date_start}'::timestamptz AS _min
+                     ,'${date_end}'::timestamptz AS _max
+                     ,'${interval} milliseconds'::interval AS _interval
+               )
+              ,ts AS (SELECT generate_series(_min, _max, _interval) AS t_min FROM params)
+              ,timeframe AS (
+               SELECT t_min
+                     ,lead(t_min, 1, _max) OVER (ORDER BY t_min) AS t_max
+               FROM ts, params
+               )
+            SELECT t.t_min::timestamptz(0)
+                  ,t.t_max
+                  ,min(p.pressure) AS the_min
+                  ,max(p.pressure) AS the_max
+                  ,avg(p.pressure) AS the_avg
+            FROM timeframe t
+            LEFT JOIN p_measurements p ON p.date >= t.t_min
+                                          AND p.date <  t.t_max
+            GROUP BY 1, 2
+            ORDER BY 1
+        `
 
         helpers.makePGQuery(
             query,
@@ -419,12 +445,13 @@ api.post(
                     return res.jsonCallback(err)
                 }
 
-                result = result.map(v => [
-                    helpers.convertDate(v.date, "native", "iso8601"),
-                    v.pressure
-                ])
-
-                return res.jsonCallback(null, result)
+                return res.jsonCallback(null, {
+                    is_raw: false,
+                    data: result.map(v => [
+                        v.t_min,
+                        [v.the_min, v.the_avg, v.the_max]
+                    ])
+                })
             }
         )
     }

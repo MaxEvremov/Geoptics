@@ -16,7 +16,13 @@ api.get(
             })
         }
 
-        let query = `SELECT id, name, well_xml_id FROM wells
+        let query = `SELECT
+                id,
+                name,
+                well_xml_id,
+                has_p_sensor,
+                has_t_sensor
+            FROM wells
             WHERE id IN (
                 SELECT well_id FROM well_permissions
                 WHERE user_id = ${req.user.id}

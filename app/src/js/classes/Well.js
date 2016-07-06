@@ -48,6 +48,17 @@ class Well {
         )
     }
 
+    deleteReferencePoint(done) {
+        helpers.makeAJAXRequest(
+            "/api/app/plots/reference_point",
+            "delete",
+            {
+                well_id: this.id
+            },
+            done
+        )
+    }
+
     getMinLength(done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/min_length",

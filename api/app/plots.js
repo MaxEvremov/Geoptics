@@ -528,6 +528,24 @@ api.get(
     }
 )
 
+api.delete(
+    "/reference_point",
+    (req, res) => {
+        let query = knex("wells")
+            .where("id", req.body.well_id)
+            .update({
+                reference_length: null,
+                reference_temp: null
+            })
+            .toString()
+
+        helpers.makePGQuery(
+            query,
+            res.jsonCallback
+        )
+    }
+)
+
 api.post(
     "/min_length",
     helpers.validateRequestData({

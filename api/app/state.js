@@ -26,7 +26,8 @@ api.get(
             WHERE id IN (
                 SELECT well_id FROM well_permissions
                 WHERE user_id = ${req.user.id}
-            )`
+            )
+            ORDER BY name`
 
         helpers.makePGQuery(
             query,

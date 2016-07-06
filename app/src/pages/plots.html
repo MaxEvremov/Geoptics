@@ -426,6 +426,11 @@
 					<a class="btn btn-sm btn-danger" data-bind="click: save, css: { 'btn-disabled': !is_save_allowed() }">
 						<span>Сохранить</span>
 					</a>
+                    <!-- ko if: point().temp() && point().length() -->
+                    <a class="btn btn-sm btn-danger" data-bind="click: deletePoint">
+						<span>Удалить</span>
+					</a>
+                    <!-- /ko -->
 					<a class="btn btn-sm btn-default" data-bind="click: cancel">
 						<span>Отмена</span>
 					</a>

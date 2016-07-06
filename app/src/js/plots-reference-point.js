@@ -31,6 +31,17 @@ m_site.plots.reference_point = (function() {
                 }
             )
         },
+        deletePoint: function() {
+            m_site.plots.current_well.deleteReferencePoint(
+                function(err, result) {
+                    if(err) {
+                        return console.error(err)
+                    }
+
+                    self.point(new ReferencePoint())
+                }
+            )
+        },
         cancel: function() {
             m_site.plots.current_mode("normal")
             clear()

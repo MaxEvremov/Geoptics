@@ -155,7 +155,6 @@ api.post(
                 (done) => helpers.makePGQuery(events_query, done)
             ],
             (err, result) => {
-                console.log(result)
                 if(err) {
                     return res.jsonCallback(err)
                 }

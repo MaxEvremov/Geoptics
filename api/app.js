@@ -44,6 +44,7 @@ api.use(
     "/plots",
     helpers.validatePermissions(["admin", "user"]),
     helpers.validateRequestData({ well_id: validators.isIDValid }),
+    helpers.checkWellAccess,
     plots
 )
 api.use("/state", state)

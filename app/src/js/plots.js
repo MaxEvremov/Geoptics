@@ -130,8 +130,8 @@ var init = function() {
 
             vm.selected_date(selected_date)
 
-            vm.point_box_left(`${e.x}px`)
-            vm.point_box_top(`${e.y}px`)
+            vm.point_box_left(`${e.clientX}px`)
+            vm.point_box_top(`${e.clientY}px`)
 
             vm.is_point_box_visible(true)
         },

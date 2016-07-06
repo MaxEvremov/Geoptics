@@ -28,6 +28,33 @@ m_site.state = (function() {
                     return sub.dispose()
                 }
             })
+        },
+
+        load: function(done) {
+            helpers.makeAJAXRequest(
+                "/api/app/state/init",
+                "get",
+                function(err, result) {
+                    if(err) {
+                        return console.error(err)
+                    }
+
+                    if(result.user) {
+                        m_site.favorites.loadAll()
+                    }
+
+                    m_site.state.user(result.user)
+
+                    m_site.state.wells.removeAll()
+                    result.wells.forEach(function(well) {
+                        m_site.state.wells.push(new Well(well))
+                    })
+
+                    if(done && _.isFunction(done)) {
+                        return done()
+                    }
+                }
+            )
         }
     }
 

@@ -470,6 +470,13 @@ CREATE INDEX t_measurements_length_idx ON t_measurements USING btree (length);
 
 
 --
+-- Name: t_measurements_well_id_date_idx; Type: INDEX; Schema: public; Owner: lwpss
+--
+
+CREATE INDEX t_measurements_well_id_date_idx ON t_measurements USING btree (well_id, date);
+
+
+--
 -- Name: t_measurements_well_id_idx; Type: INDEX; Schema: public; Owner: lwpss
 --
 

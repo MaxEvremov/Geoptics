@@ -122,7 +122,7 @@ var init = function() {
             if(vm.current_mode() === "timeline_event") {
                 var date = helpers.convertDate(selected_date, "iso8601", "jmask")
 
-                vm.timeline_events.current_event.date(date)
+                vm.timeline_events.current_event().jmask_date(date)
                 return
             }
 
@@ -280,12 +280,12 @@ var vm = {
 
 vm.resetPlotAvgState = function() {
     var min_date = helpers.convertDate(plot_avg_init_state[0][0], "native", "ms")
-    var max_date = helpers.convertDate(plot_avg_init_state[1][0], "native", "ms")
+    var max_date = helpers.convertDate(plot_avg_init_state[plot_avg_init_state.length - 1][0], "native", "ms")
 
     plot_avg.updateOptions({
         dateWindow: [min_date, max_date]
     })
-    // plot_avg.resetZoom()
+    
     drawAvgPlot()
     redrawAnnotations()
 }
@@ -311,10 +311,16 @@ vm.getNearestTempPlot = function() {
             return console.error(err)
         }
 
-        var plot_ts = helpers.convertDate(result.date, "iso8601", "ms")
+        if(result.type === "point") {
+            var plot_ts = helpers.convertDate(result.date, "iso8601", "ms")
 
-        if(_.find(vm.selected_plots(), { date: plot_ts })) {
-            return done()
+            if(_.find(vm.selected_plots(), { date: plot_ts })) {
+                return
+            }
+        }
+
+        if(result.data.length === 0) {
+            return
         }
 
         vm.selected_plots.push(plot)

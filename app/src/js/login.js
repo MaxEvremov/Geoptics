@@ -29,10 +29,9 @@ m_site.login = (function() {
                         return console.error(err)
                     }
 
-                    m_site.favorites.loadAll()
-
-                    m_site.state.user(result)
-                    pager.navigate("plots")
+                    m_site.state.load(function() {
+                        pager.navigate("/")
+                    })
                 }
             )
         },

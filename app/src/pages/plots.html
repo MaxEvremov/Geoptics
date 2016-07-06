@@ -474,7 +474,7 @@
 								<a data-bind="click: $parent.editEvent">
 									<i class="fa fa-pencil"></i>
 								</a>
-								<a data-bind="click: $parent.removeTimelineEvent">
+								<a data-bind="click: $parent.removeEvent">
 									<i class="fa fa-times"></i>
 								</a>
 							</span>
@@ -504,7 +504,7 @@
 					</a>
 					<!-- /ko -->
 
-					<!-- ko if: is_editing() && !current_event() -->
+					<!-- ko if: is_editing() && !current_event().id -->
                     <!-- ko with: current_event -->
 					<div class="editbox timeline-event-template" data-bind="template: 'timeline-event-template'"></div>
 					<!-- /ko -->

@@ -132,11 +132,12 @@ class Plot {
 
         var file = plot.file_
 
-        var min_date = file[0][0].valueOf()
-        var max_date = file[file.length - 1][0].valueOf()
+        var min_date = helpers.convertDate(file[0][0], "native", "ms")
+        var max_date = helpers.convertDate(file[file.length - 1][0], "native", "ms")
+
 
         if(this.type === "point") {
-            var x = this.date
+            var x = helpers.convertDate(this.date, "iso8601", "ms")
 
             zoom_left = (x - HOUR) < min_date
                 ? min_date
@@ -148,8 +149,8 @@ class Plot {
         }
 
         if(this.type === "avg") {
-            var date_start = this.date_start
-            var date_end = this.date_end
+            var date_start = helpers.convertDate(this.date_start, "iso8601", "ms")
+            var date_end = helpers.convertDate(this.date_end, "iso8601", "ms")
 
             zoom_left = (date_start - HOUR) < min_date
                 ? min_date
@@ -161,7 +162,8 @@ class Plot {
         }
 
         plot.updateOptions({
-            dateWindow: [zoom_left, zoom_right]
+            dateWindow: [zoom_left, zoom_right],
+            isZoomedIgnoreProgrammaticZoom: false
         })
     }
 }

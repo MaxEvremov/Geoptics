@@ -566,8 +566,7 @@ vm.updateZoomX = function(data, e) {
     }
 
     plot_avg.updateOptions({
-        dateWindow: [min_moment.valueOf(), max_moment.valueOf()],
-        isZoomedIgnoreProgrammaticZoom: true
+        dateWindow: [min_moment.valueOf(), max_moment.valueOf()]
     })
 
     drawAvgPlot()
@@ -582,8 +581,7 @@ vm.updateZoomY = function(data, e) {
     var max_zoom = parseFloat(vm.max_zoom_y())
 
     plot_avg.updateOptions({
-        valueRange: [min_zoom, max_zoom],
-        isZoomedIgnoreProgrammaticZoom: true
+        valueRange: [min_zoom, max_zoom]
     })
 }
 

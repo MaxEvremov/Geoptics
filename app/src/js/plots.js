@@ -38,7 +38,8 @@ var loadPressureData = _.debounce(function(params) {
         plot_avg.updateOptions({
             file: result.data,
             errorBars: !is_raw_pressure_data,
-            customBars: !is_raw_pressure_data
+            customBars: !is_raw_pressure_data,
+            labelsShowZeroValues: true
         })
 
         vm.is_loading_pressure_data(false)
@@ -60,7 +61,8 @@ var generateEmptyPoints = function(params) {
     plot_avg.updateOptions({
         file: file,
         errorBars: false,
-        customBars: false
+        customBars: false,
+        labelsShowZeroValues: false
     })
 }
 

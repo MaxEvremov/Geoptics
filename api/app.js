@@ -9,6 +9,7 @@ const pg_session = require("connect-pg-simple")(session)
 const passport = require("passport")
 
 const helpers = require(__base + "lib/helpers")
+const validators = require(__base + "lib/validators")
 
 const config = require(__base + "config")
 
@@ -39,7 +40,12 @@ api.use(passport.session())
 
 api.use("/favorites", helpers.validatePermissions(["admin", "user"]), favorites)
 api.use("/auth", auth.generateAPI(["admin", "user"]))
-api.use("/plots", helpers.validatePermissions(["admin", "user"]), plots)
+api.use(
+    "/plots",
+    helpers.validatePermissions(["admin", "user"]),
+    helpers.validateRequestData({ well_id: validators.isIDValid }),
+    plots
+)
 api.use("/state", state)
 
 // exports

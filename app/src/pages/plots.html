@@ -216,6 +216,21 @@
 	#dygraph_container > div > canvas {
 		-webkit-filter: blur(0.0000001px);
 	}
+
+    .length-annotation-select {
+        height: 34px;
+    }
+
+    .length-annotation-select > select {
+        width: 85%;
+        float: left;
+    }
+
+    .length-annotation-select > div {
+        width: 10%;
+        height: 34px;
+        float: right;
+    }
 </style>
 
 <ul id="avg_click_box" data-bind="
@@ -325,26 +340,11 @@
 
 					<div class="graph-annotation-overlay" data-bind="
 					visible: is_main_plot_visible(),
-					foreach:[
-					{y1:500,length:200,name:'Доломит',cssclass:'dolomite'},
-					{y1:600,length:150,name:'Приток скважной жидкости',cssclass:'leftdraught'},
-					{y1:700,length:1000,name:'Перлитные структуры',cssclass:'perlite'},
-					]" >
-						<!--						<div class="graph-annotation-overlay__column">-->
-						<div class="graph-annotation-overlay__zone"
-
-						data-bind="css:cssclass,
-
-						style:{
-
-						top:((y1-$parent.plot_main_xAxisRange()[1])/($parent.plot_main_xAxisRange()[0]-$parent.plot_main_xAxisRange()[1]))*100+'%',
-
-						height:(length/($parent.plot_main_xAxisRange()[0]-$parent.plot_main_xAxisRange()[1]))*100+'%'
-
-						}"></div>
-
-						<!--						</div>-->
-
+					foreach: length_annotations.annotations" >
+						<div class="graph-annotation-overlay__zone" data-bind="
+                            css: css_class,
+    						style: style">
+                        </div>
 					</div>
 
 					<div id="dygraph_container" class="plot" data-bind="
@@ -527,8 +527,8 @@
 						<li>
 							<!-- ko ifnot: $parent.is_editing() && $parent.current_annotation().id == $data.id -->
 							<b data-bind="
-                                text: short_text
-                            "></b>
+                                text: name
+                            "></b> (<i data-bind="text: texture_name"></i>)
 							<span class="btn-hoverable pull-right"> <a data-bind="click: $parent.editAnnotation">
                                 <i class="fa fa-pencil"></i>
                             </a>
@@ -536,7 +536,7 @@
                                 <i class="fa fa-times"></i>
                             </a></span>
 							<div>
-								<span data-bind="text: length"></span>м
+								<span data-bind="text: y1"></span>м - <span data-bind="text: y2"></span>м
 							</div>
 
 							<!-- /ko -->
@@ -614,18 +614,36 @@
 </script>
 
 <script type="text/html" id="length-annotation-template">
-	<div>
+    <div>
 		<ul class="list-unstyled">
-			<li>Глубина:
-				<input class="axis-input-block-bottom-right" data-bind="
-                textInput: length
-                ">
+			<li class="form-group">
+				<label>Название:</label>
+				<input class="form-control" data-bind="textInput: name">
 			</li>
-			<li>Краткое обозначение:
-				<input data-bind="textInput: short_text">
+            <li class="form-group">
+				<label>Текстура:</label>
+                <div class="length-annotation-select">
+                    <select class="form-control" data-bind="
+                        options: LengthAnnotation.TEXTURES,
+                        optionsCaption: 'Выберите текстуру...',
+                        optionsText: 'name',
+                        optionsValue: 'css_class',
+                        value: css_class
+                    "></select>
+                    <!-- ko if: css_class -->
+                    <div data-bind="
+                        css: css_class">
+                    </div>
+                    <!-- /ko -->
+                </div>
 			</li>
-			<li>Описание:
-				<input data-bind="textInput: description">
+            <li class="form-group">
+				<label>Начало отметки (м):</label>
+				<input class="form-control" data-bind="textInput: y1">
+			</li>
+            <li class="form-group">
+				<label>Конец отметки (м):</label>
+				<input class="form-control" data-bind="textInput: y2">
 			</li>
 		</ul>
 	</div>

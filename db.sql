@@ -122,10 +122,11 @@ ALTER SEQUENCE favorites_id_seq OWNED BY favorites.id;
 
 CREATE TABLE length_annotations (
     well_id integer,
-    short_text text,
-    description text,
-    length real,
-    id integer NOT NULL
+    id integer NOT NULL,
+    name text,
+    y1 numeric,
+    y2 numeric,
+    css_class text
 );
 
 

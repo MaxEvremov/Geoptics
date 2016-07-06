@@ -196,12 +196,6 @@ var init = function() {
 
                 vm.min_length.value(point.xval)
             }
-
-            if(mode === "length_annotation") {
-                var point = points[0]
-
-                vm.length_annotations.current_annotation().length(point.xval)
-            }
         }
     })
     plot_main.ready(function(err, graph) {
@@ -285,7 +279,7 @@ vm.resetPlotAvgState = function() {
     plot_avg.updateOptions({
         dateWindow: [min_date, max_date]
     })
-    
+
     drawAvgPlot()
     redrawAnnotations()
 }

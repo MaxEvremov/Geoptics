@@ -4,16 +4,10 @@
 
 const express = require("express")
 const validator = require("validator")
-const knex = require("knex")
+const knex = require("knex")({ client: "pg" })
 
 const helpers = require(__base + "lib/helpers")
 const config = require(__base + "config")
-
-const Favorite = require(__base + "models/Favorite")
-
-let knex_client = knex({
-    client: "pg"
-})
 
 // main
 
@@ -25,10 +19,10 @@ api.post(
         let favorite = req.body
         favorite.user_id = req.user.id
 
-        let query = knex_client("favorites")
+        let query = knex("favorites")
         .insert(favorite)
         .toString()
-        
+
         helpers.makePGQuery(
             query,
             res.jsonCallback
@@ -39,7 +33,7 @@ api.post(
 api.get(
     "/",
     (req, res, next) => {
-        let query = knex_client("favorites")
+        let query = knex("favorites")
         .where("user_id", req.user.id)
         .select(
             "id",

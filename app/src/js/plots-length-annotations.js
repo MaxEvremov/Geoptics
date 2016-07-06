@@ -38,8 +38,11 @@ m_site.plots.length_annotations = (function() {
             m_site.plots.current_well.removeLengthAnnotation(data, self.getAll)
         },
         saveAnnotation: function() {
-            console.log("saveAnnotation")
-            self.current_annotation().length(parseFloat(self.current_annotation().length()))
+            var y1 = self.current_annotation().y1
+            var y2 = self.current_annotation().y2
+
+            y1(parseFloat(y1()))
+            y2(parseFloat(y2()))
 
             m_site.plots.current_well.addOrUpdateLengthAnnotation(
                 ko.mapping.toJS(self.current_annotation()),
@@ -63,22 +66,6 @@ m_site.plots.length_annotations = (function() {
             m_site.plots.current_mode("normal")
         }
     }
-
-    self.annotations.subscribe(function(value) {
-        var labels = m_site.plots.plot_main.getOption("labels")
-
-        if(labels.length <= 1) {
-            return
-        }
-
-        var series = labels[1]
-
-        value = _.map(value, function(v) {
-            return v.getAnnotation(series)
-        })
-
-        m_site.plots.plot_main.setAnnotations(value)
-    })
 
     return self
 })()

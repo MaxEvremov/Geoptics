@@ -8,19 +8,38 @@ class LengthAnnotation {
 
         this.id = params.id || null
         this.well_id = params.well_id || null
-        this.short_text = ko.observable(params.short_text || null)
-        this.length = ko.observable(params.length || null)
-        this.description = ko.observable(params.description || null)
+
+        this.y1 = ko.observable(params.y1 || null)
+        this.y2 = ko.observable(params.y2 || null)
+        this.css_class = ko.observable(params.css_class || null)
+        this.name = ko.observable(params.name || null)
+
+        var self = this
+
+        this.style = {}
+        this.style.top = ko.computed(function() {
+            var x_range = m_site.plots.plot_main_xAxisRange()
+
+            return (self.y1() - x_range[1]) / (x_range[0] - x_range[1]) * 100 + "%"
+        })
+        this.style.height = ko.computed(function() {
+            var x_range = m_site.plots.plot_main_xAxisRange()
+
+            return ((self.y2() - self.y1()) / (x_range[0] - x_range[1])) * 100 + "%"
+        })
     }
 
-    getAnnotation(series) {
-        return {
-            series: series,
-            x: this.length(),
-            shortText: this.short_text(),
-            text: this.description(),
-            attachAtBottom: true,
-            cssClass: "dygraph-annotation-length"
-        }
+    get texture_name() {
+        var self = this
+
+        return _.find(LengthAnnotation.TEXTURES, function(v) {
+            return v.css_class === self.css_class()
+        }).name
     }
 }
+
+LengthAnnotation.TEXTURES = [
+    { name: "Доломит", css_class: "dolomite" },
+    { name: "Приток скважной жидкости", css_class: "leftdraught" },
+    { name: "Перлитные структуры", css_class: "perlite" }
+]

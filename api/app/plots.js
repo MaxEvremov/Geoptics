@@ -12,6 +12,8 @@ const helpers = require(__base + "lib/helpers")
 const validators = require(__base + "lib/validators")
 const las = require(__base + "lib/las")
 
+const length_annotations = require(__base + "api/app/length-annotations")
+
 // validators
 
 let isDateValid = (date) => (!date || moment(date).isValid())
@@ -122,6 +124,8 @@ let generatePlotQuery = (params) => {
 // main
 
 let api = express()
+
+api.use("/length_annotation", length_annotations)
 
 api.post(
     "/init",
@@ -612,83 +616,6 @@ api.post(
     (req, res) => {
         let query = `SELECT id, short_text, description, date
             FROM timeline_events
-            WHERE well_id = ${req.body.well_id}`
-
-        helpers.makePGQuery(
-            query,
-            res.jsonCallback
-        )
-    }
-)
-
-api.post(
-    "/length_annotation",
-    helpers.validateRequestData({
-        well_id: isIDValid,
-        short_text: true,
-        description: true,
-        length: (length) => _.isNumber(length) && length >= 0
-    }),
-    (req, res) => {
-        let query
-
-        if(req.body.id) {
-            if(!isIDValid(req.body.id)) {
-                return res.jsonCallback("err")
-            }
-
-            query = `UPDATE length_annotations SET
-                short_text = '${req.body.short_text}',
-                description = '${req.body.description}',
-                length = ${req.body.length}
-                WHERE id = ${req.body.id}
-                AND well_id = ${req.body.well_id}
-                `
-        }
-        else {
-            query = `INSERT INTO length_annotations
-                (well_id, short_text, description, length)
-                VALUES (
-                    ${req.body.well_id},
-                    '${req.body.short_text}',
-                    '${req.body.description}',
-                    ${req.body.length}
-                )`
-        }
-
-        helpers.makePGQuery(
-            query,
-            res.jsonCallback
-        )
-    }
-)
-
-api.delete(
-    "/length_annotation",
-    helpers.validateRequestData({
-        well_id: isIDValid,
-        id: isIDValid
-    }),
-    function(req, res) {
-        let query = `DELETE FROM length_annotations
-            WHERE well_id = ${req.body.well_id}
-            AND id = ${req.body.id}`
-
-        helpers.makePGQuery(
-            query,
-            res.jsonCallback
-        )
-    }
-)
-
-api.post(
-    "/length_annotations",
-    helpers.validateRequestData({
-        well_id: isIDValid
-    }),
-    (req, res) => {
-        let query = `SELECT short_text, description, length, id
-            FROM length_annotations
             WHERE well_id = ${req.body.well_id}`
 
         helpers.makePGQuery(

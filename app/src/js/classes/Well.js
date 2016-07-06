@@ -110,15 +110,21 @@ class Well {
     }
 
     addOrUpdateLengthAnnotation(params, done) {
+        var url = "/api/app/plots/length_annotation"
+
+        if(params.id) {
+            url += `/${params.id}`
+        }
+
         helpers.makeAJAXRequest(
-            "/api/app/plots/length_annotation",
+            url,
             "post",
             {
-                short_text: params.short_text,
-                description: params.description,
-                length: params.length,
-                well_id: this.id,
-                id: params.id
+                y1: params.y1,
+                y2: params.y2,
+                name: params.name,
+                css_class: params.css_class,
+                well_id: this.id
             },
             done
         )
@@ -126,11 +132,10 @@ class Well {
 
     removeLengthAnnotation(params, done) {
         helpers.makeAJAXRequest(
-            "/api/app/plots/length_annotation",
+            `/api/app/plots/length_annotation/${params.id}`,
             "delete",
             {
-                well_id: this.id,
-                id: params.id
+                well_id: this.id
             },
             done
         )
@@ -138,8 +143,8 @@ class Well {
 
     getLengthAnnotations(done) {
         helpers.makeAJAXRequest(
-            "/api/app/plots/length_annotations",
-            "post",
+            "/api/app/plots/length_annotation",
+            "get",
             {
                 well_id: this.id
             },

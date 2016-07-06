@@ -15,6 +15,22 @@
         })
     }
 
+    vm.remove = function(data, event) {
+        helpers.makeAJAXRequest(
+            `/api/app/favorites/${data.id}`,
+            "delete",
+            function(err, result) {
+                if(err) {
+                    return console.error(err)
+                }
+
+                vm.favorites.remove(function(v) {
+                    return v.id === data.id
+                })
+            }
+        )
+    }
+
     vm.loadAll = function() {
         helpers.makeAJAXRequest(
             "/api/app/favorites",

@@ -29,8 +29,11 @@
                                 text: helpers.convertDate(created_at, 'iso8601', 'jmask')">
 								</td>
 								<td>
-									<button class="btn btn-block  btn-xs btn-primary" data-bind="click: $parent.load">
+									<button class="btn btn-block btn-xs btn-primary" data-bind="click: $parent.load">
 										Загрузить
+									</button>
+                                    <button class="btn btn-block btn-xs btn-danger" data-bind="click: $parent.remove">
+										Удалить
 									</button>
 								</td>
 							</tr>

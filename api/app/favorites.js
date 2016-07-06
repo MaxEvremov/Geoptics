@@ -51,6 +51,21 @@ api.get(
     }
 )
 
+api.delete(
+    "/:id",
+    (req, res, next) => {
+        let query = knex("favorites")
+        .where("id", req.params.id)
+        .delete()
+        .toString()
+
+        helpers.makePGQuery(
+            query,
+            res.jsonCallback
+        )
+    }
+)
+
 // exports
 
 module.exports = api

@@ -169,6 +169,10 @@
 		background-color: #666;
 	}
 
+    .box-body > .table.plotpoints {
+        margin-bottom: 15px;
+    }
+
 	.plotpoints tr {
 		cursor: pointer;
 	}
@@ -404,6 +408,10 @@
 							</tr>
 						</tbody>
 					</table>
+
+                    <button class="btn btn-block btn-xs btn-primary" data-bind="click: downloadAllAsLAS">
+                        Выгрузить все графики в виде LAS
+                    </button>
 					<!-- /ko -->
 
 					<!-- ko if: selected_plots().length === 0 -->

@@ -605,6 +605,10 @@ vm.is_main_plot_visible = ko.computed(function() {
     return vm.selected_plots().length > 0
 })
 
+vm.downloadAllAsLAS = function() {
+    Plot.downloadPlotsAsLAS(vm.selected_plots(), vm.current_well.id)
+}
+
 // exports
 
 window.m_site.plots = vm

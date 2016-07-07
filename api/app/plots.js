@@ -334,8 +334,7 @@ api.post(
 api.get(
     "/las",
     helpers.validateRequestData({
-        plot: isPlotValid,
-        well_id: isIDValid
+        plot: validators.isPlotValid
     }),
     (req, res, next) => {
         let plot = req.query.plot
@@ -353,17 +352,91 @@ api.get(
                     return res.sendStatus(500)
                 }
 
-                let date = plot.type === "avg"
+                let file_name = plot.type === "avg"
                     ? `${plot.date_start}-${plot.date_end}`
                     : `${plot.date}`
 
-                res.attachment(`${date}.las`)
+                res.attachment(`${file_name}.las`)
 
                 las({
-                    date: date,
+                    is_multiple: false,
+                    date: file_name,
                     length: result.map(v => v.length),
                     temp: result.map(v => v.temp)
                 }).pipe(res)
+            }
+        )
+    }
+)
+
+
+api.get(
+    "/las_multiple",
+    helpers.validateRequestData({
+        plots: (plots) => {
+            return _.isArray(plots)
+                && _.every(plots, validators.isPlotValid)
+        }
+    }),
+    (req, res, next) => {
+        let plots = req.query.plots
+
+        let current_date = moment().format("DD_MM_YYYY_HH_mm_ss")
+
+        helpers.makePGQuery(
+            knex("wells")
+            .where("id", req.query.well_id)
+            .select("name")
+            .toString(),
+            (err, result) => {
+                if(err) {
+                    return res.sendStatus(500)
+                }
+
+                let well_name = result[0].name
+
+                async.map(
+                    plots,
+                    (plot, done) => {
+                        let query = generatePlotQuery({
+                            plot: plot,
+                            well: { id: req.query.well_id },
+                            ignore_min_length: true
+                        })
+
+                        helpers.makePGQuery(
+                            query,
+                            (err, result) => {
+                                if(err) {
+                                    return done(err)
+                                }
+
+                                plot.length = result.map(v => v.length)
+                                plot.temp = result.map(v => v.temp)
+                                plot.name = plot.type === "avg"
+                                    ? `${plot.date_start}-${plot.date_end}`
+                                    : `${plot.date}`
+
+                                return done(null, plot)
+                            }
+                        )
+                    },
+                    (err, results) => {
+                        if(err) {
+                            return res.sendStatus(500)
+                        }
+
+                        let params = {
+                            is_multiple: true,
+                            length: results[0].length,
+                            plots: results
+                        }
+
+                        res.attachment(`${well_name}_${current_date}.las`)
+
+                        las(params).pipe(res)
+                    }
+                )
             }
         )
     }

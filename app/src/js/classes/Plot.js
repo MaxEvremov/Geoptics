@@ -166,4 +166,26 @@ class Plot {
             isZoomedIgnoreProgrammaticZoom: false
         })
     }
+
+    static downloadPlotsAsLAS(plots, well_id) {
+        plots = ko.mapping.toJS(plots)
+        var param_plots = []
+
+        plots.forEach(function(plot) {
+            if(plot.type === "avg") {
+                param_plots.push(_.pick(plot, ["type", "date_start", "date_end"]))
+            }
+
+            if(plot.type === "point") {
+                param_plots.push(_.pick(plot, ["type", "date"]))
+            }
+        })
+
+        var query = $.param({
+            plots: param_plots,
+            well_id: well_id
+        })
+
+        window.open(`/api/app/plots/las_multiple?${query}`)
+    }
 }

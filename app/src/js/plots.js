@@ -323,16 +323,7 @@ vm.getNearestTempPlot = function() {
     })
 }
 
-vm.getAvgTempPlot = function(length, units) {
-    var duration_ms = moment.duration(length, units).asMilliseconds()
-
-    var date_start = vm.selected_date()
-
-    var date_start_ms = helpers.convertDate(date_start, "iso8601", "ms")
-    var date_end_ms = date_start_ms + duration_ms
-
-    var date_end = helpers.convertDate(date_end_ms, "ms", "iso8601")
-
+var getAvgTempPlot = function(date_start, date_end) {
     var plot = new Plot({
         type: "avg",
         date_start: date_start,
@@ -354,6 +345,28 @@ vm.getAvgTempPlot = function(length, units) {
 
         vm.selected_plots.push(plot)
     })
+}
+
+vm.getAvgTempPlot = function(length, units) {
+    var duration_ms = moment.duration(length, units).asMilliseconds()
+
+    var date_start = vm.selected_date()
+
+    var date_start_ms = helpers.convertDate(date_start, "iso8601", "ms")
+    var date_end_ms = date_start_ms + duration_ms
+
+    var date_end = helpers.convertDate(date_end_ms, "ms", "iso8601")
+
+    getAvgTempPlot(date_start, date_end)
+}
+
+vm.getAvgTempPlotForVisibleRange = function() {
+    var x_range = vm.plot_avg.xAxisRange()
+
+    var date_start = helpers.convertDate(x_range[0], "ms", "iso8601")
+    var date_end = helpers.convertDate(x_range[1], "ms", "iso8601")
+
+    getAvgTempPlot(date_start, date_end)
 }
 
 vm.hidePointBox = function(data, e) {

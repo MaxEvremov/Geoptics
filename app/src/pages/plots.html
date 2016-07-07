@@ -180,7 +180,7 @@
 	#avg_click_box {
 		position: fixed;
 		display: block;
-		width: 250px;
+		width: 300px;
 		z-index: 13;
 		border: 2px solid rgba(0, 0, 0, 0.2);
 	}
@@ -258,6 +258,9 @@
 	</li>
 	<li data-bind="click: getAvgTempPlot.bind($data, 3, 'd')">
 		<a href="#">Усреднить за три дня</a>
+	</li>
+    <li data-bind="click: getAvgTempPlotForVisibleRange">
+		<a href="#">Усреднить по видимому диапазону</a>
 	</li>
 </ul>
 

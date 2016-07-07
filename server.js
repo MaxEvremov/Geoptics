@@ -127,15 +127,17 @@ app.use("/api/admin", require(__base + "api/admin"))
 
 // static files
 
-app.use("/admin", express.static("admin/src"))
-app.all("/admin/*", (req, res) => {
-    res.sendFile("index.html", { root: __dirname + "/admin/src" })
-})
+if(config.serve_static) {
+    app.use("/admin", express.static("admin/src"))
+    app.all("/admin/*", (req, res) => {
+        res.sendFile("index.html", { root: __dirname + "/admin/src" })
+    })
 
-app.use("/", express.static("app/src"))
-app.all("/*", (req, res) => {
-    res.sendFile("index.html", { root: __dirname + "/app/src" })
-})
+    app.use("/", express.static("app/src"))
+    app.all("/*", (req, res) => {
+        res.sendFile("index.html", { root: __dirname + "/app/src" })
+    })
+}
 
 // run server
 

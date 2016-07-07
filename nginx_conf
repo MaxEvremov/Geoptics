@@ -1,0 +1,35 @@
+server {
+    listen 80;
+    client_max_body_size 100m;
+
+    server_name demo.fieldconnected.com;
+
+    location / {
+        root /htdocs/geoptics/app/src;
+        try_files $uri @forceindex;
+    }
+
+    location @forceindex {
+        rewrite ^/* /index.html;
+    }
+
+    location /admin/ {
+        root /htdocs/geoptics/admin/src;
+        try_files $uri @forceindexadmin;
+    }
+
+    location @forceindexadmin {
+        rewrite ^/* /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:7777;
+        proxy_cache_valid any 0;
+        proxy_cache off;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host;
+    }
+}

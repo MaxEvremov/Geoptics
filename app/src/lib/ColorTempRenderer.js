@@ -62,6 +62,13 @@ class ColorTempRenderer {
         this.plots = plots
         this._drawPlots()
     }
+
+    clear() {
+        var ctx = this._canvas.getContext("2d")
+
+        this.plots = []
+        ctx.clearRect(0, 0, this._canvas.width, this._canvas.height)
+    }
 }
 
 ColorTempRenderer._COLOR_SCALE = [

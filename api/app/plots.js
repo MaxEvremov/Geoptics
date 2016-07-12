@@ -276,7 +276,8 @@ api.get(
                 type: "avg",
                 date_start: date_start,
                 date_end: date_end,
-                offset: OFFSET_STEP * i
+                offset: OFFSET_STEP * i,
+                is_for_color_plot: true
             })
         }
 

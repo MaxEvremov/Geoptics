@@ -5,14 +5,33 @@
 
     vm.load = function(data, event) {
         pager.navigate(`wells/${data.well_id}`)
-        data.plots.forEach(function(plot) {
-            plot.well_id = data.well_id
-            var plot_instance = new Plot(plot)
 
-            plot_instance.load(function(err, result) {
-                m_site.plots.selected_plots.push(plot_instance)
+        setTimeout(function() {
+            var plots = _.map(data.plots, function(plot) {
+                plot.well_id = data.well_id
+                return new Plot(plot)
             })
-        })
+
+            m_site.plots.selected_plots.removeAll()
+            m_site.plots.is_loading_temp_data(true)
+
+            async.eachSeries(
+                plots,
+                function(plot, done) {
+                    plot.load(function(err, result) {
+                        if(err) {
+                            return done(err)
+                        }
+
+                        m_site.plots.selected_plots.push(plot)
+                        return done(null)
+                    })
+                },
+                function(err) {
+                    m_site.plots.is_loading_temp_data(false)
+                }
+            )
+        }, 0)
     }
 
     vm.remove = function(data, event) {

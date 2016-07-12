@@ -190,16 +190,14 @@ var init = function() {
     })
     plot_main.ready(function(err, graph) {
         vm.selected_plots.subscribe(function(value) {
-            var annotations = value
+            var selected_plots = value
 
-            if(annotations.length === 0) {
+            if(selected_plots.length === 0) {
                 plot_data = [[0, 0]]
                 plot_labels = ["X", "Y1"]
                 plot_colors = []
             }
             else {
-                var selected_plots = vm.selected_plots()
-
                 var descriptions = selected_plots.map(function(v) {
                     return v.description
                 })
@@ -227,10 +225,9 @@ var init = function() {
                 colors: plot_colors
             })
 
-            if(annotations.length !== 0) {
+            if(selected_plots.length !== 0) {
                 vm.length_annotations.annotations.valueHasMutated()
             }
-
         })
     })
 
@@ -270,7 +267,9 @@ var vm = {
 
     color_temp_number: ko.observable(),
     color_temp_interval: ko.observable(),
-    color_temp_unit: ko.observable()
+    color_temp_unit: ko.observable(),
+
+    selected_plots: ko.observableArray()
 }
 
 vm.resetPlotAvgState = function() {
@@ -460,22 +459,7 @@ vm.saveFavorite = function() {
     var favorite = new Favorite({
         name: name,
         well_id: vm.current_well.id,
-        plots: JSON.stringify(_.map(vm.selected_plots(), function(plot) {
-            var json = {
-                type: plot.type
-            }
-
-            if(plot.type === "point") {
-                json.date = plot.date
-            }
-
-            if(plot.type === "avg") {
-                json.date_start = plot.date_start
-                json.date_end = plot.date_end
-            }
-
-            return json
-        }))
+        plots: vm.selected_plots()
     })
 
     favorite.save(function(err, result) {
@@ -493,8 +477,6 @@ vm.saveFavorite = function() {
 }
 
 // computed observables
-
-vm.selected_plots = ko.observableArray()
 
 vm.selected_plots.subscribe(function(value) {
     value.forEach(function(plot, i) {
@@ -663,17 +645,26 @@ vm.renderColorTemp = function() {
             vm.selected_plots.removeAll()
             vm.selected_plots(result)
 
-            var plots = _.map(result, function(plot) {
-                return _.map(plot._data, function(v) {
-                    return v[1]
-                })
-            })
-
-            vm.renderer.update(plots)
             vm.is_loading_temp_data(false)
         }
     )
 }
+
+vm.selected_plots.subscribe(function(value) {
+    var plots = _.filter(value, function(plot) {
+        return plot.is_for_color_plot
+    })
+
+    if(plots.length === 0) {
+        return vm.renderer.clear()
+    }
+
+    vm.renderer.update(_.map(plots, function(plot) {
+        return _.map(plot._data, function(v) {
+            return v[1]
+        })
+    }))
+})
 
 // exports
 

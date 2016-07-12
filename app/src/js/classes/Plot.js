@@ -15,6 +15,10 @@ class Plot {
         this._data = params.data || [[0, 0]]
 		this.color = ko.observable(params.color || "rgb(0, 0, 0)")
         this.offset = params.offset || 0
+
+        this.is_for_color_plot = params.is_for_color_plot || false
+
+        this.is_loading = ko.observable(false)
     }
 
     load(params, done) {
@@ -59,11 +63,15 @@ class Plot {
 
     get description() {
         if(this.type === "point") {
-            return helpers.formatDate(this.date)
+            var date = helpers.convertDate(this.date, "iso8601", "jmask")
+            return date
         }
 
         if(this.type === "avg") {
-            return `Усреднение за период от ${helpers.formatDate(this.date_start)} до ${helpers.formatDate(this.date_end)}`
+            var date_start = helpers.convertDate(this.date_start, "iso8601", "jmask")
+            var date_end = helpers.convertDate(this.date_end, "iso8601", "jmask")
+
+            return `Усреднение за период от ${date_start} до ${date_end}`
         }
     }
 

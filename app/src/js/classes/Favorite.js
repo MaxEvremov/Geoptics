@@ -10,12 +10,31 @@ class Favorite {
     }
 
     save(done) {
+        var plots = JSON.stringify(_.map(this.plots, function(plot) {
+            var json = {
+                type: plot.type,
+                offset: plot.offset,
+                is_for_color_plot: plot.is_for_color_plot
+            }
+
+            if(plot.type === "point") {
+                json.date = plot.date
+            }
+
+            if(plot.type === "avg") {
+                json.date_start = plot.date_start
+                json.date_end = plot.date_end
+            }
+
+            return json
+        }))
+
         helpers.makeAJAXRequest(
             "/api/app/favorites",
             "post",
             {
                 well_id: this.well_id,
-                plots: this.plots,
+                plots: plots,
                 name: this.name
             },
             done

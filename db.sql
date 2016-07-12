@@ -30,30 +30,6 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 SET search_path = public, pg_catalog;
 
 --
--- Name: t_deviation; Type: TYPE; Schema: public; Owner: lwpss
---
-
-CREATE TYPE t_deviation AS (
-	length real,
-	temp real
-);
-
-
-ALTER TYPE t_deviation OWNER TO lwpss;
-
---
--- Name: t_measurement; Type: TYPE; Schema: public; Owner: lwpss
---
-
-CREATE TYPE t_measurement AS (
-	length real,
-	temp real
-);
-
-
-ALTER TYPE t_measurement OWNER TO lwpss;
-
---
 -- Name: nearest_date(timestamp with time zone, timestamp with time zone[]); Type: FUNCTION; Schema: public; Owner: lwpss
 --
 
@@ -457,31 +433,10 @@ CREATE INDEX p_measurements_well_id_idx ON p_measurements USING btree (well_id);
 
 
 --
--- Name: t_measurements_date_idx; Type: INDEX; Schema: public; Owner: lwpss
+-- Name: t_measurements_date_length_well_id_idx; Type: INDEX; Schema: public; Owner: lwpss
 --
 
-CREATE INDEX t_measurements_date_idx ON t_measurements USING btree (date);
-
-
---
--- Name: t_measurements_length_idx; Type: INDEX; Schema: public; Owner: lwpss
---
-
-CREATE INDEX t_measurements_length_idx ON t_measurements USING btree (length);
-
-
---
--- Name: t_measurements_well_id_date_idx; Type: INDEX; Schema: public; Owner: lwpss
---
-
-CREATE INDEX t_measurements_well_id_date_idx ON t_measurements USING btree (well_id, date);
-
-
---
--- Name: t_measurements_well_id_idx; Type: INDEX; Schema: public; Owner: lwpss
---
-
-CREATE INDEX t_measurements_well_id_idx ON t_measurements USING btree (well_id);
+CREATE INDEX t_measurements_date_length_well_id_idx ON t_measurements USING btree (date, length, well_id);
 
 
 --

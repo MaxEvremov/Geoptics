@@ -16,8 +16,6 @@ const length_annotations = require(__base + "api/app/length-annotations")
 
 // validators
 
-let isDateValid = (date) => (!date || moment(date).isValid())
-let isLengthValid = (length) => (!length || !isNaN(parseFloat(length)))
 let isIDValid = (id) => {
     id = parseInt(id)
     return Number.isInteger(id) && id > 0
@@ -253,79 +251,56 @@ api.post(
     }
 )
 
-api.post(
-    "/deviations",
+api.get(
+    "/color_temp",
     helpers.validateRequestData({
-        min_deviation: _.isNumber,
-        date_start: isDateValid,
-        date_end: isDateValid
+        date: validators.isISO8601DateValid,
+        number: validators.isNaturalNumberValid,
+        interval: validators.isNaturalNumberValid
     }),
-    (req, res, next) => {
-        const norm_plot_date = "2016-02-24 01:58:44+05"
+    helpers.getWell,
+    (req, res) => {
+        const OFFSET_STEP = 5
 
-        let date_start = req.body.date_start
-            ? formatDate(req.body.date_start)
-            : "-infinity"
+        let number = parseInt(req.query.number)
+        let interval = parseInt(req.query.interval)
+        let date_ms = helpers.convertDate(req.query.date, "iso8601", "ms")
 
-        let date_end = req.body.date_end
-            ? formatDate(req.body.date_end)
-            : "infinity"
+        let plots = []
 
-        let min_deviation = req.body.min_deviation
+        for(let i = 0; i < number; i++) {
+            let date_start = helpers.convertDate(date_ms + interval * i, "ms", "iso8601")
+            let date_end = helpers.convertDate(date_ms + interval * (i + 1), "ms", "iso8601")
 
-        let norm_query = `SELECT length, temp FROM t_measurements
-            WHERE date = '${norm_plot_date}'`
-        let plots_query = `SELECT length, temp, date FROM t_measurements
-            WHERE date >= '${date_start}' AND date <= '${date_end}'`
+            plots.push({
+                type: "avg",
+                date_start: date_start,
+                date_end: date_end,
+                offset: OFFSET_STEP * i
+            })
+        }
 
-        async.waterfall([
-            (done) => {
-                async.parallel({
-                    norm_plot: (done) => helpers.makePGQuery(norm_query, done),
-                    plots: (done) => helpers.makePGQuery(plots_query, done)
-                }, done)
-            },
-            (result, done) => {
-                let norm_plot = result.norm_plot
-
-                if(norm_plot.length === 0) {
-                    return res.json({
-                        err: "norm_plot_not_found"
-                    })
-                }
-
-                let plots = _.groupBy(result.plots, "date")
-
-                let deviations = []
-
-                _.forEach(plots, (plot, date) => {
-                    let max_deviation = _.maxBy(plot, v => {
-                        let norm_temp = _.find(
-                            norm_plot,
-                            { length: v.length }
-                        ).temp
-
-                        return Math.abs(norm_temp - v.temp)
-                    })
-
-                    deviations.push({
-                        temp: max_deviation.temp,
-                        date: max_deviation.date,
-                        norm_temp: _.find(
-                            norm_plot,
-                            { length: max_deviation.length }
-                        ).temp,
-                        length: max_deviation.length
-                    })
+        async.mapSeries(
+            plots,
+            (plot, done) => {
+                let query = generatePlotQuery({
+                    well: req.well,
+                    plot: plot
                 })
 
-                return done(null, deviations)
-            },
-            (deviations, done) => {
-                return done(null, _.filter(deviations, v =>
-                    Math.abs(v.norm_temp - v.temp) >= min_deviation)
+                helpers.makePGQuery(
+                    query,
+                    (err, result) => {
+                        if(err) {
+                            return done(err)
+                        }
+
+                        plot.data = result.map(v => [v.length, v.temp])
+
+                        return done(null, plot)
+                    }
                 )
-            }],
+            },
             res.jsonCallback
         )
     }
@@ -510,6 +485,7 @@ api.get(
             FROM timeframe t
             LEFT JOIN p_measurements p ON p.date >= t.t_min
                                           AND p.date <  t.t_max
+            WHERE p.well_id = ${well_id}
             GROUP BY 1, 2
             ORDER BY 1
         `

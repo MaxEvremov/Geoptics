@@ -4,7 +4,17 @@ let configs = {
     dev: {
         port: 7777,
         session_secret: "geoptics secret",
+
         postgres_con: "postgres://lwpss:1234@localhost/geoptics",
+        pg: {
+            user: "lwpss",
+            password: "1234",
+            database: "geoptics",
+            port: 5432,
+            max: 20,
+            min: 20,
+            idleTimeoutMillis: 30 * 1000
+        },
 
         sessions_app_table: "sessions_app",
         sessions_admin_table: "sessions_admin",
@@ -24,7 +34,17 @@ let configs = {
     staging: {
         port: 7777,
         session_secret: "geoptics secret",
+
         postgres_con: "postgres://lwpss:1234@localhost/geoptics",
+        pg: {
+            user: "lwpss",
+            password: "1234",
+            database: "geoptics",
+            port: 5432,
+            max: 20,
+            min: 20,
+            idleTimeoutMillis: 30 * 1000
+        },
 
         sessions_app_table: "sessions_app",
         sessions_admin_table: "sessions_admin",

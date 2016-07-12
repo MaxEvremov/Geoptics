@@ -96,18 +96,6 @@ var drawAvgPlot = function() {
         return
     }
 
-    // не загружать данные давления, если новый диапазон времени полностью находится внутри старого
-
-    // if(plot_avg_prev_min_date && plot_avg_prev_max_date) {
-    //     if(min_date >= plot_avg_prev_min_date
-    //     && max_date <= plot_avg_prev_max_date) {
-    //         return
-    //     }
-    // }
-    //
-    // plot_avg_prev_min_date = min_date
-    // plot_avg_prev_max_date = max_date
-
     loadPressureData({
         date_start: helpers.convertDate(min_date, "ms", "iso8601"),
         date_end: helpers.convertDate(max_date, "ms", "iso8601")
@@ -246,6 +234,12 @@ var init = function() {
         })
     })
 
+    var renderer = new ColorTempRenderer({
+        element: document.getElementById("renderer_div")
+    })
+
+    vm.renderer = renderer
+
     is_inited = true
 }
 
@@ -261,6 +255,7 @@ var vm = {
     selected_date: ko.observable(),
 
     is_point_box_visible: ko.observable(false),
+    is_color_temp_box_visible: ko.observable(false),
     point_box_top: ko.observable(0),
     point_box_left: ko.observable(0),
 
@@ -271,7 +266,11 @@ var vm = {
     is_favorite_saved: ko.observable(false),
 
     well_id: ko.observable(),
-    current_well: null
+    current_well: null,
+
+    color_temp_number: ko.observable(),
+    color_temp_interval: ko.observable(),
+    color_temp_unit: ko.observable()
 }
 
 vm.resetPlotAvgState = function() {
@@ -499,7 +498,7 @@ vm.selected_plots = ko.observableArray()
 
 vm.selected_plots.subscribe(function(value) {
     value.forEach(function(plot, i) {
-        plot.color(Plot.COLORS[i])
+        plot.color(Plot.COLORS[i % Plot.COLORS.length])
     })
 })
 
@@ -620,6 +619,60 @@ vm.is_main_plot_visible = ko.computed(function() {
 
 vm.downloadAllAsLAS = function() {
     Plot.downloadPlotsAsLAS(vm.selected_plots(), vm.current_well.id)
+}
+
+vm.removeAllPlots = function() {
+    vm.selected_plots.removeAll()
+}
+
+vm.openColorTempBox = function() {
+    vm.color_temp_number(null)
+    vm.color_temp_interval(null)
+    vm.color_temp_unit(null)
+
+    vm.is_point_box_visible(false)
+    vm.is_color_temp_box_visible(true)
+}
+
+vm.closeColorTempBox = function() {
+    vm.is_color_temp_box_visible(false)
+    vm.is_point_box_visible(true)
+}
+
+vm.renderColorTemp = function() {
+    var number = parseInt(vm.color_temp_number())
+    var interval = parseInt(vm.color_temp_interval())
+    var unit = vm.color_temp_unit()
+
+    vm.is_color_temp_box_visible(false)
+    vm.is_loading_temp_data(true)
+
+    Plot.getPlotsForColorTempRenderer(
+        {
+            date: vm.selected_date(),
+            number: number,
+            interval: moment.duration(interval, unit).asMilliseconds(),
+            well_id: vm.current_well.id
+        },
+        function(err, result) {
+            if(err) {
+                vm.is_loading_temp_data(false)
+                return console.error(err)
+            }
+
+            vm.selected_plots.removeAll()
+            vm.selected_plots(result)
+
+            var plots = _.map(result, function(plot) {
+                return _.map(plot._data, function(v) {
+                    return v[1]
+                })
+            })
+
+            vm.renderer.update(plots)
+            vm.is_loading_temp_data(false)
+        }
+    )
 }
 
 // exports

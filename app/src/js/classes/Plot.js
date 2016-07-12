@@ -6,12 +6,15 @@ var HOUR = 60 * 60 * 1000
 class Plot {
     constructor(params) {
         this.type = params.type || "point"
+        this.well_id = params.well_id || null
+
         this.date = params.date || null
         this.date_start = params.date_start || null
         this.date_end = params.date_end || null
-        this.data = params.data || [[0, 0]]
+
+        this._data = params.data || [[0, 0]]
 		this.color = ko.observable(params.color || "rgb(0, 0, 0)")
-        this.well_id = params.well_id || null
+        this.offset = params.offset || 0
     }
 
     load(params, done) {
@@ -48,28 +51,10 @@ class Plot {
                     self.date = result.date
                 }
 
-                self.data = result.data
+                self._data = result.data
                 return done(null, result)
             }
         )
-    }
-
-    static get COLORS() {
-        return [
-            "rgb(221,75,57)",
-            "rgb(243,156,18)",
-            "rgb(0,115,183)",
-            "rgb(0,166,90)",
-            "rgb(0,31,63)",
-            "rgb(61,153,112)",
-            "rgb(1,255,112)",
-            "rgb(0,192,239)",
-            "rgb(255,133,27)",
-            "rgb(240,18,190)",
-            "rgb(60,141,188)",
-            "rgb(96,92,168)",
-            "rgb(216,27,96)"
-        ]
     }
 
     get description() {
@@ -86,6 +71,20 @@ class Plot {
         return this.color()
             .replace("rgb", "rgba")
             .replace(")", ", 0.2)")
+    }
+
+    get data() {
+        var self = this
+        var data = _.cloneDeep(self._data)
+
+        if(self.offset === 0) {
+            return data
+        }
+
+        return _.map(data, function(value) {
+            value[1] += self.offset
+            return value
+        })
     }
 
     getAnnotation(idx) {
@@ -134,7 +133,6 @@ class Plot {
 
         var min_date = helpers.convertDate(file[0][0], "native", "ms")
         var max_date = helpers.convertDate(file[file.length - 1][0], "native", "ms")
-
 
         if(this.type === "point") {
             var x = helpers.convertDate(this.date, "iso8601", "ms")
@@ -188,4 +186,48 @@ class Plot {
 
         window.open(`/api/app/plots/las_multiple?${query}`)
     }
+
+    static getPlotsForColorTempRenderer(params, done) {
+        helpers.makeAJAXRequest(
+            "/api/app/plots/color_temp",
+            "get",
+            {
+                date: params.date,
+                number: params.number,
+                interval: params.interval,
+                well_id: params.well_id
+            },
+            function(err, result) {
+                if(err) {
+                    return done(err)
+                }
+
+                return done(null, _.map(result, function(plot) {
+                    return new Plot(plot)
+                }))
+            }
+        )
+    }
 }
+
+Plot.COLORS = [
+    "rgb(221,75,57)",
+    "rgb(243,156,18)",
+    "rgb(0,115,183)",
+    "rgb(0,166,90)",
+    "rgb(0,31,63)",
+    "rgb(61,153,112)",
+    "rgb(1,255,112)",
+    "rgb(0,192,239)",
+    "rgb(255,133,27)",
+    "rgb(240,18,190)",
+    "rgb(60,141,188)",
+    "rgb(96,92,168)",
+    "rgb(216,27,96)"
+]
+
+Plot.TIME_UNITS = [
+    { name: "мин.", unit: "m" },
+    { name: "ч.", unit: "h" },
+    { name: "дн.", unit: "d" }
+]

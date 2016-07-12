@@ -28,6 +28,7 @@
 	<script src="/lib/lodash.min.js"></script>
 	<script src="/lib/dygraph-combined.js"></script>
 	<script src="/lib/async.min.js"></script>
+    <script src="/js/ColorTempRenderer.js"></script>
 
     <script src="/js/index.js"></script>
 
@@ -66,7 +67,7 @@
         source: 'pages/login.html'
     }"></div>
 
-	<div data-bind="visible: state.is_ready() && state.current_page() !== 'login'" style="display: none;">
+	<div data-bind="visible: state.is_ready() && state.current_page() !== 'login'" style="display: none; height: 100%;">
 		<!-- ko if: state.user -->
 		<header class="main-header">
 			<span class="logo">
@@ -140,6 +141,7 @@
             left: 0;
             bottom: 0;
             top: 0;
+            height: 100%;
 		">
             <div data-bind="page: {
                 id: 'start',
@@ -156,14 +158,14 @@
 
 			<div data-bind="page: {
                 id: 'wells'
-            }">
+            }" style="height: 100%;">
                 <div data-bind="page: {
                     id: '?',
                     with: plots,
                     afterShow: plots.afterShow,
                     source: 'pages/plots.html',
                     guard: state.loggedInGuard
-                }">
+                }" style="height: 100%;">
                 </div>
             </div>
 

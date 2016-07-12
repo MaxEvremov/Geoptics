@@ -3,6 +3,13 @@
 window.m_site = {}
 
 $(document).ready(function() {
+    for(var i = 0; i < Plot.COLORS.length; i++) {
+        helpers.createCSSClass(
+            `.dygraphDefaultAnnotation.dygraph-annotation-plot-${i + 1}`,
+            Plot.COLORS[i]
+        )
+    }
+
     var pager = new Pager($, ko)
     window.pager = pager
 

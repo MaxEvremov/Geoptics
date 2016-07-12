@@ -12,6 +12,15 @@ class Plot {
         this.date_start = params.date_start || null
         this.date_end = params.date_end || null
 
+        this.date_ms = null
+
+        this.date_start_ms = params.date_start
+            ? helpers.convertDate(this.date_start, "iso8601", "ms")
+            : null
+        this.date_end_ms = params.date_start
+            ? helpers.convertDate(this.date_end, "iso8601", "ms")
+            : null
+
         this._data = params.data || [[0, 0]]
 		this.color = ko.observable(params.color || "rgb(0, 0, 0)")
         this.offset = params.offset || 0
@@ -53,6 +62,7 @@ class Plot {
 
                 if(self.type === "point") {
                     self.date = result.date
+                    self.date_ms = helpers.convertDate(self.date, "iso8601", "ms")
                 }
 
                 self._data = result.data
@@ -99,22 +109,22 @@ class Plot {
         if(this.type === "point") {
             return {
                 series: AVG_Y_AXIS,
-                x: helpers.convertDate(this.date, "iso8601", "ms"),
+                x: this.date_ms,
                 shortText: idx + 1,
                 text: this.description,
-                cssClass: `dygraph-annotation-plot-${idx + 1}`,
-                color: this.color
+                cssClass: `dygraph-annotation-plot-${idx % Plot.COLORS.length + 1}`,
+                color: this.color()
             }
         }
 
         if(this.type === "avg") {
             return {
                 series: AVG_Y_AXIS,
-                x: helpers.convertDate(this.date_start, "iso8601", "ms"),
+                x: this.date_start_ms,
                 shortText: idx + 1,
                 text: this.description,
-                cssClass: `dygraph-annotation-plot-${idx + 1}`,
-                color: this.color
+                cssClass: `dygraph-annotation-plot-${idx % Plot.COLORS.length + 1}`,
+                color: this.color()
             }
         }
     }
@@ -143,7 +153,7 @@ class Plot {
         var max_date = helpers.convertDate(file[file.length - 1][0], "native", "ms")
 
         if(this.type === "point") {
-            var x = helpers.convertDate(this.date, "iso8601", "ms")
+            var x = this.date_ms
 
             zoom_left = (x - HOUR) < min_date
                 ? min_date
@@ -155,8 +165,8 @@ class Plot {
         }
 
         if(this.type === "avg") {
-            var date_start = helpers.convertDate(this.date_start, "iso8601", "ms")
-            var date_end = helpers.convertDate(this.date_end, "iso8601", "ms")
+            var date_start = this.date_start_ms
+            var date_end = this.date_end_ms
 
             zoom_left = (date_start - HOUR) < min_date
                 ? min_date

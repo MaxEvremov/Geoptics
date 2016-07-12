@@ -137,8 +137,8 @@ var init = function() {
             for(var i = 0; i < selected_avg_plots.length; i++) {
                 var plot = selected_avg_plots[i]
 
-                var date_start = helpers.convertDate(plot.date_start, "iso8601", "ms")
-                var date_end = helpers.convertDate(plot.date_end, "iso8601", "ms")
+                var date_start = plot.date_start_ms
+                var date_end = plot.date_end_ms
 
                 var bottom_left = g.toDomCoords(date_start, bottom)
                 var top_right = g.toDomCoords(date_end, top)
@@ -492,10 +492,6 @@ vm.annotations = ko.computed(function() {
     var result = []
 
     selected_plots.forEach(function(v, i) {
-        helpers.createCSSClass(
-            `.dygraphDefaultAnnotation.dygraph-annotation-plot-${i + 1}`,
-            v.color()
-        )
         result.push(v.getAnnotation(i))
     })
 

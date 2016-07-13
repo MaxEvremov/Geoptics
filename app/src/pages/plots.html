@@ -262,6 +262,7 @@
 	<li style="padding:10px 20px">
 		<p data-bind="html: helpers.formatDate(selected_date())"></p>
 	</li>
+    <!-- ko ifnot: current_mode() === 'color' -->
 	<li><a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a></li>
 	<li data-bind="click: getAvgTempPlot.bind($data, 1, 'h')">
 		<a href="#">Усреднить за час</a>
@@ -275,6 +276,7 @@
     <li data-bind="click: getAvgTempPlotForVisibleRange">
 		<a href="#">Усреднить по видимому диапазону</a>
 	</li>
+    <!-- /ko -->
     <li data-bind="click: openColorTempBox">
 		<a href="#">Построить цветовой график</a>
 	</li>
@@ -448,8 +450,8 @@
                     <!-- /ko -->
 				</div>
 
-				<div class="box-body" style="height: 95%;">
-                    <div style="height: 60%; overflow-x: hidden; overflow-y: auto; margin-bottom: 10px;">
+				<div class="box-body" style="height: 94%;">
+                    <div style="height: 100%; overflow-x: hidden; overflow-y: auto; margin-bottom: 10px;">
                         <!-- ko ifnot: selected_plots().length === 0 -->
                         <table class="table plotpoints" style="font-size: 0.8em; margin-bottom: 0;">
                             <tbody data-bind="foreach: selected_plots">
@@ -478,11 +480,43 @@
     					<p class="placeholder noselect">Выберите хотя бы одну точку на графике давления</p>
     					<!-- /ko -->
                     </div>
+				</div>
+			</div>
+
+            <div class="box box-info box-borderless" data-bind="visible: current_mode() === 'color'" style="height: 100%; margin-bottom: 0;">
+                <div class="box-header" style="height: 6%;">
+                    <h3 class="box-title">Цветовой график</h3>                         <!-- ko ifnot: selected_plots().length === 0 -->
+                    <a data-bind="click: cancelColorMode" title="Выйти из режима цветового графика" class="btn btn-hoverable" style="float: right;">
+                        <i class="fa fa-times"></i>
+                    </a>
+                    <!-- /ko -->
+                </div>
+
+                <div class="box-body" style="height: 94%;">
+                    <div style="height: 60%; overflow-x: hidden; overflow-y: auto; margin-bottom: 10px;">
+                        <!-- ko ifnot: selected_plots().length === 0 -->
+                        <table class="table plotpoints" style="font-size: 0.8em; margin-bottom: 0;">
+                            <tbody data-bind="foreach: selected_plots">
+                                <tr>
+                                    <td data-bind="
+                                    text: $index() + 1,
+                                    style: {
+                                        backgroundColor: color
+                                    }
+                                    " style="color: #fff;"></td>
+                                    <td data-bind="click: $parent.showPoint">
+                                        <span data-bind="html: description"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- /ko -->
+                    </div>
 
                     <div id="renderer_div">
                     </div>
-				</div>
-			</div>
+                </div>
+            </div>
 
 			<div class="box box-danger box-borderless" data-bind="visible: current_mode() === 'reference_point', with: reference_point">
 				<div class="box-header">

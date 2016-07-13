@@ -17,9 +17,6 @@ var plot_colors = []
 var plot_avg = null
 var plot_main = null
 
-var plot_avg_prev_min_date = null
-var plot_avg_prev_max_date = null
-
 var is_raw_pressure_data
 
 // helper methods
@@ -414,9 +411,6 @@ vm.afterShow = function() {
 
                 vm.current_mode("normal")
 
-                plot_avg_prev_min_date = null
-                plot_avg_prev_max_date = null
-
                 if(result.length === 0) {
                     return vm.has_data(false)
                 }
@@ -647,6 +641,8 @@ vm.renderColorTemp = function() {
                 return console.error(err)
             }
 
+            vm.current_mode("color")
+
             vm.selected_plots.removeAll()
             vm.selected_plots(result)
 
@@ -655,7 +651,16 @@ vm.renderColorTemp = function() {
     )
 }
 
+vm.cancelColorMode = function() {
+    vm.selected_plots.removeAll()
+    vm.current_mode("normal")
+}
+
 vm.selected_plots.subscribe(function(value) {
+    if(vm.current_mode() !== "color") {
+        return
+    }
+
     var plots = _.filter(value, function(plot) {
         return plot.is_for_color_plot
     })

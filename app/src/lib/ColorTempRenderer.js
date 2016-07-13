@@ -8,12 +8,7 @@ class ColorTempRenderer {
 
         this.element = params.element
 
-        this.height = params.height || this.element.clientHeight
-        this.width = params.width || this.element.clientWidth
-
         var canvas = document.createElement("canvas")
-        canvas.height = this.height
-        canvas.width = this.width
         this.element.appendChild(canvas)
 
         this._canvas = canvas
@@ -54,8 +49,8 @@ class ColorTempRenderer {
             }
         }
 
-        this._canvas.style.width = `${this.width}px`
-        this._canvas.style.height = `${this.height}px`
+        this._canvas.style.width = `${this.element.clientWidth}px`
+        this._canvas.style.height = `${this.element.clientHeight}px`
     }
 
     update(plots) {

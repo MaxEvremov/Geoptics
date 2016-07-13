@@ -198,11 +198,12 @@ var init = function() {
                 plot_colors = []
             }
             else {
-                var descriptions = selected_plots.map(function(v) {
-                    return v.description
-                })
+                plot_labels = ["Length"]
 
-                plot_labels = ["Length"].concat(descriptions)
+                for(var i = 0; i < selected_plots.length; i++) {
+                    plot_labels.push((i + 1).toString())
+                }
+
                 plot_data = _.map(selected_plots[0].data, function(v) {
                     return [v[0]]
                 })

@@ -220,9 +220,7 @@ class Plot {
                     return done(err)
                 }
 
-                return done(null, _.map(result, function(plot) {
-                    return new Plot(plot)
-                }))
+                return done(null, result.task_id)
             }
         )
     }

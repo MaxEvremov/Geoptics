@@ -260,49 +260,112 @@ api.get(
     }),
     helpers.getWell,
     (req, res) => {
+        // params
+
         const OFFSET_STEP = 5
 
         let number = parseInt(req.query.number)
         let interval = parseInt(req.query.interval)
         let date_ms = helpers.convertDate(req.query.date, "iso8601", "ms")
 
-        let plots = []
+        let processed = 0
 
-        for(let i = 0; i < number; i++) {
-            let date_start = helpers.convertDate(date_ms + interval * i, "ms", "iso8601")
-            let date_end = helpers.convertDate(date_ms + interval * (i + 1), "ms", "iso8601")
+        let updateTaskStatus = (task_id, params, done) => {
+            if(!done) {
+                done = () => {}
+            }
 
-            plots.push({
-                type: "avg",
-                date_start: date_start,
-                date_end: date_end,
-                offset: OFFSET_STEP * i,
-                is_for_color_plot: true
-            })
+            let query = knex("tasks")
+            .where("id", task_id)
+            .update(params)
+            .toString()
+
+            helpers.makePGQuery(
+                query,
+                done
+            )
         }
 
-        async.mapSeries(
-            plots,
-            (plot, done) => {
-                let query = generatePlotQuery({
-                    well: req.well,
-                    plot: plot
-                })
+        let query = knex("tasks")
+        .returning("id")
+        .insert({
+            total: number,
+            user_id: req.user.id
+        })
+        .toString()
 
-                helpers.makePGQuery(
-                    query,
-                    (err, result) => {
-                        if(err) {
-                            return done(err)
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.jsonCallback(err)
+                }
+
+                let task_id = result[0].id
+                res.jsonCallback(null, { task_id: task_id })
+
+                let processPlot = (plot, done) => {
+                    let query = generatePlotQuery({
+                        well: req.well,
+                        plot: plot
+                    })
+
+                    helpers.makePGQuery(
+                        query,
+                        (err, result) => {
+                            if(err) {
+                                return done(err)
+                            }
+
+                            plot.data = result.map(v => [v.length, v.temp])
+                            processed++
+
+                            updateTaskStatus(
+                                task_id,
+                                {
+                                    processed: processed
+                                },
+                                (err, result) => {
+                                    if(err) {
+                                        return done(err)
+                                    }
+
+                                    return done(null, plot)
+                                }
+                            )
                         }
+                    )
+                }
 
-                        plot.data = result.map(v => [v.length, v.temp])
+                let plots = []
 
-                        return done(null, plot)
+                for(let i = 0; i < number; i++) {
+                    let date_start = helpers.convertDate(date_ms + interval * i, "ms", "iso8601")
+                    let date_end = helpers.convertDate(date_ms + interval * (i + 1), "ms", "iso8601")
+
+                    plots.push({
+                        type: "avg",
+                        date_start: date_start,
+                        date_end: date_end,
+                        offset: OFFSET_STEP * i,
+                        is_for_color_plot: true
+                    })
+                }
+
+                async.mapSeries(
+                    plots,
+                    processPlot,
+                    (err, result) => {
+                        return updateTaskStatus(
+                            task_id,
+                            {
+                                is_finished: true,
+                                result: { err: err, result: result }
+                            }
+                        )
                     }
                 )
-            },
-            res.jsonCallback
+            }
         )
     }
 )
@@ -688,6 +751,59 @@ api.post(
         helpers.makePGQuery(
             query,
             res.jsonCallback
+        )
+    }
+)
+
+api.get(
+    "/task_status",
+    helpers.validateRequestData({
+        id: validators.isIDValid
+    }),
+    (req, res) => {
+        let query = knex("tasks")
+        .where({
+            id: req.query.id,
+            user_id: req.user.id
+        })
+        .select()
+        .toString()
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.jsonCallback(err)
+                }
+
+                let status = result[0]
+
+                if(!status.is_finished) {
+                    return res.jsonCallback(null, {
+                        is_finished: status.is_finished,
+                        processed: status.processed,
+                        total: status.total
+                    })
+                }
+
+                let delete_query = knex("tasks")
+                .where({
+                    id: req.query.id,
+                    user_id: req.user.id
+                })
+                .delete()
+                .toString()
+
+                helpers.makePGQuery(
+                    delete_query,
+                    (err, result) => {
+                        return res.jsonCallback(null, {
+                            is_finished: status.is_finished,
+                            result: status.result
+                        })
+                    }
+                )
+            }
         )
     }
 )

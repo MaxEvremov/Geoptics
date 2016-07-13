@@ -275,7 +275,10 @@ var vm = {
     color_temp_interval: ko.observable(),
     color_temp_unit: ko.observable(),
 
-    selected_plots: ko.observableArray()
+    selected_plots: ko.observableArray(),
+
+    processed: ko.observable(),
+    total: ko.observable()
 }
 
 vm.resetPlotAvgState = function() {
@@ -621,6 +624,8 @@ vm.closeColorTempBox = function() {
 }
 
 vm.renderColorTemp = function() {
+    var POLL_INTERVAL = 2 * 1000
+
     var number = parseInt(vm.color_temp_number())
     var interval = parseInt(vm.color_temp_interval())
     var unit = vm.color_temp_unit()
@@ -635,18 +640,55 @@ vm.renderColorTemp = function() {
             interval: moment.duration(interval, unit).asMilliseconds(),
             well_id: vm.current_well.id
         },
-        function(err, result) {
+        function(err, task_id) {
             if(err) {
                 vm.is_loading_temp_data(false)
                 return console.error(err)
             }
 
-            vm.current_mode("color")
+            var checkTaskStatus = function() {
+                helpers.makeAJAXRequest(
+                    "/api/app/plots/task_status",
+                    "get",
+                    {
+                        id: task_id,
+                        well_id: vm.current_well.id
+                    },
+                    function(err, result) {
+                        if(err) {
+                            return console.error(err)
+                        }
 
-            vm.selected_plots.removeAll()
-            vm.selected_plots(result)
+                        if(!result.is_finished) {
+                            vm.processed(result.processed)
+                            vm.total(result.total)
 
-            vm.is_loading_temp_data(false)
+                            return setTimeout(checkTaskStatus, POLL_INTERVAL)
+                        }
+
+                        if(result.result.err) {
+                            return console.error(result.result.err)
+                        }
+
+                        vm.current_mode("color")
+
+                        vm.selected_plots.removeAll()
+
+                        // лол
+                        var plots = _.map(result.result.result, function(plot) {
+                            return new Plot(plot)
+                        })
+
+                        vm.selected_plots(plots)
+
+                        vm.is_loading_temp_data(false)
+                        vm.processed(null)
+                        vm.total(null)
+                    }
+                )
+            }
+
+            checkTaskStatus()
         }
     )
 }

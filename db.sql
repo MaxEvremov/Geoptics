@@ -55,6 +55,43 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: tasks; Type: TABLE; Schema: public; Owner: lwpss
+--
+
+CREATE TABLE tasks (
+    id integer NOT NULL,
+    is_finished boolean DEFAULT false,
+    processed integer DEFAULT 0,
+    total integer,
+    user_id integer,
+    result jsonb
+);
+
+
+ALTER TABLE tasks OWNER TO lwpss;
+
+--
+-- Name: bulk_requests_id_seq; Type: SEQUENCE; Schema: public; Owner: lwpss
+--
+
+CREATE SEQUENCE bulk_requests_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE bulk_requests_id_seq OWNER TO lwpss;
+
+--
+-- Name: bulk_requests_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: lwpss
+--
+
+ALTER SEQUENCE bulk_requests_id_seq OWNED BY tasks.id;
+
+
+--
 -- Name: favorites; Type: TABLE; Schema: public; Owner: lwpss
 --
 
@@ -330,6 +367,13 @@ ALTER TABLE ONLY length_annotations ALTER COLUMN id SET DEFAULT nextval('length_
 -- Name: id; Type: DEFAULT; Schema: public; Owner: lwpss
 --
 
+ALTER TABLE ONLY tasks ALTER COLUMN id SET DEFAULT nextval('bulk_requests_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: lwpss
+--
+
 ALTER TABLE ONLY timeline_events ALTER COLUMN id SET DEFAULT nextval('timeline_events_id_seq'::regclass);
 
 
@@ -345,6 +389,14 @@ ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regcl
 --
 
 ALTER TABLE ONLY wells ALTER COLUMN id SET DEFAULT nextval('wells_id_seq'::regclass);
+
+
+--
+-- Name: bulk_requests_pkey; Type: CONSTRAINT; Schema: public; Owner: lwpss
+--
+
+ALTER TABLE ONLY tasks
+    ADD CONSTRAINT bulk_requests_pkey PRIMARY KEY (id);
 
 
 --
@@ -444,6 +496,14 @@ CREATE INDEX t_measurements_date_length_well_id_idx ON t_measurements USING btre
 --
 
 CREATE INDEX timeline_events_well_id_idx ON timeline_events USING btree (well_id);
+
+
+--
+-- Name: bulk_requests_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: lwpss
+--
+
+ALTER TABLE ONLY tasks
+    ADD CONSTRAINT bulk_requests_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id);
 
 
 --

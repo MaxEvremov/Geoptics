@@ -324,6 +324,7 @@
 			<div class="box box-info box-borderless" style="position:relative;min-height:20%;">
 				<div class="box-header">
 					<h3 class="box-title">Давление
+                        <!-- ko if: current_mode() === 'normal' -->
                         <a class="btn btn-xs" title="В Избранное" data-bind="
                             click: saveFavorite,
                             css: {
@@ -333,6 +334,7 @@
                         ">
                             <i class="fa fa-star"></i>
                         </a>
+                        <!-- /ko -->
                 </h3>
 				</div>
 
@@ -390,7 +392,7 @@
 					</a>
 
 					<a class="adjustRoll" title="Сглаживание">
-						<input class="" placeholder="" type=number data-bind="value: adjustRoll"></input>
+						<input type="number" data-bind="value: adjustRoll"></input>
 					</a>
 				</div>
 			</div>
@@ -398,7 +400,15 @@
 			<div id="dygraph_box" class="box box-danger box-borderless" style="position:relative;min-height:80%;margin-bottom: 0px;">
 				<div id="dygraph_box_body" class="box-body" style="height: 100%;">
 					<div class="dygraph-loading-overlay" data-bind="visible: is_loading_temp_data">
+                        <!-- ko ifnot: processed() && total() -->
 						<i class="fa fa-spin fa-spinner"></i>
+                        <!-- /ko -->
+                        <!-- ko if: processed() && total() -->
+                        <div class="progress" style="width: 200px; display: inline-block;">
+                            <div class="progress-bar progress-bar-primary progress-bar-striped" data-bind="style: { width: processed() / total() * 100 + '%' }">
+                            </div>
+                        </div>
+                        <!-- /ko -->
 					</div>
 
 					<div class="graph-annotation-overlay" data-bind="

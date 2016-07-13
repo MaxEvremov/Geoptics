@@ -186,6 +186,14 @@ var init = function() {
 
                 vm.min_length.value(point.xval)
             }
+        },
+        valueFormatter: function(val, opts, series, dygraph, row, col) {
+            if(series === "Length") {
+                return val
+            }
+
+            var plot = vm.selected_plots()[parseInt(series) - 1]
+            return val - plot.offset
         }
     })
     plot_main.ready(function(err, graph) {

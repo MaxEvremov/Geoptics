@@ -205,11 +205,11 @@ var init = function() {
             else {
                 plot_labels = ["Length"]
 
-                for(var i = 0; i < selected_plots.length; i++) {
-                    plot_labels.push((i + 1).toString())
-                }
+                var length_data = _.find(selected_plots, function(plot) {
+                    return plot.data.length > 0
+                }).data
 
-                plot_data = _.map(selected_plots[0].data, function(v) {
+                plot_data = _.map(length_data, function(v) {
                     return [v[0]]
                 })
                 plot_colors = _.map(selected_plots, function(v) {
@@ -217,7 +217,11 @@ var init = function() {
                 })
 
                 for(var i = 0; i < selected_plots.length; i++) {
-                    var data = selected_plots[i].data
+                    plot_labels.push((i + 1).toString())
+
+                    var data = selected_plots[i].data.length === 0
+                        ? [[0, 0]]
+                        : selected_plots[i].data
 
                     for(var j = 0; j < data.length; j++) {
                         plot_data[j].push(data[j][1])

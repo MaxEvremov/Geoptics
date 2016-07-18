@@ -9,7 +9,9 @@ const expect = chai.expect
 
 const helpers = require("../lib/helpers")
 
-describe("validateRequestData", function() {
+// validateRequestData
+
+describe("helpers.validateRequestData", function() {
     // spies and test data
 
     let req = {
@@ -107,5 +109,74 @@ describe("validateRequestData", function() {
 
         expect(next.called).to.be.false
         expect(res.json.calledOnce).to.be.true
+    })
+})
+
+// validatePermissions
+
+describe("helpers.validatePermissions", function() {
+    // spies and test data
+
+    let res = {}
+
+    res.status = sinon.mock().returnsThis()
+    res.json = sinon.mock().returnsThis()
+
+    let next = sinon.spy()
+
+    // init
+
+    beforeEach(function() {
+        res.status.reset()
+        res.json.reset()
+        next.reset()
+    })
+
+    // tests
+
+    it("should deny access if user is not present", function() {
+        let validator = helpers.validatePermissions(["admin"])
+        let req = {}
+
+        validator(req, res, next)
+
+        expect(next.called).to.be.false
+        expect(res.status.calledWithExactly(401)).to.be.true
+    })
+
+    it("should deny access if user doesn't have required role", function() {
+        let validator = helpers.validatePermissions(["admin"])
+        let req = {
+            user: { role: "user" }
+        }
+
+        validator(req, res, next)
+
+        expect(next.called).to.be.false
+        expect(res.status.calledWithExactly(401)).to.be.true
+    })
+
+    it("should grant access if user has 'owner' role", function() {
+        let validator = helpers.validatePermissions(["admin"])
+        let req = {
+            user: { role: "owner" }
+        }
+
+        validator(req, res, next)
+
+        expect(next.called).to.be.true
+        expect(res.status.called).to.be.false
+    })
+
+    it("should grant access if user has required role", function() {
+        let validator = helpers.validatePermissions(["admin"])
+        let req = {
+            user: { role: "admin" }
+        }
+
+        validator(req, res, next)
+
+        expect(next.called).to.be.true
+        expect(res.status.called).to.be.false
     })
 })

@@ -21,6 +21,10 @@ class ColorTempRenderer {
     }
 
     _drawPlots() {
+        if(this.plots.length === 0) {
+            return
+        }
+
         var ctx = this._canvas.getContext("2d")
 
         var height = this.plots[0].length
@@ -42,10 +46,10 @@ class ColorTempRenderer {
         for(var i = 0; i < width; i++) {
             for(var j = 0; j < height; j++) {
                 var t = this.plots[i][j]
-                var coeff = (max_temp - t) / diff
+                var coeff = (t - min_temp) / diff
 
                 ctx.fillStyle = ColorTempRenderer._getColorFromScale(coeff)
-                ctx.fillRect(i, j, 1, 1)
+                ctx.fillRect(i, height - 1 - j, 1, 1)
             }
         }
 

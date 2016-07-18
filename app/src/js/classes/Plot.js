@@ -129,6 +129,26 @@ class Plot {
         }
     }
 
+    getColorPlotData(min_length, max_length) {
+        var data = _.cloneDeep(this._data)
+
+        if(_.isNumber(min_length) && _.isNumber(max_length)) {
+            if(min_length > max_length) {
+                var min = min_length
+                min_length = max_length
+                max_length = min
+            }
+
+            data = _.filter(data, function(v) {
+                return v[0] >= min_length && v[0] <= max_length
+            })
+        }
+
+        return _.map(data, function(v) {
+            return v[1]
+        })
+    }
+
     downloadLAS() {
         var query = $.param({
             plot: {

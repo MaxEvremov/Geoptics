@@ -176,6 +176,18 @@ var init = function() {
         drawCallback: function(e, x, points) {
 			mainDrawCallback()
 			vm.plot_main_xAxisRange(plot_main.xAxisRange())
+
+            if(vm.current_mode() !== "color") {
+                return
+            }
+
+            var x_range = plot_main.xAxisRange()
+
+            var plots = _.map(vm.selected_plots(), function(plot) {
+                return plot.getColorPlotData(x_range[0], x_range[1])
+            })
+
+            vm.renderer.update(plots)
 		},
         clickCallback: function(e, x, points) {
             var mode = vm.current_mode()
@@ -723,9 +735,7 @@ vm.selected_plots.subscribe(function(value) {
     }
 
     vm.renderer.update(_.map(plots, function(plot) {
-        return _.map(plot._data, function(v) {
-            return v[1]
-        })
+        return plot.getColorPlotData()
     }))
 })
 

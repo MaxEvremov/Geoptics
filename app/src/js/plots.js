@@ -191,7 +191,7 @@ var init = function() {
                 return
             }
 
-            var length_scale = vm.selected_plots()[0].getLengthScale()
+            var length_scale = vm.selected_plots()[0].getLengthScale(x_range[0], x_range[1])
 
             vm.renderer.update(plots, length_scale)
 		},

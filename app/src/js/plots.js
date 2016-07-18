@@ -5,6 +5,7 @@
 var ZOOM_LOAD_THRESHOLD = 1 * 24 * 60 * 60 * 1000
 var DEBOUNCE_DELAY = 500
 var POINTS_PER_PLOT = 100
+var POLL_INTERVAL = 2 * 1000
 
 // local state variables
 
@@ -250,40 +251,103 @@ var init = function() {
     is_inited = true
 }
 
-// main
+var getAvgTempPlot = function(date_start, date_end) {
+    var plot = new Plot({
+        type: "avg",
+        date_start: date_start,
+        date_end: date_end,
+        well_id: vm.current_well.id
+    })
 
-var vm = {
-    min_zoom_y: ko.observable(),
-    max_zoom_y: ko.observable(),
+    vm.is_point_box_visible(false)
+    vm.selected_date(null)
 
-    min_zoom_x: ko.observable(),
-    max_zoom_x: ko.observable(),
+    vm.is_loading_temp_data(true)
 
-    selected_date: ko.observable(),
+    plot.load(function(err, result) {
+        vm.is_loading_temp_data(false)
 
-    is_point_box_visible: ko.observable(false),
-    is_color_temp_box_visible: ko.observable(false),
-    point_box_top: ko.observable(0),
-    point_box_left: ko.observable(0),
+        if(err) {
+            return console.error(err)
+        }
 
-    is_loading_pressure_data: ko.observable(false),
-    is_loading_temp_data: ko.observable(false),
-    has_data: ko.observable(true),
-
-    is_favorite_saved: ko.observable(false),
-
-    well_id: ko.observable(),
-    current_well: null,
-
-    color_temp_number: ko.observable(),
-    color_temp_interval: ko.observable(),
-    color_temp_unit: ko.observable(),
-
-    selected_plots: ko.observableArray(),
-
-    processed: ko.observable(),
-    total: ko.observable()
+        vm.selected_plots.push(plot)
+    })
 }
+
+var redrawAnnotations = function() {
+    var file = plot_avg.file_
+
+    vm.annotations().forEach(function(annotation) {
+        var date = helpers.convertDate(annotation.x, "ms", "native")
+        var file_element = is_raw_pressure_data
+            ? [date, null]
+            : [date, [null, null, null]]
+
+        var index = _.sortedIndexBy(file, file_element, function(v) {
+            return v[0]
+        })
+
+        if(file[index]) {
+            var found_date = helpers.convertDate(file[index][0], "native", "ms")
+
+            if(found_date === annotation.x) {
+                return
+            }
+        }
+
+        file.splice(index, 0, file_element)
+    })
+
+    plot_avg.updateOptions({
+        file: file,
+        customBars: !is_raw_pressure_data,
+        errorBars: !is_raw_pressure_data
+    })
+
+    plot_avg.setAnnotations(vm.annotations())
+}
+
+// observables
+
+var vm = {}
+
+vm.min_zoom_y = ko.observable()
+vm.max_zoom_y = ko.observable()
+
+vm.min_zoom_x = ko.observable()
+vm.max_zoom_x = ko.observable()
+
+vm.selected_date = ko.observable()
+
+vm.is_point_box_visible = ko.observable(false)
+vm.is_color_temp_box_visible = ko.observable(false)
+vm.point_box_top = ko.observable(0)
+vm.point_box_left = ko.observable(0)
+
+vm.is_loading_pressure_data = ko.observable(false)
+vm.is_loading_temp_data = ko.observable(false)
+vm.has_data = ko.observable(true)
+
+vm.is_favorite_saved = ko.observable(false)
+
+vm.well_id = ko.observable()
+vm.current_well = null
+
+vm.color_temp_number = ko.observable()
+vm.color_temp_interval = ko.observable()
+vm.color_temp_unit = ko.observable()
+
+vm.selected_plots = ko.observableArray()
+
+vm.processed = ko.observable()
+vm.total = ko.observable()
+
+vm.plot_main_xAxisRange = ko.observable([0,0])
+vm.adjustRoll = ko.observable()
+vm.current_mode = ko.observable("normal")
+
+// methods
 
 vm.resetPlotAvgState = function() {
     var min_date = helpers.convertDate(plot_avg_init_state[0][0], "native", "ms")
@@ -328,30 +392,6 @@ vm.getNearestTempPlot = function() {
 
         if(result.data.length === 0) {
             return
-        }
-
-        vm.selected_plots.push(plot)
-    })
-}
-
-var getAvgTempPlot = function(date_start, date_end) {
-    var plot = new Plot({
-        type: "avg",
-        date_start: date_start,
-        date_end: date_end,
-        well_id: vm.current_well.id
-    })
-
-    vm.is_point_box_visible(false)
-    vm.selected_date(null)
-
-    vm.is_loading_temp_data(true)
-
-    plot.load(function(err, result) {
-        vm.is_loading_temp_data(false)
-
-        if(err) {
-            return console.error(err)
         }
 
         vm.selected_plots.push(plot)
@@ -451,8 +491,6 @@ vm.afterShow = function() {
     }
 }
 
-vm.current_mode = ko.observable("normal")
-
 vm.removePoint = function(data, event) {
     vm.selected_plots.remove(function(item) {
         return item == data
@@ -488,12 +526,6 @@ vm.saveFavorite = function() {
 
 // computed observables
 
-vm.selected_plots.subscribe(function(value) {
-    value.forEach(function(plot, i) {
-        plot.color(Plot.COLORS[i % Plot.COLORS.length])
-    })
-})
-
 vm.annotations = ko.computed(function() {
     var AVG_Y_AXIS = "Pressure"
 
@@ -515,43 +547,6 @@ vm.annotations = ko.computed(function() {
 
     return result
 })
-
-var redrawAnnotations = function() {
-    var file = plot_avg.file_
-
-    vm.annotations().forEach(function(annotation) {
-        var date = helpers.convertDate(annotation.x, "ms", "native")
-        var file_element = is_raw_pressure_data
-            ? [date, null]
-            : [date, [null, null, null]]
-
-        var index = _.sortedIndexBy(file, file_element, function(v) {
-            return v[0]
-        })
-
-        if(file[index]) {
-            var found_date = helpers.convertDate(file[index][0], "native", "ms")
-
-            if(found_date === annotation.x) {
-                return
-            }
-        }
-
-        file.splice(index, 0, file_element)
-    })
-
-    plot_avg.updateOptions({
-        file: file,
-        customBars: !is_raw_pressure_data,
-        errorBars: !is_raw_pressure_data
-    })
-
-    plot_avg.setAnnotations(vm.annotations())
-}
-
-vm.annotations.subscribe(redrawAnnotations)
-
-// avg graph params
 
 vm.updateZoomX = function(data, e) {
     if(e.keyCode != 13 && e.which != 13) {
@@ -593,13 +588,9 @@ vm.resetAvgPlotZoom = function() {
         valueRange: [null, null]
     })
 }
-
-vm.adjustRoll = ko.observable()
 vm.adjustRoll.subscribe(function(val) {
 	plot_avg.adjustRoll(Number(val))
 })
-
-vm.plot_main_xAxisRange = ko.observable([0,0])
 
 vm.is_main_plot_visible = ko.computed(function() {
     return vm.selected_plots().length > 0
@@ -628,8 +619,6 @@ vm.closeColorTempBox = function() {
 }
 
 vm.renderColorTemp = function() {
-    var POLL_INTERVAL = 2 * 1000
-
     var number = parseInt(vm.color_temp_number())
     var interval = parseInt(vm.color_temp_interval())
     var unit = vm.color_temp_unit()
@@ -702,6 +691,8 @@ vm.cancelColorMode = function() {
     vm.current_mode("normal")
 }
 
+// subscribes
+
 vm.selected_plots.subscribe(function(value) {
     if(vm.current_mode() !== "color") {
         return
@@ -721,6 +712,20 @@ vm.selected_plots.subscribe(function(value) {
         })
     }))
 })
+
+vm.selected_plots.subscribe(function(value) {
+    value.forEach(function(plot, i) {
+        plot.color(Plot.COLORS[i % Plot.COLORS.length])
+    })
+})
+
+vm.selected_plots.subscribe(function(value) {
+    if(value.length === 0) {
+        vm.plot_main.resetZoom()
+    }
+})
+
+vm.annotations.subscribe(redrawAnnotations)
 
 // exports
 

@@ -183,11 +183,17 @@ var init = function() {
 
             var x_range = plot_main.xAxisRange()
 
-            var plots = _.map(vm.selected_plots(), function(plot) {
-                return plot.getColorPlotData(x_range[0], x_range[1])
+            var plots = _.map(vm.selected_plots(), function(plot, i) {
+                return plot.getColorPlotData(i, x_range[0], x_range[1])
             })
 
-            vm.renderer.update(plots)
+            if(plots.length === 0) {
+                return
+            }
+
+            var length_scale = vm.selected_plots()[0].getLengthScale()
+
+            vm.renderer.update(plots, length_scale)
 		},
         clickCallback: function(e, x, points) {
             var mode = vm.current_mode()
@@ -734,9 +740,13 @@ vm.selected_plots.subscribe(function(value) {
         return vm.renderer.clear()
     }
 
-    vm.renderer.update(_.map(plots, function(plot) {
-        return plot.getColorPlotData()
-    }))
+    var length_scale = plots[0].getLengthScale()
+
+    plots = _.map(plots, function(plot, i) {
+        return plot.getColorPlotData(i)
+    })
+
+    vm.renderer.update(plots, length_scale)
 })
 
 vm.selected_plots.subscribe(function(value) {

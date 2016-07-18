@@ -2,18 +2,74 @@
 
 class ColorTempRenderer {
     constructor(params) {
+        var self = this
+
         if(!params) {
             params = {}
         }
 
         this.element = params.element
+        this.plots = params.plots || []
+        this.length_scale = params.length_scale
+
+        // create elements
 
         var canvas = document.createElement("canvas")
         this.element.appendChild(canvas)
-
         this._canvas = canvas
 
-        this.plots = params.plots || []
+        var legend_name = document.createElement("div")
+        legend_name.className = "color-renderer-legend-name"
+        legend_name.style.visibility = "hidden"
+        this.element.appendChild(legend_name)
+        this._legend_name = legend_name
+
+        var legend_length = document.createElement("div")
+        legend_length.className = "color-renderer-legend-length"
+        legend_length.style.visibility = "hidden"
+        this.element.appendChild(legend_length)
+        this._legend_length = legend_length
+
+        var legend_value = document.createElement("div")
+        legend_value.className = "color-renderer-legend-value"
+        legend_value.style.visibility = "hidden"
+        this.element.appendChild(legend_value)
+        this._legend_value = legend_value
+
+        // add event listeners
+
+        this.element.addEventListener("mouseenter", function(e) {
+            self._legend_name.style.visibility = "visible"
+            self._legend_length.style.visibility = "visible"
+            self._legend_value.style.visibility = "visible"
+        })
+
+        this.element.addEventListener("mouseleave", function(e) {
+            self._legend_name.style.visibility = "hidden"
+            self._legend_length.style.visibility = "hidden"
+            self._legend_value.style.visibility = "hidden"
+        })
+
+        this.element.addEventListener("mousemove", function(e) {
+            var width = ColorTempRenderer._getNumericStyleValue(self._canvas.style.width)
+            var height = ColorTempRenderer._getNumericStyleValue(self._canvas.style.height)
+
+            var rel_x = e.layerX / width
+            var rel_y = e.layerY / height
+
+            var plot_idx = Math.floor(rel_x * self.plots.length)
+            var value_idx = Math.floor(rel_y * self.length_scale.length)
+
+            self._legend_name.innerText = self.plots[plot_idx].name
+
+            if(value_idx < self.length_scale.length) {
+                self._legend_length.innerText = `${self.length_scale[value_idx]} м`
+
+                self._legend_value.innerText = self.plots[plot_idx].data[value_idx].toFixed(3)
+            }
+        })
+
+        // draw plots
 
         if(this.plots.length > 0) {
             this._drawPlots()
@@ -27,29 +83,29 @@ class ColorTempRenderer {
 
         var ctx = this._canvas.getContext("2d")
 
-        var height = this.plots[0].length
+        var height = this.length_scale.length
         var width = this.plots.length
 
         this._canvas.height = height
         this._canvas.width = width
 
         var min_temp = _.min(_.map(this.plots, function(plot) {
-            return _.min(plot)
+            return _.min(plot.data)
         }))
 
         var max_temp = _.max(_.map(this.plots, function(plot) {
-            return _.max(plot)
+            return _.max(plot.data)
         }))
 
         var diff = max_temp - min_temp
 
         for(var i = 0; i < width; i++) {
             for(var j = 0; j < height; j++) {
-                var t = this.plots[i][j]
+                var t = this.plots[i].data[j]
                 var coeff = (t - min_temp) / diff
 
                 ctx.fillStyle = ColorTempRenderer._getColorFromScale(coeff)
-                ctx.fillRect(i, height - 1 - j, 1, 1)
+                ctx.fillRect(i, j, 1, 1)
             }
         }
 
@@ -57,8 +113,10 @@ class ColorTempRenderer {
         this._canvas.style.height = `${this.element.clientHeight}px`
     }
 
-    update(plots) {
+    update(plots, length_scale) {
         this.plots = plots
+        this.length_scale = length_scale
+
         this._drawPlots()
     }
 
@@ -114,4 +172,9 @@ ColorTempRenderer._getColorFromScale = function(coeff) {
             return `rgb(${r}, ${g}, ${b})`
         }
     }
+}
+
+ColorTempRenderer._getNumericStyleValue = function(value) {
+    value = value.replace("px", "")
+    return parseFloat(value)
 }

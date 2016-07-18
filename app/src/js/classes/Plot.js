@@ -129,7 +129,7 @@ class Plot {
         }
     }
 
-    getColorPlotData(min_length, max_length) {
+    getColorPlotData(i, min_length, max_length) {
         var data = _.cloneDeep(this._data)
 
         if(_.isNumber(min_length) && _.isNumber(max_length)) {
@@ -144,8 +144,55 @@ class Plot {
             })
         }
 
+        data.sort(function(a, b) {
+            if(a[0] > b[0]) {
+                return 1
+            }
+
+            if(a[0] < b[0]) {
+                return -1
+            }
+
+            return 0
+        })
+
+        return {
+            name: `График ${i + 1}`,
+            data: _.map(data, function(v) {
+                return v[1]
+            })
+        }
+    }
+
+    getLengthScale(min_length, max_length) {
+        var data = _.cloneDeep(this._data)
+
+        if(_.isNumber(min_length) && _.isNumber(max_length)) {
+            if(min_length > max_length) {
+                var min = min_length
+                min_length = max_length
+                max_length = min
+            }
+
+            data = _.filter(data, function(v) {
+                return v[0] >= min_length && v[0] <= max_length
+            })
+        }
+
+        data.sort(function(a, b) {
+            if(a[0] > b[0]) {
+                return 1
+            }
+
+            if(a[0] < b[0]) {
+                return -1
+            }
+
+            return 0
+        })
+
         return _.map(data, function(v) {
-            return v[1]
+            return v[0]
         })
     }
 

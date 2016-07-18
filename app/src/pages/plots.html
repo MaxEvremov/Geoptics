@@ -246,10 +246,35 @@
     #renderer_div {
         background-color: white;
         height: 37%;
+        position: relative;
     }
 
     #dygraph_box .dygraph-legend {
         top: 80px !important;
+    }
+
+    #renderer_div > .color-renderer-legend-name {
+        top: 5px;
+        right: 5px;
+        position: absolute;
+        color: white;
+        pointer-events: none;
+    }
+
+    #renderer_div > .color-renderer-legend-length {
+        top: 25px;
+        right: 5px;
+        position: absolute;
+        color: white;
+        pointer-events: none;
+    }
+
+    #renderer_div > .color-renderer-legend-value {
+        top: 45px;
+        right: 5px;
+        position: absolute;
+        color: white;
+        pointer-events: none;
     }
 </style>
 

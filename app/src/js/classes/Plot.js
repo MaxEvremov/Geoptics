@@ -181,6 +181,8 @@ class Plot {
             dateWindow: [zoom_left, zoom_right],
             isZoomedIgnoreProgrammaticZoom: false
         })
+
+        m_site.plots.drawAvgPlot()
     }
 
     static downloadPlotsAsLAS(plots, well_id) {

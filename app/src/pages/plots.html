@@ -192,6 +192,7 @@
 	.timeline-events > li {
 		padding: 0.7em 0;
 		border-bottom: 1px solid #eee;
+        cursor: pointer;
 	}
 
 	.timeline-events > li:last-child {
@@ -588,7 +589,7 @@
 
 					<!-- ko ifnot: events().length === 0 -->
 					<ul class="list-unstyled timeline-events" data-bind="foreach: events">
-						<li>
+						<li data-bind="click: $parent.showEventOnPlot">
 							<!-- ko ifnot: $parent.is_editing() && $parent.current_event().id == $data.id -->
 							<b data-bind="
                                 text: short_text

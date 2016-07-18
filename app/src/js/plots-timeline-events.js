@@ -55,6 +55,9 @@ m_site.plots.timeline_events = (function() {
                 }
             )
         },
+        showEventOnPlot: function(data, e) {
+            data.showOnPlot(m_site.plots.plot_avg)
+        },
 
         edit: function() {
             m_site.plots.current_mode("timeline_event")

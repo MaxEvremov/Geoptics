@@ -362,6 +362,8 @@ vm.current_mode = ko.observable("normal")
 
 // methods
 
+vm.drawAvgPlot = drawAvgPlot
+
 vm.resetPlotAvgState = function() {
     var min_date = helpers.convertDate(plot_avg_init_state[0][0], "native", "ms")
     var max_date = helpers.convertDate(plot_avg_init_state[plot_avg_init_state.length - 1][0], "native", "ms")

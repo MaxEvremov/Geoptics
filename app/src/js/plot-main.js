@@ -1,9 +1,9 @@
 (function() {
-    var DYGRAPH_BOTTOM_OFFSET = -20
-
     var DYGRAPH_BOX_ID = "#dygraph_box"
     var DYGRAPH_BOX_BODY_ID = "#dygraph_box_body"
     var DYGRAPH_CONTAINER_ID = "#dygraph_container"
+
+    var Y_OFFSET = 24
 
     // dygraph options
 
@@ -20,7 +20,7 @@
         var new_x = $(DYGRAPH_CONTAINER_ID).width()
             + $(DYGRAPH_CONTAINER_ID).offset().left
             - (e.pageY - $(DYGRAPH_CONTAINER_ID).offset().top)
-            - $(window).scrollLeft()
+            - $(window).scrollLeft() - Y_OFFSET
 
         var new_y = $(DYGRAPH_CONTAINER_ID).height()
             + $(DYGRAPH_CONTAINER_ID).offset().top
@@ -184,7 +184,7 @@
             var dygraph_width = $(DYGRAPH_BOX_BODY_ID).height()
             var dygraph_height = $(DYGRAPH_BOX_BODY_ID).width() - 28
 
-            var dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ Math.round(((dygraph_width - dygraph_height) / 2) - 24)}px) translateX(${ Math.round(-((dygraph_width - dygraph_height) / 2))}px)`
+            var dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ Math.round(((dygraph_width - dygraph_height) / 2) - Y_OFFSET)}px) translateX(${ Math.round(-((dygraph_width - dygraph_height) / 2))}px)`
 
             $(DYGRAPH_CONTAINER_ID).css({
                 transform: dygraph_transform,

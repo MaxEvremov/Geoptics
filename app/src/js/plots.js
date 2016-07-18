@@ -65,6 +65,8 @@ var generateEmptyPoints = function(params) {
         customBars: false,
         labelsShowZeroValues: false
     })
+
+    redrawAnnotations()
 }
 
 var drawAvgPlot = function() {

@@ -20,6 +20,9 @@ var plot_main = null
 
 var is_raw_pressure_data
 
+var prev_min_date = null
+var prev_max_date = null
+
 // helper methods
 
 var loadPressureData = _.debounce(function(params) {
@@ -93,6 +96,14 @@ var drawAvgPlot = function() {
 
         return
     }
+
+    if(prev_min_date && prev_min_date === min_date
+    && prev_max_date && prev_max_date === max_date) {
+        return
+    }
+
+    prev_min_date = min_date
+    prev_max_date = max_date
 
     loadPressureData({
         date_start: helpers.convertDate(min_date, "ms", "iso8601"),
@@ -354,7 +365,8 @@ vm.resetPlotAvgState = function() {
     var max_date = helpers.convertDate(plot_avg_init_state[plot_avg_init_state.length - 1][0], "native", "ms")
 
     plot_avg.updateOptions({
-        dateWindow: [min_date, max_date]
+        dateWindow: [min_date, max_date],
+        valueRange: [null, null]
     })
 
     drawAvgPlot()

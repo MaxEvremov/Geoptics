@@ -1,0 +1,288 @@
+	.just-padding {
+		padding: 15px;
+	}
+
+	.list-group.list-group-root {
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.list-group.list-group-root .list-group {
+		margin-bottom: 0;
+	}
+
+	.list-group.list-group-root .list-group-item {
+		border-radius: 0;
+		border-width: 1px 0 0 0;
+	}
+
+	.list-group.list-group-root > .list-group-item:first-child {
+		border-top-width: 0;
+	}
+
+	.list-group.list-group-root > .list-group > .list-group-item {
+		padding-left: 30px;
+	}
+
+	.list-group.list-group-root > .list-group > .list-group > .list-group-item {
+		padding-left: 45px;
+	}
+
+	.list-group-item .glyphicon {
+		margin-right: 5px;
+	}
+
+	.dygraph-legend {
+		padding: 10px;
+		border-radius: 3px;
+		margin: 5px;
+		box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.20);
+		background: rgba(255, 255, 255, 0.8)!important;
+		z-index: 100!important;
+	}
+
+	.dygraph-legend > * {
+		display: block;
+	}
+
+	.dygraphDefaultAnnotation {
+		line-height: 14px;
+		border: 0;
+		box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.37);
+		color: white !important;
+	}
+
+	.placeholder {
+		font-size: 0.8em;
+		color: #999;
+		padding: 1em;
+		font-size: 1em;
+		text-align: center;
+		width: 100%;
+		background: #B0B6B9;
+		color: #fff;
+	}
+
+	#dygraph_box_body .placeholder {
+		position: absolute;
+		top: 50px;
+	}
+
+	#dygraph_container .line {
+		visibility: hidden;
+		background-color: black;
+		position: absolute;
+		pointer-events: none;
+		width: 1px;
+		height: 100%;
+		top: 0;
+		margin-top: -20px;
+	}
+
+	.box-toolbar {
+		position: absolute;
+		top: 0;
+		right: 0;
+		padding: 5px;
+	}
+
+	.dygraph-box {
+		position: relative;
+		padding: 0
+	}
+
+	.dygraph-axis-label {
+		text-align: center!important
+	}
+
+	.axis-input-block {
+		position: absolute;
+		z-index: 10
+	}
+
+	.axis-input-block input {
+		position: absolute;
+		/* display: none; */
+		border-radius: 3px;
+		border: 1px inset #eee;
+		padding: 0px 3px;
+		border: 0;
+		background: transparent;
+		font-size: .8em;
+		opacity: .7;
+	}
+	.axis-input-block input:focus {opacity: 1;}
+/*
+	.axis-input-block:hover input,
+	.axis-input-block input:focus 
+*/
+	.dygraph-box:hover .axis-input-block input
+	{
+		/* display: block; */
+	}
+
+	.axis-input-block-left {
+		left: -6px;
+		top: -10px;
+		bottom: 0px;
+		width: 50px;
+	}
+
+	.axis-input-block-left-top {
+		right: 0px;
+		top: 0;
+		width: 40px;
+		text-align: right;
+	}
+
+	.axis-input-block-left-bottom {
+		right: 0px;
+		bottom: 0;
+		width: 40px;
+		text-align: right;
+	}
+
+	.axis-input-block-bottom {
+		left: 45px;
+		right: 5px;
+		bottom: 20px;
+		height: 20px;
+	}
+
+	.axis-input-block-bottom-left {
+		left: 0;
+		bottom: 0;
+		width: 10em;
+	}
+
+	.axis-input-block-bottom-right {
+		right: 0;
+		bottom: 0;
+		width: 10em;
+		text-align: right;
+	}
+
+	.box-toolbar .adjustRoll input {
+		width: 3em;
+		border-radius: 3px;
+		border: 1px inset #eee;
+		padding: 0px 3px;
+	}
+
+	.dygraph-annotation-deviation {
+		background-color: red;
+		color: white;
+	}
+
+	.dygraph-annotation-event,
+	.dygraph-annotation-length {
+		background-color: #666;
+	}
+
+    .box-body > .table.plotpoints {
+        margin-bottom: 15px;
+    }
+
+	.plotpoints tr {
+		cursor: pointer;
+	}
+
+	.click-box {
+		position: fixed;
+		display: block;
+		width: 300px;
+		z-index: 13;
+		border: 2px solid rgba(0, 0, 0, 0.2);
+	}
+
+	.timeline-events {
+		font-size: 0.9em;
+	}
+
+	.timeline-events > li {
+		padding: 0.7em 0;
+		border-bottom: 1px solid #eee;
+        cursor: pointer;
+	}
+
+	.timeline-events > li:last-child {
+		border-bottom: 0;
+	}
+
+	#dygraph_avg_container {
+		margin-left: -13px;
+	}
+
+	.dygraph-loading-overlay {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		text-align: center;
+		z-index: 12;
+		font-size: 24px;
+		line-height: 150px;
+	}
+
+	.loading {
+		-webkit-filter: blur(2px);
+        filter: blur(2px);
+		pointer-events: none;
+	}
+
+	#dygraph_container > div > canvas {
+		-webkit-filter: blur(0.0000001px);
+        filter: blur(0.0000001px);
+	}
+
+    .length-annotation-select {
+        height: 34px;
+    }
+
+    .length-annotation-select > select {
+        width: 85%;
+        float: left;
+    }
+
+    .length-annotation-select > div {
+        width: 10%;
+        height: 34px;
+        float: right;
+    }
+
+    #color_temp_box {
+        padding: 10px;
+    }
+
+    #renderer_div {
+        background-color: white;
+        height: 37%;
+        position: relative;
+    }
+
+    #dygraph_box .dygraph-legend {
+        top: 80px !important;
+    }
+
+    #renderer_div > .color-renderer-legend-name {
+        top: 5px;
+        right: 5px;
+        position: absolute;
+        color: white;
+        pointer-events: none;
+    }
+
+    #renderer_div > .color-renderer-legend-length {
+        top: 25px;
+        right: 5px;
+        position: absolute;
+        color: white;
+        pointer-events: none;
+    }
+
+    #renderer_div > .color-renderer-legend-value {
+        top: 45px;
+        right: 5px;
+        position: absolute;
+        color: white;
+        pointer-events: none;
+    }

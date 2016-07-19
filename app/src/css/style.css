@@ -168,3 +168,13 @@ body .dygraphDefaultAnnotation {
     width: 20px;
     background-repeat-x: no-repeat;
 }
+.box-toolbar{}
+.box-toolbar>*{
+    padding: 0.4em;
+    /* margin: 0 0.2em; */
+    /* border: 1px solid rgba(192, 192, 192, 0.42); */
+    /* text-align: center; */
+    color: #5d5d5d;
+    font-size: 90%;
+}
+.disabled{opacity: 0.3;pointer-events: none;}

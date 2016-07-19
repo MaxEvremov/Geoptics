@@ -12,8 +12,6 @@ let knex_client = knex({
     connection: config.postgres_con
 })
 
-knex_client.on("query", console.log)
-
 let bookshelf_client = bookshelf(knex_client)
 bookshelf_client.plugin("virtuals")
 bookshelf_client.plugin(require("bookshelf-modelbase").pluggable)

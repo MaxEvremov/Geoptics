@@ -102,12 +102,16 @@
 						</a>
 
                         <ul class="treeview-menu" data-bind="visible: $parent.state.current_page() === 'wells' && $parent.plots.well_id() == id">
-                            <li data-bind="css: { active: $parent.plots.current_mode() === 'reference_point' }">
-                                <a data-bind="click: $parent.plots.reference_point.edit"><i class="fa fa-compress"></i> Выбор эталонной точки</a>
+                            <!-- ko with: $parent.state -->
+                            <!-- ko if: user() && (user().role === 'admin' || user().role === 'owner') -->
+                            <li data-bind="css: { active: m_site.plots.current_mode() === 'reference_point' }">
+                                <a data-bind="click: m_site.plots.reference_point.edit"><i class="fa fa-compress"></i> Выбор эталонной точки</a>
                             </li>
-                            <li data-bind="css: { active: $parent.plots.current_mode() === 'min_length' }">
-                                <a data-bind="click: $parent.plots.min_length.edit"><i class="fa fa-step-forward"></i> Выбор нуля глубины</a>
+                            <li data-bind="css: { active: m_site.plots.current_mode() === 'min_length' }">
+                                <a data-bind="click: m_site.plots.min_length.edit"><i class="fa fa-step-forward"></i> Выбор нуля глубины</a>
                             </li>
+                            <!-- /ko -->
+                            <!-- /ko -->
                             <li data-bind="css: { active: $parent.plots.current_mode() === 'timeline_event' }">
                                 <a data-bind="click: $parent.plots.timeline_events.edit"><i class="fa fa-clock-o"></i> События</a>
                             </li>

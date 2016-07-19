@@ -19,7 +19,7 @@ class Well {
 
     setReferencePoint(params, done) {
         helpers.makeAJAXRequest(
-            "/api/app/plots/reference_point",
+            "/api/app/wells/reference_point",
             "post",
             {
                 date: params.date,
@@ -33,7 +33,7 @@ class Well {
 
     getReferencePoint(done) {
         helpers.makeAJAXRequest(
-            "/api/app/plots/reference_point",
+            "/api/app/wells/reference_point",
             "get",
             {
                 well_id: this.id
@@ -50,7 +50,7 @@ class Well {
 
     deleteReferencePoint(done) {
         helpers.makeAJAXRequest(
-            "/api/app/plots/reference_point",
+            "/api/app/wells/reference_point",
             "delete",
             {
                 well_id: this.id
@@ -61,7 +61,7 @@ class Well {
 
     getMinLength(done) {
         helpers.makeAJAXRequest(
-            "/api/app/plots/min_length",
+            "/api/app/wells/min_length",
             "get",
             {
                 well_id: this.id
@@ -72,7 +72,7 @@ class Well {
 
     setMinLength(params, done) {
         helpers.makeAJAXRequest(
-            "/api/app/plots/min_length",
+            "/api/app/wells/min_length",
             "post",
             {
                 min_length: params.min_length,

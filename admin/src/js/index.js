@@ -18,14 +18,8 @@ $(document).ready(function() {
         m_site.state.current_page(pager.page.route[0])
     })
 
-    helpers.makeAJAXRequest(
-        "/api/admin/state/init",
-        "get",
-        function(err, result) {
-            m_site.state.user(result.user)
-
-            m_site.state.is_ready(true)
-            m_site.state.current_page(pager.page.route[0])
-        }
-    )
+    m_site.state.load(function() {
+        m_site.state.is_ready(true)
+        m_site.state.current_page(pager.page.route[0])
+    })
 })

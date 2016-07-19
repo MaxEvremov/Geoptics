@@ -46,7 +46,6 @@
 <body class="skin-black">
     <div data-bind="page: {
         id: 'login',
-        role: 'start',
         with: login,
         sourceOnShow: 'pages/login.html'
     }"></div>
@@ -63,8 +62,8 @@
                         <li>
                             <a>Добро пожаловать, Администратор</a>
                         </li>
-                        <li>
-                            <a data-bind="'page-href': '/login'">
+                        <li data-bind="click: state.logOut">
+                            <a>
                                 <i class="fa fa-sign-out"></i> <span>Выход</span>
                             </a>
                         </li>
@@ -93,6 +92,7 @@
         <div class="content-wrapper" style="min-height: 780px;">
             <div data-bind="page: {
                 id: 'users',
+                role: 'start',
                 sourceOnShow: 'pages/users.html',
                 with: users,
                 beforeShow: users.onShow,

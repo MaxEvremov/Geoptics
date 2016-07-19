@@ -25,6 +25,35 @@ m_site.state = (function() {
                     return sub.dispose()
                 }
             })
+        },
+
+        load: function(done) {
+            helpers.makeAJAXRequest(
+                "/api/admin/state/init",
+                "get",
+                function(err, result) {
+                    if(err) {
+                        return console.error(err)
+                    }
+
+                    m_site.state.user(result.user)
+
+                    if(done && _.isFunction(done)) {
+                        return done()
+                    }
+                }
+            )
+        },
+
+        logOut: function() {
+            helpers.makeAJAXRequest(
+                "/api/admin/auth/logout",
+                "post",
+                function(err, result) {
+                    m_site.state.user(null)
+                    pager.navigate("login")
+                }
+            )
         }
     }
 

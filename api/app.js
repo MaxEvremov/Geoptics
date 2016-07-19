@@ -17,6 +17,7 @@ const favorites = require(__base + "api/app/favorites")
 const auth = require(__base + "api/auth")
 const plots = require(__base + "api/app/plots")
 const state = require(__base + "api/app/state")
+const wells = require(__base + "api/app/wells")
 
 // main
 
@@ -46,6 +47,13 @@ api.use(
     helpers.validateRequestData({ well_id: validators.isIDValid }),
     helpers.checkWellAccess,
     plots
+)
+api.use(
+    "/wells",
+    helpers.validatePermissions(["admin"]),
+    helpers.validateRequestData({ well_id: validators.isIDValid }),
+    helpers.checkWellAccess,
+    wells
 )
 api.use("/state", state)
 

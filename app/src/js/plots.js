@@ -45,6 +45,11 @@ var loadPressureData = _.debounce(function(params) {
 
         vm.is_loading_pressure_data(false)
         redrawAnnotations()
+
+        var y_range = plot_avg.yAxisRange()
+
+        vm.min_zoom_y(y_range[0])
+        vm.max_zoom_y(y_range[1])
     })
 }, DEBOUNCE_DELAY)
 
@@ -82,11 +87,11 @@ var drawAvgPlot = function() {
     var min_date = x_range[0]
     var max_date = x_range[1]
 
+    vm.min_zoom_y(y_range[0])
+    vm.max_zoom_y(y_range[1])
+
     vm.min_zoom_x(helpers.convertDate(min_date, "ms", "jmask"))
     vm.max_zoom_x(helpers.convertDate(max_date, "ms", "jmask"))
-
-    vm.min_zoom_y(y_range[0][0])
-    vm.max_zoom_y(y_range[0][1])
 
     // обновление данных в графике давления
 
@@ -393,7 +398,7 @@ vm.resetPlotAvgState = function() {
 
     drawAvgPlot()
     redrawAnnotations()
-	
+
 	vm.is_point_box_visible(false)
 }
 

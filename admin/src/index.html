@@ -25,18 +25,23 @@
     <script src="./lib/moment-with-locales.min.js"></script>
     <script src="./lib/lodash.min.js"></script>
     <script src="./lib/async.min.js"></script>
+    <script src="./lib/FileAPI.min.js"></script>
 
     <script src="./js/index.js"></script>
 
     <script src="./js/helpers.js"></script>
+    <script src="./js/CRUD.js"></script>
+    <script src="./js/ko-binding-handlers.js"></script>
 
     <script src="./js/models/Well.js"></script>
     <script src="./js/models/User.js"></script>
+    <script src="./js/models/Texture.js"></script>
 
     <script src="./js/state.js"></script>
     <script src="./js/login.js"></script>
     <script src="./js/users.js"></script>
     <script src="./js/wells.js"></script>
+    <script src="./js/textures.js"></script>
 
     <script type="text/javascript">
         document.write("<base href='" + document.location.origin + "/admin/' />")
@@ -85,6 +90,11 @@
                             <i class="fa fa-cog"></i> <span>Скважины</span>
                         </a>
                     </li>
+                    <li data-bind="css: { active: state.current_page() === 'textures' }">
+                        <a data-bind="'page-href': '/textures'">
+                            <i class="fa fa-cog"></i> <span>Виды констр. разметки</span>
+                        </a>
+                    </li>
                 </ul>
             </section>
         </aside>
@@ -99,6 +109,17 @@
                 guard: state.loggedInGuard
             }"></div>
 
+            <div data-bind="page: { id: 'user' }">
+                <div data-bind="page: {
+                    id: '?',
+                    nameParam: users.item_id,
+                    beforeShow: users.onItemShow,
+                    sourceOnShow: 'pages/user.html',
+                    with: users,
+                    guard: state.loggedInGuard
+                }"></div>
+            </div>
+
             <div data-bind="page: {
                 id: 'wells',
                 sourceOnShow: 'pages/wells.html',
@@ -112,8 +133,8 @@
             }">
                 <div data-bind="page: {
                     id: '?',
-                    nameParam: wells.well_id,
-                    beforeShow: wells.onWellShow,
+                    nameParam: wells.item_id,
+                    beforeShow: wells.onItemShow,
                     sourceOnShow: 'pages/well.html',
                     with: wells,
                     guard: state.loggedInGuard
@@ -126,10 +147,32 @@
             }">
                 <div data-bind="page: {
                     id: '?',
-                    nameParam: wells.well_id,
+                    nameParam: wells.item_id,
                     beforeShow: wells.onWellPermissionsShow,
                     sourceOnShow: 'pages/well_permissions.html',
                     with: wells,
+                    guard: state.loggedInGuard
+                }">
+                </div>
+            </div>
+
+            <div data-bind="page: {
+                id: 'textures',
+                sourceOnShow: 'pages/textures.html',
+                with: textures,
+                beforeShow: textures.onShow,
+                guard: state.loggedInGuard
+            }"></div>
+
+            <div data-bind="page: {
+                id: 'texture'
+            }">
+                <div data-bind="page: {
+                    id: '?',
+                    nameParam: textures.item_id,
+                    beforeShow: textures.onItemShow,
+                    sourceOnShow: 'pages/texture.html',
+                    with: textures,
                     guard: state.loggedInGuard
                 }">
                 </div>

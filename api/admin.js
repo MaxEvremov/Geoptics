@@ -13,6 +13,7 @@ const helpers = require(__base + "lib/helpers")
 const auth = require(__base + "api/auth")
 const users = require(__base + "api/admin/users")
 const wells = require(__base + "api/admin/wells")
+const textures = require(__base + "api/admin/textures")
 const state = require(__base + "api/admin/state")
 
 const config = require(__base + "config")
@@ -36,15 +37,11 @@ api.use(session({
 }))
 api.use(passport.initialize())
 api.use(passport.session())
-api.use((req, res, next) => {
-    console.log("req.user", req.user)
-    console.log("req.session", req.session)
-    next()
-})
 
 api.use("/auth", auth.generateAPI(["admin"]))
 api.use("/users", helpers.validatePermissions("admin"), users)
 api.use("/wells", helpers.validatePermissions("admin"), wells)
+api.use("/textures", helpers.validatePermissions("admin"), textures)
 api.use("/state", state)
 
 // exports

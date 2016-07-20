@@ -133,6 +133,8 @@ if(config.serve_static) {
         res.sendFile("index.html", { root: __dirname + "/admin/src" })
     })
 
+    app.use("/data", express.static("data"))
+
     app.use("/", express.static("app/src"))
     app.all("/*", (req, res) => {
         res.sendFile("index.html", { root: __dirname + "/app/src" })

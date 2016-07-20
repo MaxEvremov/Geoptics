@@ -14,6 +14,7 @@ m_site.state = (function() {
 
         current_well: null,
         wells: ko.observableArray(),
+        textures: ko.observableArray(),
 
         loggedInGuard: function(page, route, done) {
             var is_ready = self.is_ready()
@@ -49,6 +50,9 @@ m_site.state = (function() {
                     result.wells.forEach(function(well) {
                         m_site.state.wells.push(new Well(well))
                     })
+
+                    m_site.state.textures.removeAll()
+                    m_site.state.textures(result.textures)
 
                     if(done && _.isFunction(done)) {
                         return done()

@@ -139,7 +139,7 @@ CREATE TABLE length_annotations (
     name text,
     y1 numeric,
     y2 numeric,
-    css_class text
+    texture_id integer
 );
 
 
@@ -218,6 +218,42 @@ CREATE TABLE t_measurements (
 
 
 ALTER TABLE t_measurements OWNER TO lwpss;
+
+--
+-- Name: textures; Type: TABLE; Schema: public; Owner: lwpss
+--
+
+CREATE TABLE textures (
+    id integer NOT NULL,
+    name text,
+    img text,
+    created_at timestamp with time zone,
+    updated_at timestamp with time zone
+);
+
+
+ALTER TABLE textures OWNER TO lwpss;
+
+--
+-- Name: textures_id_seq; Type: SEQUENCE; Schema: public; Owner: lwpss
+--
+
+CREATE SEQUENCE textures_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE textures_id_seq OWNER TO lwpss;
+
+--
+-- Name: textures_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: lwpss
+--
+
+ALTER SEQUENCE textures_id_seq OWNED BY textures.id;
+
 
 --
 -- Name: timeline_events; Type: TABLE; Schema: public; Owner: lwpss
@@ -374,6 +410,13 @@ ALTER TABLE ONLY tasks ALTER COLUMN id SET DEFAULT nextval('bulk_requests_id_seq
 -- Name: id; Type: DEFAULT; Schema: public; Owner: lwpss
 --
 
+ALTER TABLE ONLY textures ALTER COLUMN id SET DEFAULT nextval('textures_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: lwpss
+--
+
 ALTER TABLE ONLY timeline_events ALTER COLUMN id SET DEFAULT nextval('timeline_events_id_seq'::regclass);
 
 
@@ -421,6 +464,14 @@ ALTER TABLE ONLY length_annotations
 
 ALTER TABLE ONLY sessions_app
     ADD CONSTRAINT session_pkey PRIMARY KEY (sid);
+
+
+--
+-- Name: textures_pkey; Type: CONSTRAINT; Schema: public; Owner: lwpss
+--
+
+ALTER TABLE ONLY textures
+    ADD CONSTRAINT textures_pkey PRIMARY KEY (id);
 
 
 --
@@ -520,6 +571,14 @@ ALTER TABLE ONLY favorites
 
 ALTER TABLE ONLY favorites
     ADD CONSTRAINT favorites_well_id_fkey FOREIGN KEY (well_id) REFERENCES wells(id);
+
+
+--
+-- Name: length_annotations_texture_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: lwpss
+--
+
+ALTER TABLE ONLY length_annotations
+    ADD CONSTRAINT length_annotations_texture_id_fkey FOREIGN KEY (texture_id) REFERENCES textures(id);
 
 
 --

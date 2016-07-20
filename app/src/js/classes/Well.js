@@ -134,7 +134,7 @@ class Well {
                 y1: params.y1,
                 y2: params.y2,
                 name: params.name,
-                css_class: params.css_class,
+                texture_id: params.texture_id,
                 well_id: this.id
             },
             done

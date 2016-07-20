@@ -11,7 +11,7 @@ class LengthAnnotation {
 
         this.y1 = ko.observable(params.y1 || null)
         this.y2 = ko.observable(params.y2 || null)
-        this.css_class = ko.observable(params.css_class || null)
+        this.texture_id = ko.observable(params.texture_id || null)
         this.name = ko.observable(params.name || null)
 
         var self = this
@@ -27,19 +27,42 @@ class LengthAnnotation {
 
             return ((self.y2() - self.y1()) / (x_range[0] - x_range[1])) * 100 + "%"
         })
-    }
 
-    get texture_name() {
-        var self = this
+        this.texture_img = ko.computed(function() {
+            var id = self.texture_id()
 
-        return _.find(LengthAnnotation.TEXTURES, function(v) {
-            return v.css_class === self.css_class()
-        }).name
+            if(!id) {
+                return null
+            }
+
+            var texture = _.find(m_site.state.textures(), function(texture) {
+                return texture.id === id
+            })
+
+            if(!texture) {
+                return null
+            }
+
+            return `url(/data/${texture.img})`
+        })
+        this.style["background-image"] = this.texture_img
+
+        this.texture_name = ko.computed(function() {
+            var id = self.texture_id()
+
+            if(!id) {
+                return null
+            }
+
+            var texture = _.find(m_site.state.textures(), function(texture) {
+                return texture.id === id
+            })
+
+            if(!texture) {
+                return null
+            }
+
+            return texture.name
+        })
     }
 }
-
-LengthAnnotation.TEXTURES = [
-    { name: "Доломит", css_class: "dolomite" },
-    { name: "Приток скважной жидкости", css_class: "leftdraught" },
-    { name: "Перлитные структуры", css_class: "perlite" }
-]

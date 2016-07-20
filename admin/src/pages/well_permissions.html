@@ -9,7 +9,7 @@
         <div class="col-xs-12">
             <div class="box">
                 <div class="box-body">
-                    <form role="form" data-bind="with: current_well">
+                    <form role="form">
                         <div class="box-body">
                             <div class="form-group">
                                 <label>Пользователи с доступом</label>
@@ -31,15 +31,15 @@
                                     options: users_without_access,
                                     optionsCaption: 'Выберите пользователя...',
                                     optionsText: 'name',
-                                    value: $parent.user_access
+                                    value: user_access
                                 "></select>
-                                <button type="submit" class="btn btn-primary" data-bind="click: $parent.grantUserAccess">Дать доступ</button>
+                                <button type="submit" class="btn btn-primary" data-bind="click: grantUserAccess">Дать доступ</button>
                             </div>
                         </div>
 
                         <div class="box-footer">
-                            <button type="submit" class="btn btn-primary" data-bind="click: $parent.savePermissions">Сохранить</button>
-                            <button type="submit" class="btn btn-default" data-bind="click: $parent.cancel">Отмена</button>
+                            <button type="submit" class="btn btn-primary" data-bind="click: savePermissions">Сохранить</button>
+                            <button type="submit" class="btn btn-default" data-bind="click: cancelEditingPermissions">Отмена</button>
                         </div>
                     </form>
                 </div>

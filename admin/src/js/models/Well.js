@@ -7,8 +7,7 @@ class Well {
         this.id = ko.observable(data.id || "")
         this.name = ko.observable(data.name || "")
         this.well_xml_id = ko.observable(data.well_xml_id || "")
-        
-        this.users = ko.observableArray(data.users || [])
-        this.users_without_access = ko.observableArray(data.users_without_access || [])
     }
 }
+
+Well.FIELDS = ["name", "well_xml_id"]

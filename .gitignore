@@ -10,3 +10,4 @@ python_scripts/bin
 python_scripts/include
 pip-selfcheck.json
 python_scripts/venv
+data

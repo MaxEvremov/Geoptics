@@ -26,3 +26,5 @@ User.ROLES = [
     { id: "admin", name: "Администратор" },
     { id: "user", name: "Пользователь" }
 ]
+
+User.FIELDS = ["name", "email", "role", "password"]

@@ -1,58 +1,20 @@
-m_site.wells = (function() {
-    var self = {
-        wells: ko.observableArray(),
-        current_well: ko.observable(),
-        well_id: ko.observable(),
+m_site.wells = new CRUD({
+    Model: Well,
+    page_all: "wells",
+    page_item: "well",
+    api_path: "wells"
+});
 
-        user_access: ko.observable()
-    }
+(function() {
+    var self = m_site.wells
 
-    self.getAll = function() {
-        self.wells.removeAll()
+    self.user_access = ko.observable()
 
-        helpers.makeAJAXRequest(
-            "/api/admin/wells",
-            "get",
-            function(err, result) {
-                if(err) {
-                    return console.error(err)
-                }
-
-                result.forEach(function(well) {
-                    self.wells.push(new Well(well))
-                })
-            }
-        )
-    }
-
-    self.onShow = function() {
-        console.log("onShow")
-        self.getAll()
-    }
-
-    self.onWellShow = function() {
-        console.log("onWellShow")
-        var id = self.well_id()
-
-        if(id === "new") {
-            return self.current_well(new Well())
-        }
-
-        helpers.makeAJAXRequest(
-            `/api/admin/wells/${id}`,
-            "get",
-            function(err, result) {
-                if(err) {
-                    return console.error(err)
-                }
-
-                self.current_well(new Well(result))
-            }
-        )
-    }
+    self.users = ko.observableArray()
+    self.users_without_access = ko.observableArray()
 
     self.onWellPermissionsShow = function() {
-        var id = self.well_id()
+        var id = self.item_id()
 
         helpers.makeAJAXRequest(
             `/api/admin/wells/${id}/permissions`,
@@ -62,47 +24,22 @@ m_site.wells = (function() {
                     return console.error(err)
                 }
 
-                self.current_well(new Well(result))
+                self.users(result.users)
+                self.users_without_access(result.users_without_access)
             }
         )
-    }
-
-    self.create = function() {
-        pager.navigate("well/new")
-    }
-
-    self.edit = function(well) {
-        pager.navigate(`well/${well.id()}`)
     }
 
     self.editPermissions = function(well) {
         pager.navigate(`well_permissions/${well.id()}`)
     }
 
-    self.cancel = function() {
-        pager.navigate("wells")
-        self.current_well(null)
-    }
-
-    self.save = function(well) {
-        helpers.makeAJAXRequest(
-            "/api/admin/wells",
-            "post",
-            ko.mapping.toJS(well),
-            function(err, result) {
-                self.current_well(null)
-                pager.navigate("wells")
-            }
-        )
-    }
-
     self.savePermissions = function(well) {
         helpers.makeAJAXRequest(
-            "/api/admin/wells/permissions",
+        `/api/admin/wells/${self.item_id()}/permissions`,
             "post",
             {
-                id: self.well_id(),
-                users: ko.mapping.toJS(self.current_well().users())
+                users: ko.mapping.toJS(self.users())
             },
             function(err, result) {
                 pager.navigate("wells")
@@ -110,21 +47,23 @@ m_site.wells = (function() {
         )
     }
 
+    self.cancelEditingPermissions = function() {
+        pager.navigate("wells")
+    }
+
     self.revokeUserAccess = function(data, e) {
-        self.current_well().users.remove(function(user) {
+        self.users.remove(function(user) {
             return user.id === data.id
         })
 
-        self.current_well().users_without_access.push(data)
+        self.users_without_access.push(data)
     }
 
     self.grantUserAccess = function(data, e) {
-        self.current_well().users.push(self.user_access())
+        self.users.push(self.user_access())
 
-        self.current_well().users_without_access.remove(function(user) {
+        self.users_without_access.remove(function(user) {
             return user.id === self.user_access().id
         })
     }
-
-    return self
 })()

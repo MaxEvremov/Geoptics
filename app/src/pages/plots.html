@@ -441,7 +441,6 @@
 					visible: is_main_plot_visible(),
 					foreach: length_annotations.annotations" >
 						<div class="graph-annotation-overlay__zone" data-bind="
-                            css: css_class,
     						style: style,
                             attr: { title: name }">
                         </div>
@@ -773,15 +772,16 @@
 				<label>Текстура:</label>
                 <div class="length-annotation-select">
                     <select class="form-control" data-bind="
-                        options: LengthAnnotation.TEXTURES,
+                        options: m_site.state.textures,
                         optionsCaption: 'Выберите текстуру...',
                         optionsText: 'name',
-                        optionsValue: 'css_class',
-                        value: css_class
+                        optionsValue: 'id',
+                        value: texture_id
                     "></select>
-                    <!-- ko if: css_class -->
-                    <div data-bind="
-                        css: css_class">
+                    <!-- ko if: texture_id -->
+                    <div data-bind="style: {
+                        'background-image': texture_img
+                    }">
                     </div>
                     <!-- /ko -->
                 </div>

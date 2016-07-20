@@ -1,6 +1,8 @@
 "use strict"
 
 const express = require("express")
+const knex = require("knex")({ client: "pg" })
+const async = require("async")
 
 const helpers = require(__base + "lib/helpers")
 
@@ -12,11 +14,12 @@ api.get(
         if(!req.user) {
             return res.jsonCallback(null, {
                 user: null,
-                wells: []
+                wells: [],
+                textures: []
             })
         }
 
-        let query = `SELECT
+        let wells_query = `SELECT
                 id,
                 name,
                 well_xml_id,
@@ -29,8 +32,15 @@ api.get(
             )
             ORDER BY name`
 
-        helpers.makePGQuery(
-            query,
+        let textures_query = knex("textures")
+        .select("id", "name", "img")
+        .toString()
+
+        async.parallel(
+            {
+                wells: (done) => helpers.makePGQuery(wells_query, done),
+                textures: (done) => helpers.makePGQuery(textures_query, done)
+            },
             (err, result) => {
                 if(err) {
                     return res.jsonCallback(err)
@@ -38,7 +48,8 @@ api.get(
 
                 return res.jsonCallback(null, {
                     user: req.user,
-                    wells: result
+                    wells: result.wells,
+                    textures: result.textures
                 })
             }
         )

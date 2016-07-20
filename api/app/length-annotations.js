@@ -21,7 +21,7 @@ api.get(
         .select(
             "id",
             "name",
-            "css_class",
+            "texture_id",
             "y1",
             "y2"
         )
@@ -38,7 +38,7 @@ api.post(
     "/:id",
     helpers.validateRequestData({
         name: true,
-        css_class: true,
+        texture_id: validators.isIDValid,
         y1: _.isNumber,
         y2: _.isNumber
     }),
@@ -59,7 +59,7 @@ api.post(
     "/",
     helpers.validateRequestData({
         name: true,
-        css_class: true,
+        texture_id: validators.isIDValid,
         y1: _.isNumber,
         y2: _.isNumber
     }),

@@ -3,7 +3,10 @@ window.dygraph_pressure = (function() {
         init: function(drawPlot) {
             var plot_avg_interaction_model = _.cloneDeep(Dygraph.Interaction.defaultModel)
 
-            plot_avg_interaction_model.dblclick = function() {}
+            plot_avg_interaction_model.dblclick = function(event, g, context) {
+				window.m_site.plots.resetPlotAvgState()
+				return false
+			}
             plot_avg_interaction_model.mousedown = function(event, g, context) {
                 var mouseup = function(event) {
                     if (context.isPanning) {

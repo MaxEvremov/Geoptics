@@ -393,6 +393,8 @@ vm.resetPlotAvgState = function() {
 
     drawAvgPlot()
     redrawAnnotations()
+	
+	vm.is_point_box_visible(false)
 }
 
 vm.getNearestTempPlot = function() {

@@ -39,11 +39,16 @@
 		box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.20);
 		background: rgba(255, 255, 255, 0.8)!important;
 		z-index: 100!important;
+		text-align: left!important;
+		width: auto!important;
 	}
 
 	.dygraph-legend > * {
 		display: block;
+		margin:.5em 0;
+		font-size:1.2em	
 	}
+	.dygraph-legend > span {font-size:.8em	}
 
 	.dygraphDefaultAnnotation {
 		line-height: 14px;

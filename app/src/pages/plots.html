@@ -39,11 +39,11 @@
 " class="dropdown-menu click-box" role="menu">
     <li class="form-group">
         <label>Число графиков: </label>
-        <input data-bind="value: color_temp_number" class="form-control" placeholder="Число графиков" />
+        <input data-bind="textInput: color_temp_number" class="form-control" placeholder="Число графиков" />
     </li>
     <li class="form-group">
         <label>Интервал усреднения: </label>
-        <input data-bind="value: color_temp_interval" class="form-control" placeholder="Интервал усреднения" />
+        <input data-bind="textInput: color_temp_interval" class="form-control" placeholder="Интервал усреднения" />
     </li>
     <li class="form-group">
         <label>Единица времени: </label>
@@ -101,16 +101,16 @@
 
 					<div class="axis-input-block axis-input-block-left">
 						<input class="axis-input-block-left-top" data-bind="
-                            value: max_zoom_y,
+                            textInput: max_zoom_y,
                             event: { keypress: updateZoomY }">
 						<input class="axis-input-block-left-bottom" data-bind="
-                            value: min_zoom_y,
+                            textInput: min_zoom_y,
                             event: { keypress: updateZoomY }">
 					</div>
 
 					<div class="axis-input-block axis-input-block-bottom">
 						<input class="axis-input-block-bottom-left" data-bind="
-                        value: min_zoom_x,
+                        textInput: min_zoom_x,
                         event: { keypress: updateZoomX },
                         jmask: {
                             value: min_zoom_x,
@@ -121,7 +121,7 @@
                         }
                         ">
 						<input class="axis-input-block-bottom-right" data-bind="
-                        value: max_zoom_x,
+                        textInput: max_zoom_x,
                         event: { keypress: updateZoomX },
                         jmask: {
                             value: max_zoom_x,
@@ -136,7 +136,7 @@
 
 				<div class="box-toolbar">					
 					<span class="adjustRoll" title="Сглаживание">
-						Сглаживание <input type="number" data-bind="value: adjustRoll"></input>
+						Сглаживание <input type="number" data-bind="textInput: adjustRoll"></input>
 					</span>
 					<a class="" title="Сбросить увеличение" data-bind="click: resetPlotAvgState">
 						<i class="fa fa-arrow-up"></i>

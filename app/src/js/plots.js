@@ -222,7 +222,7 @@ var init = function() {
             }
 
             var plot = vm.selected_plots()[parseInt(series) - 1]
-            return val - plot.offset
+            return (val - plot.offset).toFixed(3)
         }
     })
     plot_main.ready(function(err, graph) {

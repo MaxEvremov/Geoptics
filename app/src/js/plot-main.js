@@ -51,6 +51,7 @@
     var drawCallback = function() {
         var xlabel_transform = 'rotate(180deg) translateY(-5px) rotateY(180deg)'
         $(DYGRAPH_CONTAINER_ID + ' .dygraph-xlabel').parent().css({
+			pointerEvents:"none",
             transform: xlabel_transform,
             msTransform: xlabel_transform,
             webkitTransform: xlabel_transform,
@@ -59,6 +60,7 @@
 
         var ylabel_transform = 'rotate(90deg) rotateY(180deg) translateY(-10px)'
         $(DYGRAPH_CONTAINER_ID + ' .dygraph-ylabel').parent().css({
+			pointerEvents:"none",
             transform: ylabel_transform,
             msTransform: ylabel_transform,
             webkitTransform: ylabel_transform,
@@ -67,6 +69,7 @@
 
         var axis_label_x_transform = 'translateY(17px) translateX(0px) rotate(90deg) rotateY(180deg)'
         $(DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-x, ' + DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-y').parent().css({
+			pointerEvents:"none",
             transform: axis_label_x_transform,
             msTransform: axis_label_x_transform,
             webkitTransform: axis_label_x_transform,
@@ -75,6 +78,7 @@
 
         var axis_label_y_transform = 'translateX(17px) translateY(0px) rotate(90deg) rotateY(180deg)'
         $(DYGRAPH_CONTAINER_ID + ' .dygraph-axis-label-y').parent().css({
+			pointerEvents:"none",
             transform: axis_label_y_transform,
             msTransform: axis_label_y_transform,
             webkitTransform: axis_label_y_transform,
@@ -83,7 +87,7 @@
 
         var legend_transform = 'rotate(90deg) translateY(-5px) rotateY(180deg)'
         $(DYGRAPH_CONTAINER_ID + ' .dygraph-legend').css({
-            textAlign: 'right',
+//            textAlign: 'right',
             transform: legend_transform,
             msTransform: legend_transform,
             webkitTransform: legend_transform,

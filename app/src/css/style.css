@@ -154,3 +154,13 @@ body .dygraphDefaultAnnotation {
 .graph-annotation-overlay__zone:hover {
     opacity: .8;
 }
+
+.box-toolbar > * {
+    padding: 0.4em;
+    color: #5d5d5d;
+    font-size: 90%;
+}
+.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}

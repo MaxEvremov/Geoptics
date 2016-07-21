@@ -9,7 +9,7 @@ m_site.login = (function() {
     var DEFAULT_ERR = "Произошла ошибка"
 
     var self = {
-        email: ko.observable(),
+        login: ko.observable(),
         password: ko.observable(),
         err: ko.observable(),
 
@@ -20,7 +20,7 @@ m_site.login = (function() {
                 "/api/app/auth/login",
                 "post",
                 {
-                    email: self.email(),
+                    login: self.login(),
                     password: self.password()
                 },
                 function(err, result) {

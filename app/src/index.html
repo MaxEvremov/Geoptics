@@ -147,17 +147,20 @@
             top: 0;
             height: 100%;
 		">
-            <div data-bind="page: {
+            <div id="page_start" data-bind="page: {
                 id: 'start',
+                role: 'start',
                 guard: state.loggedInGuard
             }">
-                <!-- ko if: state.wells().length === 0 -->
-                У вас нет доступа ни к одной скважине. Обратитесь к администратору.
-                <!-- /ko -->
+                <p class="placeholder well-placeholder noselect">
+                    <!-- ko if: state.wells().length === 0 -->
+                    У вас нет доступа ни к одной скважине. Обратитесь к администратору
+                    <!-- /ko -->
 
-                <!-- ko ifnot: state.wells().length === 0 -->
-                Выберите скважину в списке слева.
-                <!-- /ko -->
+                    <!-- ko ifnot: state.wells().length === 0 -->
+                    Выберите скважину в списке слева
+                    <!-- /ko -->
+                </p>
             </div>
 
 			<div data-bind="page: {

@@ -28,7 +28,7 @@ let generateAPI = (roles) => {
     api.post(
         "/login",
         helpers.validateRequestData({
-            email: true,
+            login: true,
             password: true
         }),
         (req, res, next) => {
@@ -62,7 +62,7 @@ let generateAPI = (roles) => {
                     return res.json({
                         err: null,
                         result: {
-                            email: user.email,
+                            login: user.login,
                             name: user.name
                         }
                     })

@@ -164,3 +164,15 @@ body .dygraphDefaultAnnotation {
     opacity: 0.3;
     pointer-events: none;
 }
+
+.placeholder.well-placeholder {
+    width: 30%;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+#page_start {
+    position: relative;
+    height: 100%;
+}

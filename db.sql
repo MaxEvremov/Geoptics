@@ -299,7 +299,7 @@ ALTER SEQUENCE timeline_events_id_seq OWNED BY timeline_events.id;
 CREATE TABLE users (
     id integer NOT NULL,
     name text,
-    email text,
+    login text,
     hash text,
     salt text,
     updated_at timestamp without time zone,
@@ -487,7 +487,7 @@ ALTER TABLE ONLY timeline_events
 --
 
 ALTER TABLE ONLY users
-    ADD CONSTRAINT users_email_key UNIQUE (email);
+    ADD CONSTRAINT users_email_key UNIQUE (login);
 
 
 --

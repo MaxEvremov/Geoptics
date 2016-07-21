@@ -21,7 +21,7 @@ let configs = {
 
         default_admin: {
             name: "Администратор",
-            email: "admin@geoptics.com",
+            login: "admin@geoptics.com",
             password: "1234",
             role: "owner"
         },
@@ -51,7 +51,7 @@ let configs = {
 
         default_admin: {
             name: "Администратор",
-            email: "admin@geoptics.com",
+            login: "admin@geoptics.com",
             password: "1234",
             role: "owner"
         },

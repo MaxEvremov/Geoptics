@@ -49,7 +49,7 @@ let User = bookshelf_client.Model.extend(
     },
     {
         ensureAdmin: function(done) {
-            this.where("email", config.default_admin.email)
+            this.where("login", config.default_admin.login)
                 .count()
                 .asCallback((err, count) => {
                     if(count != 0) {

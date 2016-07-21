@@ -59,7 +59,7 @@ passport.deserializeUser((id, done) => {
 
         return done(err, {
             name: user.name,
-            email: user.email,
+            login: user.login,
             id: user.id,
             role: user.role
         })
@@ -68,12 +68,12 @@ passport.deserializeUser((id, done) => {
 
 passport.use(new LocalStrategy(
     {
-        usernameField: "email",
+        usernameField: "login",
         passwordField: "password"
     },
-    (email, password, done) => {
+    (login, password, done) => {
         User.findOne({
-            email: email
+            login: login
         })
         .asCallback((err, user) => {
             if(err) {
@@ -94,7 +94,7 @@ passport.use(new LocalStrategy(
 
             return done(null, {
                 name: json_user.name,
-                email: json_user.email,
+                login: json_user.login,
                 id: json_user.id,
                 role: json_user.role
             })

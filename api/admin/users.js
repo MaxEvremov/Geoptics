@@ -14,10 +14,10 @@ const User = require(__base + "models/User")
 
 let api = CRUD(
     User,
-    ["id", "name", "email", "role"],
+    ["id", "name", "login", "role"],
     {
         name: true,
-        email: validator.isEmail,
+        login: true,
         password: true,
         role: true
     }

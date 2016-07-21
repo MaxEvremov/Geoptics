@@ -15,9 +15,11 @@ const pg = require("pg").native
 const cookie_parser = require("cookie-parser")
 const cors = require("cors")
 const minimist = require("minimist")
+const knex = require("knex")({ client: "pg" })
 
 const argv = minimist(process.argv.slice(2))
 const config = require(__base + "config")
+const helpers = require(__base + "lib/helpers")
 
 const User = require(__base + "models/User")
 
@@ -121,6 +123,8 @@ app.use(compression())
 app.use(body_parser.json())
 app.use(body_parser.urlencoded({ extended: true }))
 app.use(cookie_parser(config.session_secret))
+
+app.enable("trust proxy")
 
 app.use("/api/app", require(__base + "api/app"))
 app.use("/api/admin", require(__base + "api/admin"))

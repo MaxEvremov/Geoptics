@@ -38,6 +38,8 @@ api.use(session({
 api.use(passport.initialize())
 api.use(passport.session())
 
+api.use(helpers.logRequests)
+
 api.use("/auth", auth.generateAPI(["admin"]))
 api.use("/users", helpers.validatePermissions("admin"), users)
 api.use("/wells", helpers.validatePermissions("admin"), wells)

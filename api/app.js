@@ -39,6 +39,8 @@ api.use(session({
 api.use(passport.initialize())
 api.use(passport.session())
 
+api.use(helpers.logRequests)
+
 api.use("/favorites", helpers.validatePermissions(["admin", "user"]), favorites)
 api.use("/auth", auth.generateAPI(["admin", "user"]))
 api.use(

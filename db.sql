@@ -167,6 +167,23 @@ ALTER SEQUENCE length_annotations_id_seq OWNED BY length_annotations.id;
 
 
 --
+-- Name: logs; Type: TABLE; Schema: public; Owner: lwpss
+--
+
+CREATE TABLE logs (
+    user_id integer,
+    ip text,
+    user_agent text,
+    url text,
+    created_at timestamp with time zone DEFAULT now(),
+    method text,
+    request_body jsonb
+);
+
+
+ALTER TABLE logs OWNER TO lwpss;
+
+--
 -- Name: p_measurements; Type: TABLE; Schema: public; Owner: lwpss
 --
 
@@ -587,6 +604,14 @@ ALTER TABLE ONLY length_annotations
 
 ALTER TABLE ONLY length_annotations
     ADD CONSTRAINT length_annotations_well_id_fkey FOREIGN KEY (well_id) REFERENCES wells(id);
+
+
+--
+-- Name: logs_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: lwpss
+--
+
+ALTER TABLE ONLY logs
+    ADD CONSTRAINT logs_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id);
 
 
 --

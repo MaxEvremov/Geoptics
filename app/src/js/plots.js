@@ -516,7 +516,8 @@ vm.afterShow = function() {
                 vm.timeline_events.getAll()
                 vm.length_annotations.getAll()
 
-                vm.plot_avg.resetZoom()
+                prev_min_date = null
+                prev_max_date = null
 
                 drawAvgPlot()
             })

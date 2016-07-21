@@ -2,7 +2,7 @@
 
 m_site.login = (function() {
     var errs = {
-        not_found: "Неверный пароль и / или e-mail",
+        not_found: "Неверный пароль и / или логин",
         network_err: "Не удалось установить соединение с сервером"
     }
 

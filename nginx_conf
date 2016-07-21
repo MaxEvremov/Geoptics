@@ -5,7 +5,7 @@ server {
     server_name demo.fieldconnected.com;
 
     location / {
-        root /htdocs/geoptics/app/src;
+        alias /htdocs/geoptics/app/src/;
         try_files $uri @forceindex;
     }
 
@@ -13,13 +13,13 @@ server {
         rewrite ^/* /index.html;
     }
 
-    location /admin/ {
-        root /htdocs/geoptics/admin/src;
+    location ^~ /admin {
+        alias /htdocs/geoptics/admin/src/;
         try_files $uri @forceindexadmin;
     }
 
     location @forceindexadmin {
-        rewrite ^/* /index.html;
+        rewrite ^/admin/* /admin/index.html;
     }
 
     location /api/ {

@@ -23,7 +23,7 @@ server {
     }
 
     location /data/ {
-        root /htdocs/geoptics/data;
+        root /htdocs/geoptics;
     }
 
     location /api/ {

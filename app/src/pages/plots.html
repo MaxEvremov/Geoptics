@@ -1,16 +1,17 @@
-<style ></style>
 <link href="../css/plots.css" rel="stylesheet">
+
+<!-- ko with: point_box -->
 <ul id="avg_click_box" data-bind="
-    visible: is_point_box_visible,
+    visible: is_visible() && mode() === 'normal',
     style: {
-        top: point_box_top,
-        left: point_box_left
+        top: top,
+        left: left
     }
 " class="dropdown-menu click-box" role="menu">
-	<li style="padding:10px 20px">
+	<li style="padding: 10px 20px;">
 		<p data-bind="html: helpers.formatDate(selected_date())"></p>
 	</li>
-    <!-- ko ifnot: current_mode() === 'color' -->
+    <!-- ko ifnot: $parent.current_mode() === 'color' -->
 	<li><a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a></li>
 	<li data-bind="click: getAvgTempPlot.bind($data, 1, 'h')">
 		<a href="#">Усреднить за час</a>
@@ -31,10 +32,10 @@
 </ul>
 
 <ul id="color_temp_box" data-bind="
-    visible: is_color_temp_box_visible,
+    visible: is_visible() && mode() === 'color',
     style: {
-        top: point_box_top,
-        left: point_box_left
+        top: top,
+        left: left
     }
 " class="dropdown-menu click-box" role="menu">
     <li class="form-group">
@@ -65,8 +66,9 @@
         </a>
     </div>
 </ul>
+<!-- /ko -->
 
-<section class="content" data-bind="event: { mouseup: hidePointBox }" style="height: 100%; padding-bottom: 0;">
+<section class="content" data-bind="event: { mouseup: point_box.hide }" style="height: 100%; padding-bottom: 0;">
 	<div class="row" style="height: 100%;">
 		<div class="col-md-9">
 			<div class="box box-info box-borderless" style="position:relative;min-height:20%;">
@@ -134,20 +136,10 @@
 					</div>
 				</div>
 
-				<div class="box-toolbar">					
+				<div class="box-toolbar">
 					<span class="adjustRoll" title="Сглаживание">
 						Сглаживание <input type="number" data-bind="textInput: adjustRoll"></input>
 					</span>
-<!--
-					<a class="" title="Сбросить увеличение" data-bind="click: resetPlotAvgState">
-						<i class="fa fa-arrow-up"></i>
-					</a>
-					<a class="disabled" title="Сбросить увеличение" data-bind="click: resetPlotAvgState">
-						<i class="fa fa-minus"></i>
-					</a>
--->
-
-
 				</div>
 			</div>
 

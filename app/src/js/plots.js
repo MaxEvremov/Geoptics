@@ -5,7 +5,6 @@
 var ZOOM_LOAD_THRESHOLD = 1 * 24 * 60 * 60 * 1000
 var DEBOUNCE_DELAY = 500
 var POINTS_PER_PLOT = 100
-var POLL_INTERVAL = 2 * 1000
 
 // local state variables
 
@@ -132,12 +131,12 @@ var init = function() {
                 return
             }
 
-            vm.selected_date(selected_date)
+            vm.point_box.selected_date(selected_date)
 
-            vm.point_box_left(`${e.clientX}px`)
-            vm.point_box_top(`${e.clientY}px`)
+            vm.point_box.left(`${e.clientX}px`)
+            vm.point_box.top(`${e.clientY}px`)
 
-            vm.is_point_box_visible(true)
+            vm.point_box.is_visible(true)
         },
         underlayCallback: function(canvas, area, g) {
             var selected_avg_plots = _.filter(
@@ -287,30 +286,6 @@ var init = function() {
     is_inited = true
 }
 
-var getAvgTempPlot = function(date_start, date_end) {
-    var plot = new Plot({
-        type: "avg",
-        date_start: date_start,
-        date_end: date_end,
-        well_id: vm.current_well.id
-    })
-
-    vm.is_point_box_visible(false)
-    vm.selected_date(null)
-
-    vm.is_loading_temp_data(true)
-
-    plot.load(function(err, result) {
-        vm.is_loading_temp_data(false)
-
-        if(err) {
-            return console.error(err)
-        }
-
-        vm.selected_plots.push(plot)
-    })
-}
-
 var redrawAnnotations = function() {
     var file = plot_avg.file_
 
@@ -354,13 +329,6 @@ vm.max_zoom_y = ko.observable()
 vm.min_zoom_x = ko.observable()
 vm.max_zoom_x = ko.observable()
 
-vm.selected_date = ko.observable()
-
-vm.is_point_box_visible = ko.observable(false)
-vm.is_color_temp_box_visible = ko.observable(false)
-vm.point_box_top = ko.observable(0)
-vm.point_box_left = ko.observable(0)
-
 vm.is_loading_pressure_data = ko.observable(false)
 vm.is_loading_temp_data = ko.observable(false)
 vm.has_data = ko.observable(true)
@@ -369,10 +337,6 @@ vm.is_favorite_saved = ko.observable(false)
 
 vm.well_id = ko.observable()
 vm.current_well = null
-
-vm.color_temp_number = ko.observable()
-vm.color_temp_interval = ko.observable()
-vm.color_temp_unit = ko.observable()
 
 vm.selected_plots = ko.observableArray()
 
@@ -398,71 +362,6 @@ vm.resetPlotAvgState = function() {
 
     drawAvgPlot()
     redrawAnnotations()
-
-	vm.is_point_box_visible(false)
-}
-
-vm.getNearestTempPlot = function() {
-    var date = vm.selected_date()
-
-    var plot = new Plot({
-        type: "point",
-        date: date,
-        well_id: vm.current_well.id
-    })
-
-    vm.is_point_box_visible(false)
-    vm.selected_date(null)
-
-    vm.is_loading_temp_data(true)
-
-    plot.load(function(err, result) {
-        vm.is_loading_temp_data(false)
-
-        if(err) {
-            return console.error(err)
-        }
-
-        if(result.type === "point") {
-            var plot_ts = helpers.convertDate(result.date, "iso8601", "ms")
-
-            if(_.find(vm.selected_plots(), { date: plot_ts })) {
-                return
-            }
-        }
-
-        if(result.data.length === 0) {
-            return
-        }
-
-        vm.selected_plots.push(plot)
-    })
-}
-
-vm.getAvgTempPlot = function(length, units) {
-    var duration_ms = moment.duration(length, units).asMilliseconds()
-
-    var date_start = vm.selected_date()
-
-    var date_start_ms = helpers.convertDate(date_start, "iso8601", "ms")
-    var date_end_ms = date_start_ms + duration_ms
-
-    var date_end = helpers.convertDate(date_end_ms, "ms", "iso8601")
-
-    getAvgTempPlot(date_start, date_end)
-}
-
-vm.getAvgTempPlotForVisibleRange = function() {
-    var x_range = vm.plot_avg.xAxisRange()
-
-    var date_start = helpers.convertDate(x_range[0], "ms", "iso8601")
-    var date_end = helpers.convertDate(x_range[1], "ms", "iso8601")
-
-    getAvgTempPlot(date_start, date_end)
-}
-
-vm.hidePointBox = function(data, e) {
-    vm.is_point_box_visible(false)
 }
 
 vm.afterShow = function() {
@@ -644,88 +543,6 @@ vm.downloadAllAsLAS = function() {
 
 vm.removeAllPlots = function() {
     vm.selected_plots.removeAll()
-}
-
-vm.openColorTempBox = function() {
-    vm.color_temp_number(null)
-    vm.color_temp_interval(null)
-    vm.color_temp_unit(null)
-
-    vm.is_point_box_visible(false)
-    vm.is_color_temp_box_visible(true)
-}
-
-vm.closeColorTempBox = function() {
-    vm.is_color_temp_box_visible(false)
-    vm.is_point_box_visible(true)
-}
-
-vm.renderColorTemp = function() {
-    var number = parseInt(vm.color_temp_number())
-    var interval = parseInt(vm.color_temp_interval())
-    var unit = vm.color_temp_unit()
-
-    vm.is_color_temp_box_visible(false)
-    vm.is_loading_temp_data(true)
-
-    Plot.getPlotsForColorTempRenderer(
-        {
-            date: vm.selected_date(),
-            number: number,
-            interval: moment.duration(interval, unit).asMilliseconds(),
-            well_id: vm.current_well.id
-        },
-        function(err, task_id) {
-            if(err) {
-                vm.is_loading_temp_data(false)
-                return console.error(err)
-            }
-
-            var checkTaskStatus = function() {
-                helpers.makeAJAXRequest(
-                    "/api/app/plots/task_status",
-                    "get",
-                    {
-                        id: task_id,
-                        well_id: vm.current_well.id
-                    },
-                    function(err, result) {
-                        if(err) {
-                            return console.error(err)
-                        }
-
-                        if(!result.is_finished) {
-                            vm.processed(result.processed)
-                            vm.total(result.total)
-
-                            return setTimeout(checkTaskStatus, POLL_INTERVAL)
-                        }
-
-                        if(result.result.err) {
-                            return console.error(result.result.err)
-                        }
-
-                        vm.current_mode("color")
-
-                        vm.selected_plots.removeAll()
-
-                        // лол
-                        var plots = _.map(result.result.result, function(plot) {
-                            return new Plot(plot)
-                        })
-
-                        vm.selected_plots(plots)
-
-                        vm.is_loading_temp_data(false)
-                        vm.processed(null)
-                        vm.total(null)
-                    }
-                )
-            }
-
-            checkTaskStatus()
-        }
-    )
 }
 
 vm.cancelColorMode = function() {

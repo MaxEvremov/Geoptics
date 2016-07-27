@@ -47,8 +47,8 @@ var loadPressureData = _.debounce(function(params) {
 
         var y_range = plot_avg.yAxisRange()
 
-        vm.min_zoom_y(y_range[0])
-        vm.max_zoom_y(y_range[1])
+        vm.min_zoom_y(y_range[0].toFixed(2))
+        vm.max_zoom_y(y_range[1].toFixed(2))
     })
 }, DEBOUNCE_DELAY)
 
@@ -86,8 +86,8 @@ var drawAvgPlot = function() {
     var min_date = x_range[0]
     var max_date = x_range[1]
 
-    vm.min_zoom_y(y_range[0])
-    vm.max_zoom_y(y_range[1])
+    vm.min_zoom_y(y_range[0].toFixed(2))
+    vm.max_zoom_y(y_range[1].toFixed(2))
 
     vm.min_zoom_x(helpers.convertDate(min_date, "ms", "jmask"))
     vm.max_zoom_x(helpers.convertDate(max_date, "ms", "jmask"))
@@ -513,12 +513,15 @@ vm.updateZoomY = function(data, e) {
         return true
     }
 
-    var min_zoom = parseFloat(vm.min_zoom_y())
-    var max_zoom = parseFloat(vm.max_zoom_y())
+    var min_zoom = parseFloat(vm.min_zoom_y()).toFixed(2)
+    var max_zoom = parseFloat(vm.max_zoom_y()).toFixed(2)
 
     plot_avg.updateOptions({
         valueRange: [min_zoom, max_zoom]
     })
+
+    vm.min_zoom_y(min_zoom)
+    vm.max_zoom_y(max_zoom)
 }
 
 vm.resetAvgPlotZoom = function() {

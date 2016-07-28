@@ -287,3 +287,7 @@
     color: white;
     pointer-events: none;
 }
+
+#dygraph_avg_container > div > canvas:last-of-type {
+    z-index: 11;
+}

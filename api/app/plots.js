@@ -256,7 +256,7 @@ api.get(
     helpers.validateRequestData({
         date: validators.isISO8601DateValid,
         number: validators.isNaturalNumberValid,
-        interval: validators.isNaturalNumberValid
+        interval: validators.isNumberValid
     }),
     helpers.getWell,
     (req, res) => {
@@ -265,7 +265,8 @@ api.get(
         const OFFSET_STEP = 5
 
         let number = parseInt(req.query.number)
-        let interval = parseInt(req.query.interval)
+        let interval = parseFloat(req.query.interval)
+        let period = parseFloat(req.query.period)
         let date_ms = helpers.convertDate(req.query.date, "iso8601", "ms")
 
         let processed = 0
@@ -340,8 +341,11 @@ api.get(
                 let plots = []
 
                 for(let i = 0; i < number; i++) {
-                    let date_start = helpers.convertDate(date_ms + interval * i, "ms", "iso8601")
-                    let date_end = helpers.convertDate(date_ms + interval * (i + 1), "ms", "iso8601")
+                    let date_start_ms = date_ms + interval * i
+                    let date_end_ms = date_start_ms + period
+
+                    let date_start = helpers.convertDate(date_start_ms, "ms", "iso8601")
+                    let date_end = helpers.convertDate(date_end_ms, "ms", "iso8601")
 
                     plots.push({
                         type: "avg",

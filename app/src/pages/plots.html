@@ -39,21 +39,26 @@
     }
 " class="dropdown-menu click-box" role="menu">
     <li class="form-group">
-        <label>Число графиков: </label>
         <input data-bind="textInput: color_temp_number" class="form-control" placeholder="Число графиков" />
     </li>
-    <li class="form-group">
-        <label>Интервал усреднения: </label>
+    <li class="form-group time-group">
         <input data-bind="textInput: color_temp_interval" class="form-control" placeholder="Интервал усреднения" />
-    </li>
-    <li class="form-group">
-        <label>Единица времени: </label>
+
         <select class="form-control" data-bind="
             options: Plot.TIME_UNITS,
-            optionsCaption: 'Выберите единицу времени...',
             optionsText: 'name',
             optionsValue: 'unit',
-            value: color_temp_unit
+            value: color_temp_interval_unit
+        "></select>
+    </li>
+    <li class="form-group time-group">
+        <input data-bind="textInput: color_temp_period" class="form-control" placeholder="Период усреднения" />
+
+        <select class="form-control" data-bind="
+            options: Plot.TIME_UNITS,
+            optionsText: 'name',
+            optionsValue: 'unit',
+            value: color_temp_period_unit
         "></select>
     </li>
 
@@ -458,7 +463,7 @@
 			</li>
 			<li class="form-group">
 				<label>Краткое обозначение:</label>
-				<input class="form-control" data-bind="textInput: short_text">
+				<input class="form-control" data-bind="textInput: short_text" maxlength="5">
 			</li>
 			<li class="form-group">
 				<label>Описание:</label>

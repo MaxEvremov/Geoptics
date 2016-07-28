@@ -296,3 +296,17 @@
 #dygraph_avg_container > div > canvas:last-of-type {
     z-index: 11;
 }
+
+.form-group.time-group {
+    height: 34px;
+}
+
+.form-group.time-group > input {
+    width: 70%;
+    float: left;
+}
+
+.form-group.time-group > select {
+    width: 25%;
+    float: right;
+}

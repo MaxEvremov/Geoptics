@@ -282,7 +282,8 @@ class Plot {
                 date: params.date,
                 number: params.number,
                 interval: params.interval,
-                well_id: params.well_id
+                well_id: params.well_id,
+                period: params.period
             },
             function(err, result) {
                 if(err) {

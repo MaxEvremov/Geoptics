@@ -36,7 +36,10 @@ m_site.plots.point_box = (function() {
 
     self.color_temp_number = ko.observable()
     self.color_temp_interval = ko.observable()
-    self.color_temp_unit = ko.observable()
+    self.color_temp_period = ko.observable()
+
+    self.color_temp_interval_unit = ko.observable("h")
+    self.color_temp_period_unit = ko.observable("h")
 
     self.hide = function(data, e) {
         self.is_visible(false)
@@ -104,7 +107,10 @@ m_site.plots.point_box = (function() {
     self.openColorTempBox = function() {
         self.color_temp_number(null)
         self.color_temp_interval(null)
-        self.color_temp_unit(null)
+        self.color_temp_period(null)
+
+        self.color_temp_period_unit("h")
+        self.color_temp_interval_unit("h")
 
         self.mode("color")
     }
@@ -115,8 +121,11 @@ m_site.plots.point_box = (function() {
 
     self.renderColorTemp = function() {
         var number = parseInt(self.color_temp_number())
-        var interval = parseInt(self.color_temp_interval())
-        var unit = self.color_temp_unit()
+        var interval = parseFloat(self.color_temp_interval())
+        var period = parseFloat(self.color_temp_period())
+
+        var interval_unit = self.color_temp_interval_unit()
+        var period_unit = self.color_temp_period_unit()
 
         self.mode("normal")
         self.is_visible(false)
@@ -127,7 +136,8 @@ m_site.plots.point_box = (function() {
             {
                 date: self.selected_date(),
                 number: number,
-                interval: moment.duration(interval, unit).asMilliseconds(),
+                interval: moment.duration(interval, interval_unit).asMilliseconds(),
+                period: moment.duration(period, period_unit).asMilliseconds(),
                 well_id: m_site.plots.current_well.id
             },
             function(err, task_id) {

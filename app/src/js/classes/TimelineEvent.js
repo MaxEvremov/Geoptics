@@ -25,7 +25,8 @@ class TimelineEvent {
             shortText: this.short_text(),
             text: this.description(),
             attachAtBottom: true,
-            cssClass: "dygraph-annotation-event"
+            cssClass: "dygraph-annotation-event",
+            tickHeight: 0
         }
     }
 

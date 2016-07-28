@@ -175,6 +175,11 @@
 	color: white;
 }
 
+.dygraph-annotation-event {
+    top: 0px !important;
+    opacity: 0.8;
+}
+
 .dygraph-annotation-event,
 .dygraph-annotation-length {
 	background-color: #666;

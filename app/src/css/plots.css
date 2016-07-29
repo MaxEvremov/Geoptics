@@ -117,6 +117,7 @@
 	background: transparent;
 	font-size: .8em;
 	opacity: .7;
+    z-index: 12;
 }
 .axis-input-block input:focus {
     opacity: 1;

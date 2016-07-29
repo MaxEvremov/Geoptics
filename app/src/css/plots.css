@@ -178,6 +178,7 @@
 .dygraph-annotation-event {
     top: 0px !important;
     opacity: 0.8;
+    overflow: visible!important;
 }
 
 .dygraph-annotation-event,
@@ -309,4 +310,16 @@
 .form-group.time-group > select {
     width: 25%;
     float: right;
+}
+
+.dygraph-annotation-event:after {
+    display: block;
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 115px;
+    background: #787878;
+    top: 1.1em;
+    left: 7px;
+    opacity: 0.5;
 }

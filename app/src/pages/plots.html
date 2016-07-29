@@ -338,10 +338,11 @@
 
 					<!-- ko ifnot: events().length === 0 -->
 					<ul class="list-unstyled timeline-events" data-bind="foreach: events">
-						<li data-bind="click: $parent.showEventOnPlot">
+						<li>
 							<!-- ko ifnot: $parent.is_editing() && $parent.current_event().id == $data.id -->
 							<b data-bind="
-                                text: short_text
+                                text: short_text,
+                                click: $parent.showEventOnPlot
                             "></b>
 							<span class="btn-hoverable pull-right">
 								<a data-bind="click: $parent.editEvent">
@@ -351,7 +352,7 @@
 									<i class="fa fa-times"></i>
 								</a>
 							</span>
-							<div style="overflow-wrap: break-word;">
+							<div style="overflow-wrap: break-word;" data-bind="click: $parent.showEventOnPlot">
 								<span data-bind="text: description"></span>
 								<span class="formatDate" data-bind="text: jmask_date"></span>
 							</div>

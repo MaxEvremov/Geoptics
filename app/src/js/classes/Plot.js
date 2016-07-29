@@ -5,6 +5,8 @@ var HOUR = 60 * 60 * 1000
 
 class Plot {
     constructor(params) {
+        var self = this
+
         this.type = params.type || "point"
         this.well_id = params.well_id || null
 
@@ -22,8 +24,10 @@ class Plot {
             : null
 
         this._data = params.data || [[0, 0]]
+
 		this.color = ko.observable(params.color || "rgb(0, 0, 0)")
         this.offset = params.offset || 0
+        this.opacity = params.opacity || 1
 
         this.is_for_color_plot = params.is_for_color_plot || false
 
@@ -89,6 +93,12 @@ class Plot {
         return this.color()
             .replace("rgb", "rgba")
             .replace(")", ", 0.2)")
+    }
+
+    get dygraph_color() {
+        return this.color()
+            .replace("rgb", "rgba")
+            .replace(")", `, ${this.opacity})`)
     }
 
     get data() {

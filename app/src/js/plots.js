@@ -117,6 +117,16 @@ var drawAvgPlot = function() {
     })
 }
 
+var updateTempPlotColors = function() {
+    var plot_colors = _.map(vm.selected_plots(), function(v) {
+        return v.dygraph_color
+    })
+
+    plot_main.updateOptions({
+        colors: plot_colors
+    })
+}
+
 var init = function() {
     plot_avg = dygraph_pressure.init(drawAvgPlot)
 
@@ -249,7 +259,7 @@ var init = function() {
                     return [v[0]]
                 })
                 plot_colors = _.map(selected_plots, function(v) {
-                    return v.color()
+                    return v.dygraph_color
                 })
 
                 for(var i = 0; i < selected_plots.length; i++) {
@@ -278,7 +288,20 @@ var init = function() {
     })
 
     var renderer = new ColorTempRenderer({
-        element: document.getElementById("renderer_div")
+        element: document.getElementById("renderer_div"),
+        selectedPlotCallback: function(plot_idx) {
+            var is_plot_selected = !isNaN(parseInt(plot_idx))
+
+            for(var i = 0; i < vm.selected_plots().length; i++) {
+                vm.selected_plots()[i].opacity = is_plot_selected ? 0.1 : 1
+            }
+
+            if(is_plot_selected) {
+                vm.selected_plots()[plot_idx].opacity = 1
+            }
+
+            updateTempPlotColors()
+        }
     })
 
     vm.renderer = renderer
@@ -362,6 +385,8 @@ vm.resetPlotAvgState = function() {
 
     drawAvgPlot()
     redrawAnnotations()
+
+    vm.point_box.hide()
 }
 
 vm.afterShow = function() {

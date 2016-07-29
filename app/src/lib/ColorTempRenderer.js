@@ -2,6 +2,8 @@
 
 class ColorTempRenderer {
     constructor(params) {
+        var prev_plot_idx = null
+
         var self = this
 
         if(!params) {
@@ -11,6 +13,8 @@ class ColorTempRenderer {
         this.element = params.element
         this.plots = params.plots || []
         this.length_scale = params.length_scale
+
+        this.selectedPlotCallback = params.selectedPlotCallback || function() {}
 
         // create elements
 
@@ -48,11 +52,13 @@ class ColorTempRenderer {
             self._legend_name.style.visibility = "hidden"
             self._legend_length.style.visibility = "hidden"
             self._legend_value.style.visibility = "hidden"
+
+            self.selectedPlotCallback(null)
         })
 
         this.element.addEventListener("mousemove", function(e) {
-            var width = ColorTempRenderer._getNumericStyleValue(self._canvas.style.width)
-            var height = ColorTempRenderer._getNumericStyleValue(self._canvas.style.height)
+            var width = ColorTempRenderer._parsePxVal(self._canvas.style.width)
+            var height = ColorTempRenderer._parsePxVal(self._canvas.style.height)
 
             var rel_x = e.layerX / width
             var rel_y = e.layerY / height
@@ -66,6 +72,11 @@ class ColorTempRenderer {
                 self._legend_length.innerText = `${self.length_scale[value_idx]} м`
 
                 self._legend_value.innerText = self.plots[plot_idx].data[value_idx].toFixed(3)
+            }
+
+            if(prev_plot_idx !== plot_idx) {
+                self.selectedPlotCallback(plot_idx)
+                prev_plot_idx = plot_idx
             }
         })
 
@@ -174,7 +185,7 @@ ColorTempRenderer._getColorFromScale = function(coeff) {
     }
 }
 
-ColorTempRenderer._getNumericStyleValue = function(value) {
+ColorTempRenderer._parsePxVal = function(value) {
     value = value.replace("px", "")
     return parseFloat(value)
 }

@@ -6,7 +6,7 @@ m_site.plots.point_box = (function() {
             type: "avg",
             date_start: date_start,
             date_end: date_end,
-            well_id: vm.current_well.id
+            well_id: m_site.plots.current_well.id
         })
 
         self.is_visible(false)

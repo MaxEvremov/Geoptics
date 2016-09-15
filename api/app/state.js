@@ -22,9 +22,7 @@ api.get(
         let wells_query = `SELECT
                 id,
                 name,
-                well_xml_id,
-                has_p_sensor,
-                has_t_sensor
+                well_xml_id
             FROM wells
             WHERE id IN (
                 SELECT well_id FROM well_permissions

@@ -22,12 +22,15 @@ var is_raw_pressure_data
 var prev_min_date = null
 var prev_max_date = null
 
+var time_plot_labels = []
+var sensors_have_changed = true
+
 // helper methods
 
 var loadPressureData = _.debounce(function(params) {
     vm.is_loading_pressure_data(true)
 
-    vm.current_well.getPressureMeasurements(params, function(err, result) {
+    vm.current_well().loadTimeMeasurements(params, function(err, result) {
         if(err) {
             vm.is_loading_pressure_data(false)
             return console.error(err)
@@ -37,6 +40,7 @@ var loadPressureData = _.debounce(function(params) {
 
         plot_avg.updateOptions({
             file: result.data,
+            labels: time_plot_labels,
             errorBars: !is_raw_pressure_data,
             customBars: !is_raw_pressure_data,
             labelsShowZeroValues: true
@@ -49,6 +53,8 @@ var loadPressureData = _.debounce(function(params) {
 
         vm.min_zoom_y(y_range[0].toFixed(2))
         vm.max_zoom_y(y_range[1].toFixed(2))
+
+        sensors_have_changed = false
     })
 }, DEBOUNCE_DELAY)
 
@@ -65,12 +71,15 @@ var generateEmptyPoints = function(params) {
 
     plot_avg.updateOptions({
         file: file,
+        labels: time_plot_labels,
         errorBars: false,
         customBars: false,
         labelsShowZeroValues: false
     })
 
     redrawAnnotations()
+
+    sensors_have_changed = false
 }
 
 var drawAvgPlot = function() {
@@ -94,7 +103,7 @@ var drawAvgPlot = function() {
 
     // обновление данных в графике давления
 
-    if(!vm.current_well.has_p_sensor) {
+    if(!vm.current_well().has_active_time_sensors()) {
         generateEmptyPoints({
             min_date: min_date,
             max_date: max_date
@@ -104,7 +113,8 @@ var drawAvgPlot = function() {
     }
 
     if(prev_min_date && prev_min_date === min_date
-    && prev_max_date && prev_max_date === max_date) {
+    && prev_max_date && prev_max_date === max_date
+    && !sensors_have_changed) {
         return
     }
 
@@ -314,9 +324,14 @@ var redrawAnnotations = function() {
 
     vm.annotations().forEach(function(annotation) {
         var date = helpers.convertDate(annotation.x, "ms", "native")
-        var file_element = is_raw_pressure_data
-            ? [date, null]
-            : [date, [null, null, null]]
+        var file_element = [date]
+
+        for(var i = 0; i < vm.current_well().active_time_sensors().length; i++) {
+            file_element.push(is_raw_pressure_data
+                ? null
+                : [null, null, null]
+            )
+        }
 
         var index = _.sortedIndexBy(file, file_element, function(v) {
             return v[0]
@@ -359,7 +374,8 @@ vm.has_data = ko.observable(true)
 vm.is_favorite_saved = ko.observable(false)
 
 vm.well_id = ko.observable()
-vm.current_well = null
+vm.current_well = ko.observable(new Well())
+vm.selected_depth_sensor = ko.observable()
 
 vm.selected_plots = ko.observableArray()
 
@@ -370,13 +386,15 @@ vm.plot_main_xAxisRange = ko.observable([0,0])
 vm.adjustRoll = ko.observable()
 vm.current_mode = ko.observable("normal")
 
+vm.is_loading_favorite = false
+
 // methods
 
 vm.drawAvgPlot = drawAvgPlot
 
 vm.resetPlotAvgState = function() {
-    var min_date = helpers.convertDate(plot_avg_init_state[0][0], "native", "ms")
-    var max_date = helpers.convertDate(plot_avg_init_state[plot_avg_init_state.length - 1][0], "native", "ms")
+    var min_date = helpers.convertDate(vm.current_well().date_range[0], "native", "ms")
+    var max_date = helpers.convertDate(vm.current_well().date_range[1], "native", "ms")
 
     plot_avg.updateOptions({
         dateWindow: [min_date, max_date],
@@ -408,14 +426,14 @@ vm.afterShow = function() {
                 return console.error("well not found")
             }
 
-            vm.current_well = current_well
+            vm.current_well(current_well)
 
             vm.selected_plots.removeAll()
 
             is_raw_pressure_data = true
 
             vm.is_loading_pressure_data(true)
-            vm.current_well.init(function(err, result) {
+            vm.current_well().init(function(err, result) {
                 if(err) {
                     vm.is_loading_pressure_data(false)
                     return console.error(err)
@@ -423,17 +441,22 @@ vm.afterShow = function() {
 
                 vm.current_mode("normal")
 
-                if(result.length === 0) {
-                    return vm.has_data(false)
+                var date_range = vm.current_well().date_range
+
+                var min_date = helpers.convertDate(date_range[0], "native", "ms")
+                var max_date = helpers.convertDate(date_range[1], "native", "ms")
+
+                if(!vm.is_loading_favorite) {
+                    vm.plot_avg.updateOptions({
+                        file: [[date_range[0], null], [date_range[1], null]],
+                        dateWindow: [min_date, max_date],
+                        errorBars: false,
+                        customBars: false
+                    })
                 }
-
-                plot_avg_init_state = result
-
-                vm.plot_avg.updateOptions({
-                    file: result,
-                    errorBars: false,
-                    customBars: false
-                })
+                else {
+                    vm.is_loading_favorite = false
+                }
 
                 vm.is_loading_pressure_data(false)
 
@@ -443,7 +466,30 @@ vm.afterShow = function() {
                 prev_min_date = null
                 prev_max_date = null
 
+                var updateTimePlotLabels = function() {
+                    var sensors = vm.current_well().active_time_sensors()
+
+                    if(sensors.length === 0) {
+                        time_plot_labels = ["Date", "Pressure"]
+                        return
+                    }
+
+                    var sensor_names = sensors.map(function(sensor) {
+                        return sensor.name
+                    })
+
+                    time_plot_labels = ["Date"].concat(sensor_names)
+                }
+
+                updateTimePlotLabels()
                 drawAvgPlot()
+
+                vm.current_well().active_time_sensors.subscribe(function() {
+                    sensors_have_changed = true
+
+                    updateTimePlotLabels()
+                    drawAvgPlot()
+                })
             })
         })
     }, 0)
@@ -472,7 +518,7 @@ vm.saveFavorite = function() {
 
     var favorite = new Favorite({
         name: name,
-        well_id: vm.current_well.id,
+        well_id: vm.current_well().id,
         plots: vm.selected_plots()
     })
 
@@ -493,21 +539,26 @@ vm.saveFavorite = function() {
 // computed observables
 
 vm.annotations = ko.computed(function() {
-    var AVG_Y_AXIS = "Pressure"
+    if(!vm.current_well()) {
+        return
+    }
+
+    var series = vm.current_well().active_time_sensors().length === 0
+        ? "Pressure"
+        : vm.current_well().active_time_sensors()[0].name
 
     var selected_plots = vm.selected_plots()
-
     var result = []
 
     selected_plots.forEach(function(v, i) {
-        result.push(v.getAnnotation(i))
+        result.push(v.getAnnotation(series, i))
     })
 
     if(vm.timeline_events) {
         var timeline_events = vm.timeline_events.events()
 
         timeline_events.forEach(function(v) {
-            result.push(v.getAnnotation())
+            result.push(v.getAnnotation(series))
         })
     }
 
@@ -566,7 +617,7 @@ vm.is_main_plot_visible = ko.computed(function() {
 })
 
 vm.downloadAllAsLAS = function() {
-    Plot.downloadPlotsAsLAS(vm.selected_plots(), vm.current_well.id)
+    Plot.downloadPlotsAsLAS(vm.selected_plots())
 }
 
 vm.removeAllPlots = function() {

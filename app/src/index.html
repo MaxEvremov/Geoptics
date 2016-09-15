@@ -41,6 +41,7 @@
     <script src="/js/classes/ReferencePoint.js"></script>
     <script src="/js/classes/LengthAnnotation.js"></script>
     <script src="/js/classes/TimelineEvent.js"></script>
+    <script src="/js/classes/Sensor.js"></script>
 
     <script src="/js/plot-main.js"></script>
     <script src="/js/plot-pressure.js"></script>
@@ -53,6 +54,7 @@
     <script src="/js/plots-length-annotations.js"></script>
     <script src="/js/plots-timeline-events.js"></script>
     <script src="/js/plots-point-box.js"></script>
+    <script src="/js/plots-sensors.js"></script>
 	<script src="/js/favorites.js"></script>
 
 	<script type="text/javascript">
@@ -118,6 +120,9 @@
                             </li>
                             <li data-bind="css: { active: $parent.plots.current_mode() === 'length_annotation' }">
                                 <a data-bind="click: $parent.plots.length_annotations.edit"><i class="fa fa-map-signs"></i> Констр. элементы</a>
+                            </li>
+                            <li data-bind="css: { active: $parent.plots.current_mode() === 'sensors' }">
+                                <a data-bind="click: $parent.plots.sensors.edit"><i class="fa fa-tasks"></i> Датчики</a>
                             </li>
                         </ul>
 					</li>

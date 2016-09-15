@@ -6,7 +6,8 @@ m_site.plots.point_box = (function() {
             type: "avg",
             date_start: date_start,
             date_end: date_end,
-            well_id: m_site.plots.current_well.id
+            well_id: m_site.plots.current_well().id,
+            sensor_id: m_site.plots.selected_depth_sensor()
         })
 
         self.is_visible(false)
@@ -51,7 +52,8 @@ m_site.plots.point_box = (function() {
         var plot = new Plot({
             type: "point",
             date: date,
-            well_id: m_site.plots.current_well.id
+            well_id: m_site.plots.current_well().id,
+            sensor_id: m_site.plots.selected_depth_sensor()
         })
 
         self.is_visible(false)
@@ -138,7 +140,8 @@ m_site.plots.point_box = (function() {
                 number: number,
                 interval: moment.duration(interval, interval_unit).asMilliseconds(),
                 period: moment.duration(period, period_unit).asMilliseconds(),
-                well_id: m_site.plots.current_well.id
+                well_id: m_site.plots.current_well().id,
+                sensor_id: m_site.plots.selected_depth_sensor()
             },
             function(err, task_id) {
                 if(err) {
@@ -152,7 +155,7 @@ m_site.plots.point_box = (function() {
                         "get",
                         {
                             id: task_id,
-                            well_id: m_site.plots.current_well.id
+                            well_id: m_site.plots.current_well().id
                         },
                         function(err, result) {
                             if(err) {

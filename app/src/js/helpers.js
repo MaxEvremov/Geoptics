@@ -77,7 +77,7 @@ helpers.convertDate = function(date, from, to) {
     }
 
     if(from === "iso8601") {
-        from_moment = moment(date, "YYYY-MM-DD HH:mm:ssZ", true)
+        from_moment = moment(date, "YYYY-MM-DD HH:mm:ss.SSSSSSZ")
     }
 
     if(from === "native") {
@@ -105,7 +105,7 @@ helpers.convertDate = function(date, from, to) {
     }
 
     if(to === "iso8601") {
-        return from_moment.format("YYYY-MM-DD HH:mm:ssZ")
+        return from_moment.format("YYYY-MM-DD HH:mm:ss.SSSSSSZ")
     }
 
     if(to === "native") {
@@ -115,4 +115,14 @@ helpers.convertDate = function(date, from, to) {
     if(to === "jmask") {
         return from_moment.format("DD/MM/YY HH:mm")
     }
+}
+
+helpers.downloadFileUsingAJAX = function(url, data) {
+    var form = $("<form></form>").attr("action", url).attr("method", "post")
+
+    for(var key in data) {
+        form.append($("<input></input>").attr("type", "hidden").attr("name", key).attr("value", JSON.stringify(data[key])))
+    }
+
+    form.appendTo("body").submit().remove()
 }

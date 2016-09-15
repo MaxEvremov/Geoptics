@@ -8,7 +8,7 @@ m_site.plots.min_length = (function() {
     var self = {
         value: ko.observable(0),
         edit: function() {
-            m_site.plots.current_well.getMinLength(
+            m_site.plots.current_well().getMinLength(
                 function(err, result) {
                     if(err) {
                         return console.error(err)
@@ -22,7 +22,7 @@ m_site.plots.min_length = (function() {
             )
         },
         save: function() {
-            m_site.plots.current_well.setMinLength(
+            m_site.plots.current_well().setMinLength(
                 {
                     min_length: self.value()
                 },

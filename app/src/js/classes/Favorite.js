@@ -5,38 +5,37 @@ class Favorite {
         this.id = params.id || null
         this.name = params.name || "Favorite"
         this.well_id = params.well_id || null
-        this.plots = params.plots || []
         this.created_at = params.created_at || null
     }
 
     save(done) {
-        var plots = JSON.stringify(_.map(this.plots, function(plot) {
-            var json = {
-                type: plot.type,
-                offset: plot.offset,
-                is_for_color_plot: plot.is_for_color_plot
-            }
+        var x_range = m_site.plots.plot_avg.xAxisRange()
 
-            if(plot.type === "point") {
-                json.date = plot.date
-            }
-
-            if(plot.type === "avg") {
-                json.date_start = plot.date_start
-                json.date_end = plot.date_end
-            }
-
-            return json
-        }))
+        var state = {
+            plots: m_site.plots.selected_plots(),
+            date_start: x_range[0],
+            date_end: x_range[1],
+            active_time_sensors: m_site.plots.current_well().active_time_sensors().map(function(sensor) {
+                return sensor.id
+            })
+        }
 
         helpers.makeAJAXRequest(
             "/api/app/favorites",
             "post",
             {
                 well_id: this.well_id,
-                plots: plots,
+                state: state,
                 name: this.name
             },
+            done
+        )
+    }
+
+    load(done) {
+        helpers.makeAJAXRequest(
+            "/api/app/favorites/" + this.id,
+            "get",
             done
         )
     }

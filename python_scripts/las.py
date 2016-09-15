@@ -11,16 +11,10 @@ def main():
     params = read_in()
     l = lasio.LASFile()
 
-    is_multiple = params.get("is_multiple")
+    l.add_curve("DEPT", np.asarray(params.get("depth")), unit="m")
 
-    l.add_curve("DEPT", np.asarray(params.get("length")), unit="m")
-
-    if is_multiple:
-        for plot in params.get("plots"):
-            l.add_curve(plot.get("name"), np.asarray(plot.get("temp")), unit="C")
-    else:
-        l.well["DATE"].value = params.get("date")
-        l.add_curve("TEMP", np.asarray(params.get("temp")), unit="C")
+    for plot in params.get("plots"):
+        l.add_curve(plot.get("name"), np.asarray(plot.get("data")), unit="C")
 
     l.write(sys.stdout, version=2.0, fmt="%10.5g")
     sys.exit(0)

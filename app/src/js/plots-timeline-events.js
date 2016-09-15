@@ -5,7 +5,7 @@ m_site.plots.timeline_events = (function() {
         is_editing: ko.observable(false),
 
         getAll: function() {
-            m_site.plots.current_well.getTimelineEvents(function(err, result) {
+            m_site.plots.current_well().getTimelineEvents(function(err, result) {
                 if(err) {
                     return console.error(err)
                 }
@@ -31,17 +31,17 @@ m_site.plots.timeline_events = (function() {
             self.is_editing(false)
         },
         removeEvent: function(data, e) {
-            m_site.plots.current_well.removeTimelineEvent(data, self.getAll)
+            m_site.plots.current_well().removeTimelineEvent(data, self.getAll)
         },
         saveEvent: function() {
             var current_event = {
                 id: self.current_event().id,
                 short_text: self.current_event().short_text(),
                 description: self.current_event().description(),
-                date: helpers.convertDate(self.current_event().jmask_date(), "jmask", "iso8601")
+                ts: helpers.convertDate(self.current_event().jmask_date(), "jmask", "iso8601")
             }
 
-            m_site.plots.current_well.addOrUpdateTimelineEvent(
+            m_site.plots.current_well().addOrUpdateTimelineEvent(
                 current_event,
                 function(err, result) {
                     if(err) {

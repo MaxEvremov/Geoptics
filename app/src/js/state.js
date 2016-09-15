@@ -12,7 +12,6 @@ m_site.state = (function() {
         current_page: ko.observable(),
         is_ready: ko.observable(false),
 
-        current_well: null,
         wells: ko.observableArray(),
         textures: ko.observableArray(),
 

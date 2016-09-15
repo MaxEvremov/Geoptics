@@ -18,6 +18,8 @@ const auth = require(__base + "api/auth")
 const plots = require(__base + "api/app/plots")
 const state = require(__base + "api/app/state")
 const wells = require(__base + "api/app/wells")
+const sensors = require(__base + "api/app/sensors")
+const las = require(__base + "api/app/las")
 
 // main
 
@@ -52,10 +54,22 @@ api.use(
 )
 api.use(
     "/wells",
-    helpers.validatePermissions(["admin"]),
+    helpers.validatePermissions(["admin", "user"]),
     helpers.validateRequestData({ well_id: validators.isIDValid }),
     helpers.checkWellAccess,
     wells
+)
+api.use(
+    "/sensors",
+    helpers.validatePermissions(["admin", "user"]),
+    helpers.validateRequestData({ sensor_id: validators.isIDValid }),
+    helpers.checkSensorAccess,
+    sensors
+)
+api.use(
+    "/las",
+    helpers.validatePermissions(["admin", "user"]),
+    las
 )
 api.use("/state", state)
 

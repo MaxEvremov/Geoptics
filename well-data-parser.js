@@ -17,6 +17,16 @@ const config = require(__base + "config")
 const EPOCH_TICKS = 621355968000000000
 const TICKS_PER_MS = 10000
 
+const FILE_TAGS = {
+    ".gsd": "SingleConditionerDataFile_30",
+    ".gdd": "DistributeConditionerDataFile_30"
+}
+
+const SENSOR_TYPES = {
+    ".gsd": "point",
+    ".gdd": "distributed"
+}
+
 let well_data_dir = config.well_data_dir
 let well_data_archive = config.well_data_archive
 
@@ -24,199 +34,197 @@ let tmp_dir = os.tmpdir()
 
 fs.ensureDirSync(well_data_archive)
 
-let processGSDFile = (file_path, done) => {
-    let record_count = 0
-    let file_name = path.basename(file_path)
+let parseGSDFile = (params, done) => {
+    let data = params.data
+    let sensors = params.sensors
 
-    async.waterfall([
-        (done) => {
-            fs.readFile(file_path, done)
-        },
-        (file_data, done) => {
-            xml2js.parseString(file_data, done)
-        },
-        (parsed_xml, done) => {
-            if(!parsed_xml.SingleConditionerDataFile_30) {
-                return done("wrong_file_format")
+    let measurements = []
+
+    let values = data.Data[0].SingleConditionerDataFileWrap_30
+
+    let start_date = moment(data.StartDate, "YYYY-MM-DDTHH:mm:ss.SSSSSS")
+    let first_value_date = moment((values[0].Ticks - EPOCH_TICKS) / TICKS_PER_MS, "x")
+    let time_diff = first_value_date.diff(start_date)
+
+    let record_count = values.length
+
+    for(let i = 0; i < values.length; i++) {
+        let value = values[i]
+
+        let created_at = moment((value.Ticks - EPOCH_TICKS) / TICKS_PER_MS, "x")
+            .subtract(time_diff, "ms")
+            .format("YYYY-MM-DD HH:mm:ss.SSSSSSZ")
+
+        for(let key in value) {
+            if(key === "Ticks") {
+                continue
             }
 
-            let measurements = []
+            let sensor_id = sensors[key]
 
-            let data = parsed_xml.SingleConditionerDataFile_30
-
-            let well_xml_id = data.Well
-            let values = data.Data[0].SingleConditionerDataFileWrap_30
-
-            let start_date = moment(data.StartDate, "YYYY-MM-DDTHH:mm:ss.SSSSSS")
-
-            let first_value_date = moment((values[0].Ticks - EPOCH_TICKS) / TICKS_PER_MS, "x")
-
-            let time_diff = first_value_date.diff(start_date)
-
-            record_count = values.length
-
-            for(let i = 0; i < values.length; i++) {
-                let value = values[i]
-
-                let date = moment((value.Ticks - EPOCH_TICKS) / TICKS_PER_MS, "x")
-                    .subtract(time_diff, "ms")
-                    .subtract(1, "h")
-                    .format("YYYY-MM-DD HH:mm:ssZ")
-
-                measurements.push({
-                    date: date,
-                    pressure: parseFloat(value.PressureValue)
-                })
+            if(!sensor_id) {
+                continue
             }
 
-            return done(null, well_xml_id, measurements)
-        },
-        (well_xml_id, measurements, done) => {
-            let query = `SELECT id FROM wells
-                WHERE well_xml_id = '${well_xml_id}'`
-
-            helpers.makePGQuery(
-                query,
-                {
-                    enable_query_log: false
-                },
-                (err, result) => {
-                    if(err) {
-                        return done(err)
-                    }
-
-                    if(!result) {
-                        return done("well_not_found")
-                    }
-
-                    if(result.length === 0) {
-                        return done("well_not_found")
-                    }
-
-                    return done(null, result[0].id, measurements)
-                }
-            )
-        },
-        (well_id, measurements, done) => {
-            let values = measurements
-                .map(v => `('${v.date}', ${v.pressure}, ${well_id})`)
-                .join(",\n")
-
-            let query = `INSERT INTO p_measurements
-                (date, pressure, well_id) VALUES
-                ${values}`
-
-            helpers.makePGQuery(
-                query,
-                {
-                    enable_query_log: false
-                },
-                done
-            )
+            measurements.push({
+                created_at: created_at,
+                val: parseFloat(value[key]).toFixed(3),
+                sensor_id: sensor_id
+            })
         }
-    ], function(err) {
-        if(err) {
-            console.error(`An error occurred while processing ${file_name}: ${err}`)
-            return done(err)
-        }
+    }
 
-        console.log(`${file_name} has been successfully processed! ${record_count} records added.`)
-        return done(null)
-    })
+    let rows = measurements
+        .map(v => `('${v.created_at}', ${v.val}, ${v.sensor_id})`)
+        .join(",\n")
+
+    let query = `INSERT INTO time_measurements
+        (created_at, val, sensor_id) VALUES
+        ${rows}
+        ON CONFLICT DO NOTHING`
+
+    helpers.makePGQuery(
+        query,
+        (err) => {
+            if(err) {
+                return done(err)
+            }
+
+            return done(null, record_count)
+        }
+    )
 }
 
-let processGDDFile = (file_path, done) => {
-    let record_count = 0
+let parseGDDFile = (params, done) => {
+    let data = params.data
+    let sensors = params.sensors
+
+    let measurements = []
+
+    let created_at = moment(data.StartDate, "YYYY-MM-DDTHH:mm:ss")
+        .format("YYYY-MM-DD HH:mm:ss.SSSSSSZ")
+
+    let values = data.D
+    let start_depth = parseFloat(data.StartLenght)
+    let depth_step = parseFloat(data.IncrementalLenght)
+
+    let record_count = values.length
+
+    for(let i = 0; i < values.length; i++) {
+        let value = values[i]
+
+        for(let key in value) {
+            let sensor_id = sensors[key]
+
+            if(!sensor_id) {
+                continue
+            }
+
+            measurements.push({
+                created_at: created_at,
+                depth: parseFloat(start_depth + i * depth_step).toFixed(3),
+                val: parseFloat(value[key][0]).toFixed(3),
+                sensor_id: sensor_id
+            })
+        }
+    }
+
+    let rows = measurements
+        .map(v => `('${v.created_at}', ${v.val}, ${v.depth}, ${v.sensor_id})`)
+        .join(",\n")
+
+    let query = `INSERT INTO depth_measurements
+        (created_at, val, depth, sensor_id) VALUES
+        ${rows}
+        ON CONFLICT DO NOTHING`
+
+    helpers.makePGQuery(
+        query,
+        (err) => {
+            if(err) {
+                return done(err)
+            }
+
+            return done(null, record_count)
+        }
+    )
+}
+
+const FILE_PARSERS = {
+    ".gsd": parseGSDFile,
+    ".gdd": parseGDDFile
+}
+
+let parseXMLFile = (file_path, done) => {
+    let ext = path.extname(file_path)
     let file_name = path.basename(file_path)
 
-    async.waterfall([
-        (done) => {
-            fs.readFile(file_path, done)
-        },
-        (file_data, done) => {
-            xml2js.parseString(file_data, done)
-        },
-        (parsed_xml, done) => {
-            if(!parsed_xml.DistributeConditionerDataFile_30) {
-                return done("wrong_file_format")
-            }
+    let data
 
-            let measurements = []
+    async.waterfall(
+        [
+            (done) => {
+                fs.readFile(file_path, done)
+            },
+            (file_data, done) => {
+                xml2js.parseString(file_data, done)
+            },
+            (parsed_xml, done) => {
+                let file_tag = FILE_TAGS[ext]
 
-            let data = parsed_xml.DistributeConditionerDataFile_30
-
-            let well_xml_id = data.Well
-
-            let date = moment(data.StartDate, "YYYY-MM-DDTHH:mm:ss")
-                .subtract(2, "h")
-                .format("YYYY-MM-DD HH:mm:ssZ")
-
-            let values = data.D
-            let start_length = parseFloat(data.StartLenght)
-            let length_step = parseFloat(data.IncrementalLenght)
-
-            record_count = values.length
-
-            for(let i = 0; i < values.length; i++) {
-                let value = values[i]
-
-                measurements.push({
-                    date: date,
-                    length: start_length + i * length_step,
-                    temp: parseFloat(value.T[0])
-                })
-            }
-
-            return done(null, well_xml_id, measurements)
-        },
-        (well_xml_id, measurements, done) => {
-            let query = `SELECT id FROM wells
-                WHERE well_xml_id = '${well_xml_id}'`
-
-            helpers.makePGQuery(
-                query,
-                {
-                    enable_query_log: false
-                },
-                (err, result) => {
-                    if(err) {
-                        return done(err)
-                    }
-
-                    if(!result) {
-                        return done("well_not_found")
-                    }
-
-                    return done(null, result[0].id, measurements)
+                if(!file_tag) {
+                    return done("unknown_format")
                 }
-            )
-        },
-        (well_id, measurements, done) => {
-            let values = measurements
-                .map(v => `('${v.date}', ${v.temp}, ${v.length}, ${well_id})`)
-                .join(",\n")
 
-            let query = `INSERT INTO t_measurements
-                (date, temp, length, well_id) VALUES
-                ${values}`
+                data = parsed_xml[file_tag]
 
-            helpers.makePGQuery(
-                query,
-                {
-                    enable_query_log: false
-                },
-                done
-            )
+                if(!data) {
+                    return done("wrong_file_format")
+                }
+
+                let well_xml_id = data.Well
+                let sensor_xml_id = data.Channel
+                let sensor_type = SENSOR_TYPES[ext]
+
+                let query = `SELECT id, xml_tag FROM sensors
+                    WHERE well_id = (SELECT id FROM wells
+                        WHERE well_xml_id = '${well_xml_id}')
+                    AND xml_id = '${sensor_xml_id}'
+                    AND type = '${sensor_type}'`
+
+                helpers.makePGQuery(
+                    query,
+                    done
+                )
+            },
+            (sensors, done) => {
+                let sensors_dict = {}
+
+                sensors.forEach((sensor) => {
+                    sensors_dict[sensor.xml_tag] = sensor.id
+                })
+
+                let fileParser = FILE_PARSERS[ext]
+
+                return fileParser(
+                    {
+                        data: data,
+                        sensors: sensors_dict
+                    },
+                    done
+                )
+            }
+        ],
+        (err, record_count) => {
+            if(err) {
+                console.error(`An error occurred while processing ${file_name}: ${err}`)
+                return done(err)
+            }
+
+            console.log(`${file_name} has been successfully processed! ${record_count} records added.`)
+            return done(null)
         }
-    ], function(err) {
-        if(err) {
-            console.error(`An error occurred while processing ${file_name}: ${err}`)
-            return done(err)
-        }
-
-        console.log(`${file_name} has been successfully processed! ${record_count} records added.`)
-        return done(null)
-    })
+    )
 }
 
 let processArchive = (archive_path, done) => {
@@ -271,17 +279,8 @@ let processArchive = (archive_path, done) => {
                 files,
                 (file, done) => {
                     let absolute_file_path = path.join(tmp_archive_dir, file)
-                    let ext = path.extname(file)
 
-                    if(ext === ".gsd") {
-                        return processGSDFile(absolute_file_path, done)
-                    }
-
-                    if(ext === ".gdd") {
-                        return processGDDFile(absolute_file_path, done)
-                    }
-
-                    return done(null)
+                    return parseXMLFile(absolute_file_path, done)
                 },
                 done
             )

@@ -31,6 +31,36 @@ api.post(
 )
 
 api.get(
+    "/:id",
+    (req, res, next) => {
+        let query = knex("favorites")
+        .where({
+            id: req.params.id,
+            user_id: req.user.id
+        })
+        .select(
+            "state"
+        )
+        .toString()
+
+        helpers.makePGQuery(
+            query,
+            (err, result) => {
+                if(err) {
+                    return res.jsonCallback(err)
+                }
+
+                if(!result[0]) {
+                    return res.jsonCallback("not_found")
+                }
+
+                return res.jsonCallback(null, result[0].state)
+            }
+        )
+    }
+)
+
+api.get(
     "/",
     (req, res, next) => {
         let query = knex("favorites")
@@ -39,8 +69,7 @@ api.get(
             "id",
             "name",
             "created_at",
-            "well_id",
-            "plots"
+            "well_id"
         )
         .toString()
 

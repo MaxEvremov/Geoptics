@@ -9,19 +9,19 @@ class TimelineEvent {
         this.id = params.id || null
         this.well_id = params.well_id || null
         this.short_text = ko.observable(params.short_text || null)
-        this.date = params.date || null
+        this.ts = params.ts || null
         this.description = ko.observable(params.description || null)
 
-        this.jmask_date = ko.observable(params.date
-            ? helpers.convertDate(params.date, "iso8601", "jmask")
+        this.jmask_date = ko.observable(params.ts
+            ? helpers.convertDate(params.ts, "iso8601", "jmask")
             : null
         )
     }
 
-    getAnnotation() {
+    getAnnotation(series) {
         return {
-            series: AVG_Y_AXIS,
-            x: helpers.convertDate(this.date, "iso8601", "ms"),
+            series: series,
+            x: helpers.convertDate(this.ts, "iso8601", "ms"),
             shortText: this.short_text(),
             text: this.description(),
             attachAtBottom: true,
@@ -36,7 +36,7 @@ class TimelineEvent {
         var min_date = helpers.convertDate(file[0][0], "native", "ms")
         var max_date = helpers.convertDate(file[file.length - 1][0], "native", "ms")
 
-        var x = helpers.convertDate(this.date, "iso8601", "ms")
+        var x = helpers.convertDate(this.ts, "iso8601", "ms")
 
         var zoom_left = (x - HOUR) < min_date
             ? min_date

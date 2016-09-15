@@ -14,108 +14,90 @@ const las = require(__base + "lib/las")
 
 const length_annotations = require(__base + "api/app/length-annotations")
 
-// validators
-
-let isIDValid = (id) => {
-    id = parseInt(id)
-    return Number.isInteger(id) && id > 0
-}
-let isPlotValid = (plot) => {
-    if(!plot.type) {
-        return false
-    }
-
-    if(plot.type === "avg"
-    && (!plot.date_start || !plot.date_end)) {
-        return false
-    }
-
-    if(plot.type === "point" && !plot.date) {
-        return false
-    }
-
-    return true
-}
-let isISO8601DateValid = (date) => moment(date, "YYYY-MM-DD HH:mm:ssZ", true).isValid()
-
 // helpers
 
-let formatDate = (date) => moment(date).format("YYYY-MM-DD HH:mm:ssZ")
-
 let generatePlotQuery = (params) => {
+    console.log(params)
+
     let has_reference_point = params.well.reference_length
         && params.well.reference_temp
+    let ignore_min_length = (params.ignore_min_length === "true")
 
     if(params.plot.type === "avg") {
         return `
             ${has_reference_point
                 ? `WITH rdiff AS (
-                    SELECT avg(t.temp) - ${params.well.reference_temp} AS val
-                    FROM t_measurements AS t
+                    SELECT avg(t.val) - ${params.well.reference_temp} AS val
+                    FROM depth_measurements AS t
                     WHERE
-                        t.well_id = ${params.well.id}
-                        AND t.length::numeric = ${params.well.reference_length}
-                        AND t.date >= '${params.plot.date_start}'
-                        AND t.date <= '${params.plot.date_end}'
+                        t.sensor_id = ${params.sensor_id}
+                        AND t.depth::numeric = ${params.well.reference_length}
+                        AND t.created_at >= '${params.plot.date_start}'
+                        AND t.created_at <= '${params.plot.date_end}'
                 )`
                 : ""
             }
             SELECT
-                t.length AS length,
+                t.depth AS depth,
                 ${has_reference_point
-                    ? "avg(t.temp) - (SELECT val FROM rdiff) AS temp"
-                    : "avg(t.temp) AS temp"
+                    ? "avg(t.val) - (SELECT val FROM rdiff) AS val"
+                    : "avg(t.val) AS val"
                 }
-            FROM t_measurements AS t
+            FROM depth_measurements AS t
             WHERE
-                t.well_id = ${params.well.id}
-                AND t.date >= '${params.plot.date_start}'
-                AND t.date <= '${params.plot.date_end}'
-                ${params.ignore_min_length
+                t.sensor_id = ${params.sensor_id}
+                AND t.created_at >= '${params.plot.date_start}'
+                AND t.created_at <= '${params.plot.date_end}'
+                ${ignore_min_length || !params.well.min_length
                     ? ""
-                    : `AND t.length >= ${params.well.min_length}`
+                    : `AND t.depth >= ${params.well.min_length}`
                 }
-            GROUP BY t.length
-            ORDER BY length DESC
+            GROUP BY t.depth
+            ORDER BY depth DESC
             `
     }
     else if(params.plot.type === "point") {
         return `
             WITH vars AS (
-                SELECT date AS nearest_date
-                FROM t_measurements
-                WHERE date <= '${params.plot.date}' AND well_id = ${params.well.id}
-                ORDER BY date DESC
+                SELECT created_at AS nearest_date FROM ((SELECT created_at FROM depth_measurements
+                WHERE created_at <= '${params.plot.date}' AND sensor_id = ${params.sensor_id}
+                ORDER BY created_at DESC
+                LIMIT 1)
+                UNION (SELECT created_at FROM depth_measurements
+                WHERE created_at >= '${params.plot.date}' AND sensor_id = ${params.sensor_id}
+                ORDER BY created_at ASC
+                LIMIT 1)) AS d
+                ORDER BY abs(extract(epoch from '${params.plot.date}'::timestamptz) - extract(epoch from d.created_at::timestamptz)) ASC
                 LIMIT 1
             )
             ${has_reference_point
                 ? `,
                 rdiff AS (
-                    SELECT t.temp - ${params.well.reference_temp} AS val
-                    FROM t_measurements AS t
+                    SELECT t.val - ${params.well.reference_temp} AS val
+                    FROM depth_measurements AS t
                     WHERE
-                        t.well_id = ${params.well.id}
-                        AND t.length::numeric = ${params.well.reference_length}
-                        AND t.date = (SELECT nearest_date FROM vars)
+                        t.sensor_id = ${params.sensor_id}
+                        AND t.depth::numeric = ${params.well.reference_length}
+                        AND t.created_at = (SELECT nearest_date FROM vars)
                 )`
                 : ""
             }
             SELECT
-                t.length AS length,
+                t.depth AS depth,
                 ${has_reference_point
-                    ? "t.temp - (SELECT val FROM rdiff) AS temp"
-                    : "t.temp AS temp"
+                    ? "t.val - (SELECT val FROM rdiff) AS val"
+                    : "t.val AS val"
                 },
-                t.date AS date
-            FROM t_measurements AS t
+                t.created_at AS created_at
+            FROM depth_measurements AS t
             WHERE
-                t.date = (SELECT nearest_date FROM vars)
-                AND t.well_id = ${params.well.id}
-                ${params.ignore_min_length
+                t.created_at = (SELECT nearest_date FROM vars)
+                AND t.sensor_id = ${params.sensor_id}
+                ${ignore_min_length || !params.well.min_length
                     ? ""
-                    : `AND t.length >= ${params.well.min_length}`
+                    : `AND t.depth >= ${params.well.min_length}`
                 }
-            ORDER BY length DESC`
+            ORDER BY depth DESC`
     }
 }
 
@@ -125,101 +107,30 @@ let api = express()
 
 api.use("/length_annotation", length_annotations)
 
-api.post(
-    "/init",
-    helpers.validateRequestData({
-        well_id: isIDValid
-    }),
-    (req, res, next) => {
-        let p_query = `SELECT min(date) AS date from p_measurements
-            WHERE well_id = ${req.body.well_id}
-            UNION SELECT max(date) from p_measurements
-            WHERE well_id = ${req.body.well_id}`
-
-        let t_query = `SELECT min(date) AS date from t_measurements
-            WHERE well_id = ${req.body.well_id}
-            UNION SELECT max(date) from t_measurements
-            WHERE well_id = ${req.body.well_id}`
-
-        let events_query = `SELECT min(date) AS date from timeline_events
-            WHERE well_id = ${req.body.well_id}
-            UNION SELECT max(date) from timeline_events
-            WHERE well_id = ${req.body.well_id}`
-
-        async.parallel(
-            [
-                (done) => helpers.makePGQuery(p_query, done),
-                (done) => helpers.makePGQuery(t_query, done),
-                (done) => helpers.makePGQuery(events_query, done)
-            ],
-            (err, result) => {
-                if(err) {
-                    return res.jsonCallback(err)
-                }
-
-                let min_dates = []
-                let max_dates = []
-
-                result.forEach(v => {
-                    if(v[0] && v[0].date) {
-                        min_dates.push(helpers.convertDate(v[0].date, "iso8601", "moment"))
-                    }
-
-                    if(v[1] && v[1].date) {
-                        max_dates.push(helpers.convertDate(v[1].date, "iso8601", "moment"))
-                    }
-                })
-
-                min_dates.sort((a, b) => b.isBefore(a))
-                max_dates.sort((a, b) => a.isBefore(b))
-
-                let min_date = helpers.convertDate(min_dates[0], "moment", "iso8601")
-                let max_date = helpers.convertDate(max_dates[0], "moment", "iso8601")
-
-                return res.jsonCallback(null, [
-                    [min_date, null],
-                    [max_date, null]
-                ])
-            }
-        )
-    }
-)
-
-api.post(
-    "/t_measurements",
+api.get(
+    "/depth_measurements",
+    helpers.checkSensorAccess,
     helpers.validateRequestData({
         plot: validators.isPlotValid,
-        well_id: validators.isIDValid
+        well_id: validators.isIDValid,
+        sensor_id: validators.isIDValid
     }),
+    helpers.getWell,
     (req, res, next) => {
-        let plot = req.body.plot
-        let well_id = req.body.well_id
+        let plot = req.query.plot
+        let well_id = req.query.well_id
+        let sensor_id = req.query.sensor_id
 
         async.waterfall([
             (done) => {
-                let well_query = `
-                    SELECT
-                        reference_temp,
-                        reference_length,
-                        min_length,
-                        id
-                    FROM wells
-                    WHERE id = ${well_id}
-                `
-
-                helpers.makePGQuery(
-                    well_query,
-                    done
-                )
-            },
-            (well_query_result, done) => {
-                let well = well_query_result[0]
-
                 let query = generatePlotQuery({
                     plot: plot,
-                    well: well,
-                    ignore_min_length: req.body.ignore_min_length
+                    well: req.well,
+                    ignore_min_length: req.query.ignore_min_length,
+                    sensor_id: sensor_id
                 })
+
+                console.log(query)
 
                 helpers.makePGQuery(
                     query,
@@ -228,13 +139,19 @@ api.post(
                             return done(err)
                         }
 
+                        if(result.length === 0) {
+                            return done(null, [])
+                        }
+
                         let plot_result = {
                             type: plot.type,
-                            data: result.map(v => [v.length, v.temp])
+                            data: result.map(v =>
+                                [parseFloat(v.depth), parseFloat(v.val)]
+                            )
                         }
 
                         if(plot.type === "point") {
-                            plot_result.date = result[0].date
+                            plot_result.date = result[0].created_at
                         }
 
                         if(plot.type === "avg") {
@@ -253,6 +170,7 @@ api.post(
 
 api.get(
     "/color_temp",
+    helpers.checkSensorAccess,
     helpers.validateRequestData({
         date: validators.isISO8601DateValid,
         number: validators.isNaturalNumberValid,
@@ -308,8 +226,11 @@ api.get(
                 let processPlot = (plot, done) => {
                     let query = generatePlotQuery({
                         well: req.well,
-                        plot: plot
+                        plot: plot,
+                        sensor_id: req.query.sensor_id
                     })
+
+                    console.log(query)
 
                     helpers.makePGQuery(
                         query,
@@ -318,7 +239,9 @@ api.get(
                                 return done(err)
                             }
 
-                            plot.data = result.map(v => [v.length, v.temp])
+                            plot.data = result.map(v =>
+                                [parseFloat(v.depth), parseFloat(v.val)]
+                            )
                             processed++
 
                             updateTaskStatus(
@@ -374,241 +297,38 @@ api.get(
     }
 )
 
-api.get(
-    "/las",
-    helpers.validateRequestData({
-        plot: validators.isPlotValid
-    }),
-    (req, res, next) => {
-        let plot = req.query.plot
-
-        let query = generatePlotQuery({
-            plot: plot,
-            well: { id: req.query.well_id },
-            ignore_min_length: true
-        })
-
-        helpers.makePGQuery(
-            query,
-            (err, result) => {
-                if(err) {
-                    return res.sendStatus(500)
-                }
-
-                let file_name = plot.type === "avg"
-                    ? `${plot.date_start}-${plot.date_end}`
-                    : `${plot.date}`
-
-                res.attachment(`${file_name}.las`)
-
-                las({
-                    is_multiple: false,
-                    date: file_name,
-                    length: result.map(v => v.length),
-                    temp: result.map(v => v.temp)
-                }).pipe(res)
-            }
-        )
-    }
-)
-
-
-api.get(
-    "/las_multiple",
-    helpers.validateRequestData({
-        plots: (plots) => {
-            return _.isArray(plots)
-                && _.every(plots, validators.isPlotValid)
-        }
-    }),
-    (req, res, next) => {
-        let plots = req.query.plots
-
-        let current_date = moment().format("DD_MM_YYYY_HH_mm_ss")
-
-        helpers.makePGQuery(
-            knex("wells")
-            .where("id", req.query.well_id)
-            .select("name")
-            .toString(),
-            (err, result) => {
-                if(err) {
-                    return res.sendStatus(500)
-                }
-
-                let well_name = result[0].name
-
-                async.map(
-                    plots,
-                    (plot, done) => {
-                        let query = generatePlotQuery({
-                            plot: plot,
-                            well: { id: req.query.well_id },
-                            ignore_min_length: true
-                        })
-
-                        helpers.makePGQuery(
-                            query,
-                            (err, result) => {
-                                if(err) {
-                                    return done(err)
-                                }
-
-                                plot.length = result.map(v => v.length)
-                                plot.temp = result.map(v => v.temp)
-                                plot.name = plot.type === "avg"
-                                    ? `${plot.date_start}-${plot.date_end}`
-                                    : `${plot.date}`
-
-                                return done(null, plot)
-                            }
-                        )
-                    },
-                    (err, results) => {
-                        if(err) {
-                            return res.sendStatus(500)
-                        }
-
-                        let params = {
-                            is_multiple: true,
-                            length: results[0].length,
-                            plots: results
-                        }
-
-                        res.attachment(`${well_name}_${current_date}.las`)
-
-                        las(params).pipe(res)
-                    }
-                )
-            }
-        )
-    }
-)
-
-api.get(
-    "/p_measurements",
-    helpers.validateRequestData({
-        well_id: validators.isIDValid,
-        date_start: validators.isISO8601DateValid,
-        date_end: validators.isISO8601DateValid
-    }),
-    (req, res) => {
-        const POINTS_PER_PLOT = 1000
-        const LOAD_RAW_DATA_THRESHOLD = 1 * 24 * 60 * 60 * 1000
-
-        let well_id = req.query.well_id
-        let date_start = req.query.date_start
-        let date_end = req.query.date_end
-
-        let date_diff = helpers.convertDate(date_end, "iso8601", "ms")
-            - helpers.convertDate(date_start, "iso8601", "ms")
-
-        if(date_diff < LOAD_RAW_DATA_THRESHOLD) {
-            let query = `SELECT date, pressure
-                FROM p_measurements
-                WHERE well_id = ${well_id}
-                AND date >= '${date_start}'
-                AND date <= '${date_end}'
-                ORDER BY date`
-
-            helpers.makePGQuery(
-                query,
-                (err, result) => {
-                    if(err) {
-                        return res.jsonCallback(err)
-                    }
-
-                    return res.jsonCallback(null, {
-                        is_raw: true,
-                        data: result.map(v => [
-                            v.date,
-                            v.pressure
-                        ])
-                    })
-                }
-            )
-
-            return
-        }
-
-        let interval = Math.floor(date_diff / POINTS_PER_PLOT)
-
-        let query = `
-            WITH params AS (
-               SELECT '${date_start}'::timestamptz AS _min
-                     ,'${date_end}'::timestamptz AS _max
-                     ,'${interval} milliseconds'::interval AS _interval
-               )
-              ,ts AS (SELECT generate_series(_min, _max, _interval) AS t_min FROM params)
-              ,timeframe AS (
-               SELECT t_min
-                     ,lead(t_min, 1, _max) OVER (ORDER BY t_min) AS t_max
-               FROM ts, params
-               )
-            SELECT t.t_min::timestamptz(0)
-                  ,t.t_max
-                  ,min(p.pressure) AS the_min
-                  ,max(p.pressure) AS the_max
-                  ,avg(p.pressure) AS the_avg
-            FROM timeframe t
-            LEFT JOIN p_measurements p ON p.date >= t.t_min
-                                          AND p.date <  t.t_max
-            WHERE p.well_id = ${well_id}
-            GROUP BY 1, 2
-            ORDER BY 1
-        `
-
-        helpers.makePGQuery(
-            query,
-            (err, result) => {
-                if(err) {
-                    return res.jsonCallback(err)
-                }
-
-                return res.jsonCallback(null, {
-                    is_raw: false,
-                    data: result.map(v => [
-                        v.t_min,
-                        [v.the_min, v.the_avg, v.the_max]
-                    ])
-                })
-            }
-        )
-    }
-)
-
 api.post(
     "/timeline_event",
     helpers.validateRequestData({
-        well_id: isIDValid,
+        well_id: validators.isIDValid,
         short_text: true,
         description: true,
-        date: (date) => moment(date, "YYYY-MM-DD HH:mm:ssZ").isValid()
+        ts: (ts) => moment(ts, "YYYY-MM-DD HH:mm:ssZ").isValid()
     }),
     (req, res) => {
         let query
 
         if(req.body.id) {
-            if(!isIDValid(req.body.id)) {
+            if(!validators.isIDValid(req.body.id)) {
                 return res.jsonCallback("err")
             }
 
             query = `UPDATE timeline_events SET
                 short_text = '${req.body.short_text}',
                 description = '${req.body.description}',
-                date = '${req.body.date}'
+                ts = '${req.body.ts}'
                 WHERE id = ${req.body.id}
                 AND well_id = ${req.body.well_id}
                 `
         }
         else {
             query = `INSERT INTO timeline_events
-                (well_id, short_text, description, date)
+                (well_id, short_text, description, ts)
                 VALUES (
                     ${req.body.well_id},
                     '${req.body.short_text}',
                     '${req.body.description}',
-                    '${req.body.date}'
+                    '${req.body.ts}'
                 )`
         }
 
@@ -622,8 +342,8 @@ api.post(
 api.delete(
     "/timeline_event",
     helpers.validateRequestData({
-        well_id: isIDValid,
-        id: isIDValid
+        well_id: validators.isIDValid,
+        id: validators.isIDValid
     }),
     function(req, res) {
         let query = `DELETE FROM timeline_events
@@ -640,10 +360,10 @@ api.delete(
 api.post(
     "/timeline_events",
     helpers.validateRequestData({
-        well_id: isIDValid
+        well_id: validators.isIDValid
     }),
     (req, res) => {
-        let query = `SELECT id, short_text, description, date
+        let query = `SELECT id, short_text, description, ts
             FROM timeline_events
             WHERE well_id = ${req.body.well_id}`
 

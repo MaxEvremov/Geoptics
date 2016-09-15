@@ -9,7 +9,7 @@ m_site.plots.length_annotations = (function() {
         is_editing: ko.observable(false),
 
         getAll: function() {
-            m_site.plots.current_well.getLengthAnnotations(function(err, result) {
+            m_site.plots.current_well().getLengthAnnotations(function(err, result) {
                 if(err) {
                     return console.error(err)
                 }
@@ -35,7 +35,7 @@ m_site.plots.length_annotations = (function() {
             self.is_editing(false)
         },
         removeAnnotation: function(data, e) {
-            m_site.plots.current_well.removeLengthAnnotation(data, self.getAll)
+            m_site.plots.current_well().removeLengthAnnotation(data, self.getAll)
         },
         saveAnnotation: function() {
             var y1 = self.current_annotation().y1
@@ -44,7 +44,7 @@ m_site.plots.length_annotations = (function() {
             y1(parseFloat(y1()))
             y2(parseFloat(y2()))
 
-            m_site.plots.current_well.addOrUpdateLengthAnnotation(
+            m_site.plots.current_well().addOrUpdateLengthAnnotation(
                 ko.mapping.toJS(self.current_annotation()),
                 function(err, result) {
                     if(err) {

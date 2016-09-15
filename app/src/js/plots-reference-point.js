@@ -6,7 +6,7 @@ m_site.plots.reference_point = (function() {
     var self = {
         point: ko.observable(new ReferencePoint({})),
         edit: function() {
-            m_site.plots.current_well.getReferencePoint(
+            m_site.plots.current_well().getReferencePoint(
                 function(err, result) {
                     if(err) {
                         return console.error(err)
@@ -19,7 +19,7 @@ m_site.plots.reference_point = (function() {
             )
         },
         save: function() {
-            m_site.plots.current_well.setReferencePoint(
+            m_site.plots.current_well().setReferencePoint(
                 ko.toJS(self.point()),
                 function(err, result) {
                     if(err) {
@@ -32,7 +32,7 @@ m_site.plots.reference_point = (function() {
             )
         },
         deletePoint: function() {
-            m_site.plots.current_well.deleteReferencePoint(
+            m_site.plots.current_well().deleteReferencePoint(
                 function(err, result) {
                     if(err) {
                         return console.error(err)

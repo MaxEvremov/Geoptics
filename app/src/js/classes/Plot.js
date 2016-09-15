@@ -8,22 +8,36 @@ class Plot {
         var self = this
 
         this.type = params.type || "point"
+        this.sensor_id = params.sensor_id || null
         this.well_id = params.well_id || null
 
         this.date = params.date || null
         this.date_start = params.date_start || null
         this.date_end = params.date_end || null
 
-        this.date_ms = null
+        this.date_ms = params.date
+            ? helpers.convertDate(params.date, "iso8601", "ms")
+            : null
 
         this.date_start_ms = params.date_start
-            ? helpers.convertDate(this.date_start, "iso8601", "ms")
+            ? helpers.convertDate(params.date_start, "iso8601", "ms")
             : null
-        this.date_end_ms = params.date_start
-            ? helpers.convertDate(this.date_end, "iso8601", "ms")
+        this.date_end_ms = params.date_end
+            ? helpers.convertDate(params.date_end, "iso8601", "ms")
             : null
 
-        this._data = params.data || [[0, 0]]
+        // это лужа говна
+        // сделать нормально, если еще раз попадется на глаза
+
+        if(params.data) {
+            this._data = params.data
+        }
+        else if(params._data) {
+            this._data = params._data
+        }
+        else {
+            this._data = [[0, 0]]
+        }
 
 		this.color = ko.observable(params.color || "rgb(0, 0, 0)")
         this.offset = params.offset || 0
@@ -47,8 +61,8 @@ class Plot {
             : params.ignore_min_length
 
         helpers.makeAJAXRequest(
-            "/api/app/plots/t_measurements",
-            "post",
+            "/api/app/plots/depth_measurements",
+            "get",
             {
                 plot: {
                     type: this.type,
@@ -56,6 +70,7 @@ class Plot {
                     date_start: this.date_start,
                     date_end: this.date_end
                 },
+                sensor_id: this.sensor_id,
                 well_id: this.well_id,
                 ignore_min_length: ignore_min_length
             },
@@ -115,10 +130,10 @@ class Plot {
         })
     }
 
-    getAnnotation(idx) {
+    getAnnotation(series, idx) {
         if(this.type === "point") {
             return {
-                series: AVG_Y_AXIS,
+                series: series,
                 x: this.date_ms,
                 shortText: idx + 1,
                 text: this.description,
@@ -129,7 +144,7 @@ class Plot {
 
         if(this.type === "avg") {
             return {
-                series: AVG_Y_AXIS,
+                series: series,
                 x: this.date_start_ms,
                 shortText: idx + 1,
                 text: this.description,
@@ -207,17 +222,34 @@ class Plot {
     }
 
     downloadLAS() {
-        var query = $.param({
-            plot: {
-                type: this.type,
-                date: this.date,
-                date_start: this.date_start,
-                date_end: this.date_end
-            },
-            well_id: this.well_id
+        var data = _.cloneDeep(this._data)
+
+        data.sort(function(a, b) {
+            if(a[0] > b[0]) {
+                return 1
+            }
+
+            if(a[0] < b[0]) {
+                return -1
+            }
+
+            return 0
         })
 
-        window.open(`/api/app/plots/las?${query}`)
+        helpers.downloadFileUsingAJAX(
+            "/api/app/las",
+            {
+                depth: data.map(function(v) {
+                    return v[0]
+                }),
+                plots: [{
+                    name: this.description,
+                    data: data.map(function(v) {
+                        return v[1]
+                    })
+                }]
+            }
+        )
     }
 
     showOnPlot(plot) {
@@ -262,26 +294,37 @@ class Plot {
         m_site.plots.drawAvgPlot()
     }
 
-    static downloadPlotsAsLAS(plots, well_id) {
-        plots = ko.mapping.toJS(plots)
-        var param_plots = []
-
+    static downloadPlotsAsLAS(plots) {
         plots.forEach(function(plot) {
-            if(plot.type === "avg") {
-                param_plots.push(_.pick(plot, ["type", "date_start", "date_end"]))
-            }
+            plot._data.sort(function(a, b) {
+                if(a[0] > b[0]) {
+                    return 1
+                }
 
-            if(plot.type === "point") {
-                param_plots.push(_.pick(plot, ["type", "date"]))
-            }
+                if(a[0] < b[0]) {
+                    return -1
+                }
+
+                return 0
+            })
         })
 
-        var query = $.param({
-            plots: param_plots,
-            well_id: well_id
-        })
-
-        window.open(`/api/app/plots/las_multiple?${query}`)
+        helpers.downloadFileUsingAJAX(
+            "/api/app/las",
+            {
+                depth: plots[0]._data.map(function(v) {
+                    return v[0]
+                }),
+                plots: plots.map(function(plot) {
+                    return {
+                        name: plot.description,
+                        data: plot._data.map(function(v) {
+                            return v[1]
+                        })
+                    }
+                })
+            }
+        )
     }
 
     static getPlotsForColorTempRenderer(params, done) {
@@ -293,6 +336,7 @@ class Plot {
                 number: params.number,
                 interval: params.interval,
                 well_id: params.well_id,
+                sensor_id: params.sensor_id,
                 period: params.period
             },
             function(err, result) {
@@ -303,6 +347,22 @@ class Plot {
                 return done(null, result.task_id)
             }
         )
+    }
+
+    toJSON() {
+        var self = this
+
+        return _.pick(self, [
+            "type",
+            "sensor_id",
+            "well_id",
+            "date",
+            "date_start",
+            "date_end",
+            "_data",
+            "offset",
+            "is_for_color_plot"
+        ])
     }
 }
 

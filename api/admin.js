@@ -14,6 +14,7 @@ const auth = require(__base + "api/auth")
 const users = require(__base + "api/admin/users")
 const wells = require(__base + "api/admin/wells")
 const textures = require(__base + "api/admin/textures")
+const sensors = require(__base + "api/admin/sensors")
 const state = require(__base + "api/admin/state")
 
 const config = require(__base + "config")
@@ -44,6 +45,7 @@ api.use("/auth", auth.generateAPI(["admin"]))
 api.use("/users", helpers.validatePermissions("admin"), users)
 api.use("/wells", helpers.validatePermissions("admin"), wells)
 api.use("/textures", helpers.validatePermissions("admin"), textures)
+api.use("/sensors", helpers.validatePermissions("admin"), sensors)
 api.use("/state", state)
 
 // exports

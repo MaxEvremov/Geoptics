@@ -36,12 +36,14 @@
     <script src="./js/models/Well.js"></script>
     <script src="./js/models/User.js"></script>
     <script src="./js/models/Texture.js"></script>
+    <script src="./js/models/Sensor.js"></script>
 
     <script src="./js/state.js"></script>
     <script src="./js/login.js"></script>
     <script src="./js/users.js"></script>
     <script src="./js/wells.js"></script>
     <script src="./js/textures.js"></script>
+    <script src="./js/sensors.js"></script>
 
     <script type="text/javascript">
         document.write("<base href='" + document.location.origin + "/admin/' />")
@@ -93,6 +95,11 @@
                     <li data-bind="css: { active: state.current_page() === 'textures' }">
                         <a data-bind="'page-href': '/textures'">
                             <i class="fa fa-cog"></i> <span>Виды констр. разметки</span>
+                        </a>
+                    </li>
+                    <li data-bind="css: { active: state.current_page() === 'sensors' }">
+                        <a data-bind="'page-href': '/sensors'">
+                            <i class="fa fa-cog"></i> <span>Датчики</span>
                         </a>
                     </li>
                 </ul>
@@ -173,6 +180,28 @@
                     beforeShow: textures.onItemShow,
                     sourceOnShow: 'pages/texture.html',
                     with: textures,
+                    guard: state.loggedInGuard
+                }">
+                </div>
+            </div>
+
+            <div data-bind="page: {
+                id: 'sensors',
+                sourceOnShow: 'pages/sensors.html',
+                with: sensors,
+                beforeShow: sensors.onShow,
+                guard: state.loggedInGuard
+            }"></div>
+
+            <div data-bind="page: {
+                id: 'sensor'
+            }">
+                <div data-bind="page: {
+                    id: '?',
+                    nameParam: sensors.item_id,
+                    beforeShow: sensors.onItemShow,
+                    sourceOnShow: 'pages/sensor.html',
+                    with: sensors,
                     guard: state.loggedInGuard
                 }">
                 </div>

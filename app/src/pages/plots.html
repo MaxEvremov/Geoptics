@@ -8,6 +8,16 @@
         left: left
     }
 " class="dropdown-menu click-box" role="menu">
+    <li style="padding: 10px 20px;">
+        <span>Текущий датчик</span> <select class="form-control" data-bind="
+            options: $parent.current_well().depth_sensors,
+            optionsText: 'name',
+            optionsValue: 'id',
+            value: $parent.selected_depth_sensor
+        ">
+        </select>
+    </li>
+
 	<li style="padding: 10px 20px;">
 		<p data-bind="html: helpers.formatDate(selected_date())"></p>
 	</li>
@@ -443,6 +453,35 @@
 					<!-- /ko -->
 				</div>
 			</div>
+
+            <div class="box box-danger box-solid" data-bind="visible: current_mode() === 'sensors', with: sensors">
+                <div class="box-header">
+                    <h3 class="box-title">Датчики</h3>
+                </div>
+
+                <!-- ko if: $parent.current_well -->
+                <div class="box-body">
+                    <!-- ko if: $parent.current_well().time_sensors().length === 0 -->
+                    <p class="placeholder">У этой скважины отсутствуют точечные датчики</p>
+                    <!-- /ko -->
+
+                    <!-- ko ifnot: $parent.current_well().time_sensors().length === 0 -->
+                    <ul class="list-unstyled timeline-events" data-bind="foreach: $parent.current_well().time_sensors">
+                        <li>
+                            <input type="checkbox" data-bind="checked: is_active" />
+                            <span data-bind="
+                                text: name
+                            "></span>
+                        </li>
+                    </ul>
+                    <!-- /ko -->
+
+                    <a class="btn btn-sm btn-default" data-bind="click: close">
+                        <span>Закрыть</span>
+                    </a>
+                </div>
+                <!-- /ko -->
+            </div>
 		</div>
 	</div>
 </section>

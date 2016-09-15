@@ -3,38 +3,33 @@
         favorites: ko.observableArray()
     }
 
-    vm.load = function(data, event) {
+    vm.load = function(data, e) {
+        m_site.plots.is_loading_favorite = true
         pager.navigate(`wells/${data.well_id}`)
 
         setTimeout(function() {
-            var plots = _.map(data.plots, function(plot) {
-                plot.well_id = data.well_id
-                return new Plot(plot)
-            })
-
-            m_site.plots.selected_plots.removeAll()
-            m_site.plots.is_loading_temp_data(true)
-
-            async.eachSeries(
-                plots,
-                function(plot, done) {
-                    plot.load(function(err, result) {
-                        if(err) {
-                            return done(err)
-                        }
-
-                        m_site.plots.selected_plots.push(plot)
-                        return done(null)
-                    })
-                },
-                function(err) {
-                    m_site.plots.is_loading_temp_data(false)
+            data.load(function(err, result) {
+                if(err) {
+                    return console.error(err)
                 }
-            )
+
+                m_site.plots.current_well().time_sensors().forEach(function(sensor) {
+                    sensor.is_active(result.active_time_sensors.indexOf(sensor.id) !== -1)
+                })
+
+                m_site.plots.plot_avg.updateOptions({
+                    dateWindow: [result.date_start, result.date_end]
+                })
+
+                m_site.plots.selected_plots.removeAll()
+                result.plots.forEach(function(plot) {
+                    m_site.plots.selected_plots.push(new Plot(plot))
+                })
+            })
         }, 0)
     }
 
-    vm.remove = function(data, event) {
+    vm.remove = function(data, e) {
         helpers.makeAJAXRequest(
             `/api/app/favorites/${data.id}`,
             "delete",

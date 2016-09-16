@@ -370,12 +370,18 @@ vm.max_zoom_x = ko.observable()
 vm.is_loading_pressure_data = ko.observable(false)
 vm.is_loading_temp_data = ko.observable(false)
 vm.has_data = ko.observable(true)
+vm.is_plots_menu_visible = ko.observable(false)
+vm.is_plot_menu_visible = ko.observable(false)
 
 vm.is_favorite_saved = ko.observable(false)
 
 vm.well_id = ko.observable()
 vm.current_well = ko.observable(new Well())
 vm.selected_depth_sensor = ko.observable()
+vm.selected_plot = ko.observable()
+
+vm.plot_menu_top = ko.observable()
+vm.plot_menu_left = ko.observable()
 
 vm.selected_plots = ko.observableArray()
 
@@ -391,6 +397,25 @@ vm.is_loading_favorite = false
 // methods
 
 vm.drawAvgPlot = drawAvgPlot
+
+vm.hideBoxes = function() {
+    vm.point_box.hide()
+    vm.is_plots_menu_visible(false)
+    vm.is_plot_menu_visible(false)
+}
+
+vm.showPlotMenu = function(data, e) {
+    vm.selected_plot(data)
+
+    vm.plot_menu_left(`${e.clientX - 200}px`)
+    vm.plot_menu_top(`${e.clientY}px`)
+
+    vm.is_plot_menu_visible(true)
+}
+
+vm.togglePlotsMenu = function() {
+    vm.is_plots_menu_visible(!vm.is_plots_menu_visible())
+}
 
 vm.resetPlotAvgState = function() {
     var min_date = helpers.convertDate(vm.current_well().date_range[0], "native", "ms")
@@ -518,7 +543,7 @@ vm.saveFavorite = function() {
 
     var state = {
         plots: vm.selected_plots(),
-        
+
         plot_avg_x_range: vm.plot_avg.xAxisRange(),
         plot_avg_y_range: vm.plot_avg.yAxisRange(),
 

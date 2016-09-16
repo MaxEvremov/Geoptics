@@ -199,7 +199,7 @@
 	position: fixed;
 	display: block;
 	width: 300px;
-	z-index: 13;
+	z-index: 1030;
 	border: 2px solid rgba(0, 0, 0, 0.2);
 }
 
@@ -323,4 +323,15 @@
     top: 1.1em;
     left: 7px;
     opacity: 0.5;
+}
+
+#plots_menu_box {
+    top: 100px;
+    right: 15px;
+    z-index: 1030;
+    left: auto;
+}
+
+#plot_menu_box {
+    width: 200px;
 }

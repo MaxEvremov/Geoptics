@@ -83,7 +83,7 @@
 </ul>
 <!-- /ko -->
 
-<section class="content" data-bind="event: { mouseup: point_box.hide }" style="height: 100%; padding-bottom: 0;">
+<section class="content" data-bind="event: { mouseup: hideBoxes }" style="height: 100%; padding-bottom: 0;">
 	<div class="row" style="height: 100%;">
 		<div class="col-md-9">
 			<div class="box box-info box-borderless" style="position:relative;min-height:20%;">
@@ -207,21 +207,55 @@
 				</div>
 			</div>
 		</div>
+
 		<div class="col-md-3" style="height: 100%;">
 			<div class="box box-info box-borderless" data-bind="visible: current_mode() === 'normal' && has_data()" style="height: 100%; margin-bottom: 0;">
 				<div class="box-header" style="height: 6%;">
-					<h3 class="box-title">Точки</h3>                         <!-- ko ifnot: selected_plots().length === 0 -->
-                    <a data-bind="click: downloadAllAsLAS" title="Выгрузить все графики в виде LAS" class="btn btn-hoverable" style="float: right;">
-                        <i class="fa fa-download"></i>
+					<h3 class="box-title">Графики по глубине</h3>
+
+                    <a data-bind="click: togglePlotsMenu" style="float: right;">
+                        <i class="fa fa-bars"></i>
                     </a>
-                    <a data-bind="click: removeAllPlots" title="Удалить все выбранные графики" class="btn btn-hoverable" style="float: right;">
-                        <i class="fa fa-times"></i>
-                    </a>
-                    <!-- /ko -->
+
+                    <ul id="plots_menu_box" data-bind="
+                        visible: is_plots_menu_visible
+                    " class="dropdown-menu click-box" role="menu">
+                        <li>
+                            <a data-bind="click: downloadAllAsLAS">
+                                <i class="fa fa-download"></i> Выгрузить все графики в виде LAS
+                            </a>
+                        </li>
+                        <li>
+                            <a data-bind="click: removeAllPlots">
+                                <i class="fa fa-times"></i> Удалить все выбранные графики
+                            </a>
+                        </li>
+                    </ul>
 				</div>
 
 				<div class="box-body" style="height: 94%;">
                     <div style="height: 100%; overflow-x: hidden; overflow-y: auto; margin-bottom: 10px;">
+                        <ul id="plot_menu_box" data-bind="
+                            visible: is_plot_menu_visible,
+                            style: {
+                                top: plot_menu_top,
+                                left: plot_menu_left
+                            }
+                        " class="dropdown-menu click-box" role="menu">
+                            <!-- ko with: selected_plot -->
+                            <li>
+                                <a data-bind="click: $parent.removePoint">
+                                    <i class="fa fa-times"></i> Удалить
+                                </a>
+                            </li>
+                            <li>
+                                <a data-bind="click: downloadLAS">
+                                    <i class="fa fa-download"></i> Скачать LAS
+                                </a>
+                            </li>
+                            <!-- /ko-->
+                        </ul>
+
                         <!-- ko ifnot: selected_plots().length === 0 -->
                         <table class="table plotpoints" style="font-size: 0.8em; margin-bottom: 0;">
                             <tbody data-bind="foreach: selected_plots">
@@ -235,11 +269,10 @@
                                     <td data-bind="click: $parent.showPoint">
                                         <span data-bind="html: description"></span>
                                     </td>
-                                    <td class="btn-hoverable" data-bind="click: $parent.removePoint" style="width: 30px;">
-                                        <a title='Удалить'><i class="fa fa-times"></i></a>
-                                    </td>
-                                    <td class="btn-hoverable" data-bind="click: downloadLAS" style="width: 30px;">
-                                        <a title='Скачать как LAS'><i class="fa fa-download"></i></a>
+                                    <td>
+                                        <a data-bind="click: $parent.showPlotMenu" style="float: right;">
+                                            <i class="fa fa-bars"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -255,7 +288,8 @@
 
             <div class="box box-info box-borderless" data-bind="visible: current_mode() === 'color'" style="height: 100%; margin-bottom: 0;">
                 <div class="box-header" style="height: 6%;">
-                    <h3 class="box-title">Цветовой график</h3>                         <!-- ko ifnot: selected_plots().length === 0 -->
+                    <h3 class="box-title">Цветовой график</h3>
+                    <!-- ko ifnot: selected_plots().length === 0 -->
                     <a data-bind="click: cancelColorMode" title="Выйти из режима цветового графика" class="btn btn-hoverable" style="float: right;">
                         <i class="fa fa-times"></i>
                     </a>

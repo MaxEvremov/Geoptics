@@ -10,10 +10,18 @@ class Plot {
         this.type = params.type || "point"
         this.sensor_id = params.sensor_id || null
         this.well_id = params.well_id || null
+        this.name = ko.observable()
 
         this.date = params.date || null
         this.date_start = params.date_start || null
         this.date_end = params.date_end || null
+
+        if(params.name) {
+            this.name(params.name)
+        }
+        else {
+            this.generateName()
+        }
 
         this.date_ms = params.date
             ? helpers.convertDate(params.date, "iso8601", "ms")
@@ -46,6 +54,19 @@ class Plot {
         this.is_for_color_plot = params.is_for_color_plot || false
 
         this.is_loading = ko.observable(false)
+    }
+
+    generateName() {
+        if(this.type === "point") {
+            this.name(helpers.convertDate(this.date, "iso8601", "jmask"))
+        }
+
+        if(this.type === "avg") {
+            var date_start = helpers.convertDate(this.date_start, "iso8601", "jmask")
+            var date_end = helpers.convertDate(this.date_end, "iso8601", "jmask")
+
+            this.name(`Усреднение за период от ${date_start} до ${date_end}`)
+        }
     }
 
     load(params, done) {
@@ -82,26 +103,13 @@ class Plot {
                 if(self.type === "point") {
                     self.date = result.date
                     self.date_ms = helpers.convertDate(self.date, "iso8601", "ms")
+                    self.generateName()
                 }
 
                 self._data = result.data
                 return done(null, result)
             }
         )
-    }
-
-    get description() {
-        if(this.type === "point") {
-            var date = helpers.convertDate(this.date, "iso8601", "jmask")
-            return date
-        }
-
-        if(this.type === "avg") {
-            var date_start = helpers.convertDate(this.date_start, "iso8601", "jmask")
-            var date_end = helpers.convertDate(this.date_end, "iso8601", "jmask")
-
-            return `Усреднение за период от ${date_start} до ${date_end}`
-        }
     }
 
     get fill_color() {
@@ -294,6 +302,18 @@ class Plot {
         m_site.plots.drawAvgPlot()
     }
 
+    rename() {
+        var name = this.name()
+
+        var input = prompt("Переименовать график", name)
+
+        if(!input) {
+            return
+        }
+
+        this.name(input)
+    }
+
     static downloadPlotsAsLAS(plots) {
         plots.forEach(function(plot) {
             plot._data.sort(function(a, b) {
@@ -352,7 +372,7 @@ class Plot {
     toJSON() {
         var self = this
 
-        return _.pick(self, [
+        return _.pick(ko.mapping.toJS(self), [
             "type",
             "sensor_id",
             "well_id",
@@ -361,7 +381,8 @@ class Plot {
             "date_end",
             "_data",
             "offset",
-            "is_for_color_plot"
+            "is_for_color_plot",
+            "name"
         ])
     }
 }

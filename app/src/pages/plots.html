@@ -244,13 +244,18 @@
                         " class="dropdown-menu click-box" role="menu">
                             <!-- ko with: selected_plot -->
                             <li>
-                                <a data-bind="click: $parent.removePoint">
-                                    <i class="fa fa-times"></i> Удалить
+                                <a data-bind="click: rename">
+                                    <i class="fa fa-font"></i> Переименовать
                                 </a>
                             </li>
                             <li>
                                 <a data-bind="click: downloadLAS">
                                     <i class="fa fa-download"></i> Скачать LAS
+                                </a>
+                            </li>
+                            <li>
+                                <a data-bind="click: $parent.removePoint">
+                                    <i class="fa fa-times"></i> Удалить
                                 </a>
                             </li>
                             <!-- /ko-->
@@ -267,7 +272,7 @@
                                     }
                                     " style="color: #fff;"></td>
                                     <td data-bind="click: $parent.showPoint">
-                                        <span data-bind="html: description"></span>
+                                        <span data-bind="html: name"></span>
                                     </td>
                                     <td>
                                         <a data-bind="click: $parent.showPlotMenu" style="float: right;">
@@ -309,7 +314,7 @@
                                     }
                                     " style="color: #fff;"></td>
                                     <td data-bind="click: $parent.showPoint">
-                                        <span data-bind="html: description"></span>
+                                        <span data-bind="html: name"></span>
                                     </td>
                                 </tr>
                             </tbody>

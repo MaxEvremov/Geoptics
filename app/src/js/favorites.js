@@ -18,7 +18,13 @@
                 })
 
                 m_site.plots.plot_avg.updateOptions({
-                    dateWindow: [result.date_start, result.date_end]
+                    dateWindow: result.plot_avg_x_range,
+                    valueRange: result.plot_avg_y_range
+                })
+
+                m_site.plots.plot_main.updateOptions({
+                    dateWindow: result.plot_main_x_range,
+                    valueRange: result.plot_main_y_range
                 })
 
                 m_site.plots.selected_plots.removeAll()

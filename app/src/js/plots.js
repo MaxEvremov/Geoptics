@@ -516,10 +516,24 @@ vm.showPoint = function(data, event) {
 vm.saveFavorite = function() {
     var name = prompt("Введите название закладки", "")
 
+    var state = {
+        plots: vm.selected_plots(),
+        
+        plot_avg_x_range: vm.plot_avg.xAxisRange(),
+        plot_avg_y_range: vm.plot_avg.yAxisRange(),
+
+        plot_main_x_range: vm.plot_main.xAxisRange(),
+        plot_main_y_range: vm.plot_main.yAxisRange(),
+
+        active_time_sensors: vm.current_well().active_time_sensors().map(function(sensor) {
+            return sensor.id
+        })
+    }
+
     var favorite = new Favorite({
         name: name,
         well_id: vm.current_well().id,
-        plots: vm.selected_plots()
+        state: state
     })
 
     favorite.save(function(err, result) {

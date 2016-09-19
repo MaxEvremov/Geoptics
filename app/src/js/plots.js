@@ -197,6 +197,7 @@ var init = function() {
 	var mainDrawCallback = vm.plot_main.getOption("drawCallback")
 
     plot_main.updateOptions({
+        showRoller: true,
         drawCallback: function(e, x, points) {
 			mainDrawCallback()
 			vm.plot_main_xAxisRange(plot_main.xAxisRange())

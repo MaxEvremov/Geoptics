@@ -167,7 +167,9 @@
             if (event.altKey || event.shiftKey) {
                 return;
             }
-            g.resetZoom();
+
+            g.resetZoom()
+            g.updateOptions({ valueRange: [null, null] })
         }
     }
 

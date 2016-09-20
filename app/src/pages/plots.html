@@ -22,7 +22,9 @@
 		<p data-bind="html: helpers.formatDate(selected_date())"></p>
 	</li>
     <!-- ko ifnot: $parent.current_mode() === 'color' -->
-	<li><a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a></li>
+	<li>
+        <a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a>
+    </li>
 	<li data-bind="click: getAvgTempPlot.bind($data, 1, 'h')">
 		<a href="#">Усреднить за час</a>
 	</li>

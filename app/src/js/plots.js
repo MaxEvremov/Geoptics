@@ -22,6 +22,9 @@ var is_raw_pressure_data
 var prev_min_date = null
 var prev_max_date = null
 
+var prev_min_y = null
+var prev_max_y = null
+
 var time_plot_labels = []
 var sensors_have_changed = true
 
@@ -82,7 +85,11 @@ var generateEmptyPoints = function(params) {
     sensors_have_changed = false
 }
 
-var drawAvgPlot = function() {
+var drawAvgPlot = function(is_history_action) {
+    is_history_action = _.isUndefined(is_history_action)
+        ? false
+        : is_history_action
+
     if(vm.is_loading_pressure_data()) {
         return
     }
@@ -104,6 +111,19 @@ var drawAvgPlot = function() {
     // обновление данных в графике давления
 
     if(!vm.current_well().has_active_time_sensors()) {
+        if(prev_min_date && prev_max_date && !is_history_action && !sensors_have_changed) {
+            m_site.zoom_history.addUndoItem([
+                [prev_min_date, prev_max_date],
+                y_range
+            ])
+        }
+
+        prev_min_date = min_date
+        prev_max_date = max_date
+
+        prev_min_y = y_range[0]
+        prev_max_y = y_range[1]
+
         generateEmptyPoints({
             min_date: min_date,
             max_date: max_date
@@ -115,11 +135,28 @@ var drawAvgPlot = function() {
     if(prev_min_date && prev_min_date === min_date
     && prev_max_date && prev_max_date === max_date
     && !sensors_have_changed) {
+        if(!is_history_action) {
+            m_site.zoom_history.addUndoItem([
+                [prev_min_date, prev_max_date],
+                [prev_min_y, prev_max_y]
+            ])
+        }
+
         return
+    }
+
+    if(prev_min_date && prev_max_date && !is_history_action && !sensors_have_changed) {
+        m_site.zoom_history.addUndoItem([
+            [prev_min_date, prev_max_date],
+            y_range
+        ])
     }
 
     prev_min_date = min_date
     prev_max_date = max_date
+
+    prev_min_y = y_range[0]
+    prev_max_y = y_range[1]
 
     loadPressureData({
         date_start: helpers.convertDate(min_date, "ms", "iso8601"),
@@ -454,6 +491,7 @@ vm.afterShow = function() {
 
             vm.current_well(current_well)
 
+            m_site.zoom_history.clear()
             vm.selected_plots.removeAll()
 
             is_raw_pressure_data = true

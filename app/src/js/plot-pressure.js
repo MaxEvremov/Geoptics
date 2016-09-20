@@ -28,7 +28,9 @@ window.dygraph_pressure = (function() {
                     height: 150,
                     labels: ["Date", "Pressure"],
                     connectSeparatedPoints: true,
-                    zoomCallback: drawPlot,
+                    zoomCallback: function() {
+                        drawPlot()
+                    },
                     interactionModel: plot_avg_interaction_model
                 }
             )

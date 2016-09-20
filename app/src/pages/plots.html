@@ -154,6 +154,21 @@
 				</div>
 
 				<div class="box-toolbar">
+                    <!-- ko with: m_site.zoom_history -->
+                    <a data-bind="
+                        click: undo,
+                        css: { 'btn-disabled': is_undo_disabled }
+                    ">
+                        <i class="fa fa-undo"></i>
+                    </a>
+                    <a data-bind="
+                        click: redo,
+                        css: { 'btn-disabled': is_redo_disabled }
+                    ">
+                        <i class="fa fa-repeat"></i>
+                    </a>
+                    <!-- /ko -->
+
 					<span class="adjustRoll" title="Сглаживание">
 						Сглаживание <input type="number" data-bind="textInput: adjustRoll"></input>
 					</span>

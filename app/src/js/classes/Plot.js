@@ -127,6 +127,17 @@ class Plot {
     get data() {
         var self = this
         var data = _.cloneDeep(self._data)
+            .sort(function(a, b) {
+                if(a[0] > b[0]) {
+                    return -1
+                }
+
+                if(a[0] < b[0]) {
+                    return 1
+                }
+
+                return 0
+            })
 
         if(self.offset === 0) {
             return data

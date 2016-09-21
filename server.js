@@ -121,7 +121,7 @@ if(argv.cors) {
 
 app.use(compression())
 app.use(body_parser.json({ limit: '100mb' }))
-app.use(body_parser.urlencoded({ extended: true }))
+app.use(body_parser.urlencoded({ limit: '100mb', extended: true }))
 app.use(cookie_parser(config.session_secret))
 
 app.enable("trust proxy")

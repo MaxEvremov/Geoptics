@@ -1,6 +1,6 @@
 server {
     listen 80;
-    client_max_body_size 100m;
+    client_max_body_size 100M;
 
     server_name demo.fieldconnected.com;
 

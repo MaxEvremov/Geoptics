@@ -198,7 +198,7 @@
 .click-box {
 	position: fixed;
 	display: block;
-	width: 300px;
+	width: 360px;
 	z-index: 1030;
 	border: 2px solid rgba(0, 0, 0, 0.2);
 }

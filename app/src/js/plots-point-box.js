@@ -42,6 +42,8 @@ m_site.plots.point_box = (function() {
     self.color_temp_interval_unit = ko.observable("h")
     self.color_temp_period_unit = ko.observable("h")
 
+    self.keep_existing = ko.observable(false)
+
     self.hide = function(data, e) {
         self.is_visible(false)
     }
@@ -110,6 +112,7 @@ m_site.plots.point_box = (function() {
         self.color_temp_number(null)
         self.color_temp_interval(null)
         self.color_temp_period(null)
+        self.keep_existing(false)
 
         self.color_temp_period_unit("h")
         self.color_temp_interval_unit("h")
@@ -173,16 +176,18 @@ m_site.plots.point_box = (function() {
                                 return console.error(result.result.err)
                             }
 
-                            m_site.plots.current_mode("color")
-
-                            m_site.plots.selected_plots.removeAll()
+                            if(!self.keep_existing()) {
+                                m_site.plots.selected_plots.removeAll()
+                            }
 
                             // лол
                             var plots = _.map(result.result.result, function(plot) {
                                 return new Plot(plot)
                             })
 
-                            m_site.plots.selected_plots(plots)
+                            plots.forEach(function(plot) {
+                                m_site.plots.selected_plots.push(plot)
+                            })
 
                             m_site.plots.is_loading_temp_data(false)
                             m_site.plots.processed(null)

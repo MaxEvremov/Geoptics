@@ -230,8 +230,6 @@ api.get(
                         sensor_id: req.query.sensor_id
                     })
 
-                    console.log(query)
-
                     helpers.makePGQuery(
                         query,
                         (err, result) => {
@@ -273,9 +271,7 @@ api.get(
                     plots.push({
                         type: "avg",
                         date_start: date_start,
-                        date_end: date_end,
-                        offset: OFFSET_STEP * i,
-                        is_for_color_plot: true
+                        date_end: date_end
                     })
                 }
 

@@ -5,6 +5,7 @@
 var ZOOM_LOAD_THRESHOLD = 1 * 24 * 60 * 60 * 1000
 var DEBOUNCE_DELAY = 500
 var POINTS_PER_PLOT = 100
+var OFFSET_STEP = 5
 
 // local state variables
 
@@ -239,7 +240,7 @@ var init = function() {
 			mainDrawCallback()
 			vm.plot_main_xAxisRange(plot_main.xAxisRange())
 
-            if(vm.current_mode() !== "color") {
+            if(!vm.is_color_plot_visible()) {
                 return
             }
 
@@ -408,8 +409,10 @@ vm.max_zoom_x = ko.observable()
 vm.is_loading_pressure_data = ko.observable(false)
 vm.is_loading_temp_data = ko.observable(false)
 vm.has_data = ko.observable(true)
+
 vm.is_plots_menu_visible = ko.observable(false)
 vm.is_plot_menu_visible = ko.observable(false)
+vm.is_color_plot_visible = ko.observable(false)
 
 vm.is_favorite_saved = ko.observable(false)
 
@@ -710,28 +713,6 @@ vm.cancelColorMode = function() {
 // subscribes
 
 vm.selected_plots.subscribe(function(value) {
-    if(vm.current_mode() !== "color") {
-        return
-    }
-
-    var plots = _.filter(value, function(plot) {
-        return plot.is_for_color_plot
-    })
-
-    if(plots.length === 0) {
-        return vm.renderer.clear()
-    }
-
-    var length_scale = plots[0].getLengthScale()
-
-    plots = _.map(plots, function(plot, i) {
-        return plot.getColorPlotData(i)
-    })
-
-    vm.renderer.update(plots, length_scale)
-})
-
-vm.selected_plots.subscribe(function(value) {
     value.forEach(function(plot, i) {
         plot.color(Plot.COLORS[i % Plot.COLORS.length])
     })
@@ -744,6 +725,34 @@ vm.selected_plots.subscribe(function(value) {
 })
 
 vm.annotations.subscribe(redrawAnnotations)
+
+vm.is_color_plot_visible.subscribe(function(value) {
+    if(value) {
+        vm.selected_plots().forEach(function(plot, i) {
+            plot.offset = i * 5
+        })
+
+        var plots = vm.selected_plots()
+        var length_scale = plots[0].getLengthScale()
+
+        plots = _.map(plots, function(plot, i) {
+            return plot.getColorPlotData(i)
+        })
+
+        setTimeout(function() {
+            vm.renderer.update(plots, length_scale)
+            vm.selected_plots.valueHasMutated()
+        }, 0)
+    }
+    else {
+        vm.selected_plots().forEach(function(plot, i) {
+            plot.offset = 0
+        })
+
+        vm.renderer.clear()
+        vm.selected_plots.valueHasMutated()
+    }
+})
 
 // exports
 

@@ -65,7 +65,7 @@ class Plot {
             var date_start = helpers.convertDate(this.date_start, "iso8601", "jmask")
             var date_end = helpers.convertDate(this.date_end, "iso8601", "jmask")
 
-            this.name(`Усреднение за период от ${date_start} до ${date_end}`)
+            this.name(`Усреднение (${date_start} - ${date_end})`)
         }
     }
 
@@ -190,7 +190,7 @@ class Plot {
         })
 
         return {
-            name: `График ${i + 1}`,
+            name: this.name(),
             data: _.map(data, function(v) {
                 return v[1]
             })

@@ -126,7 +126,7 @@ api.get(
     }),
     (req, res) => {
         const POINTS_PER_PLOT = 1000
-        const LOAD_RAW_DATA_THRESHOLD = 1 * 24 * 60 * 60 * 1000
+        const LOAD_RAW_DATA_THRESHOLD = 6 * 60 * 60 * 1000
 
         let sensor_ids = req.query.sensor_ids.map((id) => id.toString())
         let date_start = req.query.date_start

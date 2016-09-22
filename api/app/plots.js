@@ -17,8 +17,6 @@ const length_annotations = require(__base + "api/app/length-annotations")
 // helpers
 
 let generatePlotQuery = (params) => {
-    console.log(params)
-
     let has_reference_point = params.well.reference_length
         && params.well.reference_temp
     let ignore_min_length = (params.ignore_min_length === "true")

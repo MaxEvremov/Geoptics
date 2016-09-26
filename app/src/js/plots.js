@@ -583,6 +583,10 @@ vm.showPoint = function(data, event) {
 vm.saveFavorite = function() {
     var name = prompt("Введите название закладки", "")
 
+    if(!name) {
+        return
+    }
+
     var state = {
         plots: vm.selected_plots(),
 

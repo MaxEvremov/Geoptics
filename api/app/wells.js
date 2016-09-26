@@ -155,7 +155,7 @@ api.get(
                             null,
                             {
                                 is_raw: true,
-                                data: result.map((row) => [row.created_at, row.val])
+                                data: result.map((row) => [row.created_at, parseFloat(row.val)])
                             }
                         )
                     }
@@ -175,7 +175,7 @@ api.get(
                         let i = data.findIndex((r) => r[0] === row.created_at)
                         let j = sensor_ids.indexOf(row.sensor_id.toString()) + 1
 
-                        data[i][j] = row.val
+                        data[i][j] = parseFloat(row.val)
                     })
 
                     return res.jsonCallback(null, {
@@ -250,7 +250,7 @@ api.get(
                         let i = data.findIndex((r) => r[0] === row.t_min)
                         let j = idx + 1
 
-                        data[i][j] = [row.the_min, row.the_avg, row.the_max]
+                        data[i][j] = [parseFloat(row.the_min), parseFloat(row.the_avg), parseFloat(row.the_max)]
                     })
                 })
 

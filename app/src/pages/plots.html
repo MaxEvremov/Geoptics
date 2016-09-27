@@ -39,7 +39,7 @@
 	</li>
     <!-- /ko -->
     <li data-bind="click: openColorTempBox">
-		<a href="#">Построить усредненные графики через интервал</a>
+		<a href="#">Построить усредненные графики с периодом</a>
 	</li>
 </ul>
 
@@ -54,7 +54,7 @@
         <input data-bind="textInput: color_temp_number" class="form-control" placeholder="Число графиков" />
     </li>
     <li class="form-group time-group">
-        <input data-bind="textInput: color_temp_interval" class="form-control" placeholder="Интервал усреднения" />
+        <input data-bind="textInput: color_temp_interval" class="form-control" placeholder="Период" />
 
         <select class="form-control" data-bind="
             options: Plot.TIME_UNITS,
@@ -64,7 +64,7 @@
         "></select>
     </li>
     <li class="form-group time-group">
-        <input data-bind="textInput: color_temp_period" class="form-control" placeholder="Период усреднения" />
+        <input data-bind="textInput: color_temp_period" class="form-control" placeholder="Интервал усреднения" />
 
         <select class="form-control" data-bind="
             options: Plot.TIME_UNITS,
@@ -81,7 +81,7 @@
 
     <div>
         <a class="btn btn-sm btn-danger" data-bind="click: renderColorTemp">
-            <span>Усреднить с интервалом</span>
+            <span>Усреднить</span>
         </a>
         <a class="btn btn-sm btn-default" data-bind="click: closeColorTempBox">
             <span>Отмена</span>

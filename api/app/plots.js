@@ -128,8 +128,6 @@ api.get(
                     sensor_id: sensor_id
                 })
 
-                console.log(query)
-
                 helpers.makePGQuery(
                     query,
                     (err, result) => {

@@ -16,7 +16,7 @@ def main():
     for plot in params.get("plots"):
         l.add_curve(plot.get("name"), np.asarray(plot.get("data")), unit="C")
 
-    l.write(sys.stdout, version=2.0, fmt="%10.5g")
+    l.write(sys.stdout, version=2.0, fmt="%.3f")
     sys.exit(0)
 
 if __name__ == "__main__":

@@ -1,6 +1,0 @@
-#!/bin/bash
-
-if [ "$GEOPTICS_ENV" == "dev" ]; then
-    pg_dump -s geoptics > db.sql
-    git add db.sql
-fi

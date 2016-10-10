@@ -48,14 +48,6 @@ helpers.makeAJAXRequest = function (url, method, data, done) {
 
 }
 
-helpers.formatDate = function (date) {
-	return moment(date).format('DD/MM/YY hh:mm')
-}
-
-helpers.formatDateHTML = function (date) {
-	return "<span class='formatDate'>" + moment(date).format('DD/MM/YY hh:mm') + "</span>"
-}
-
 helpers.createCSSClass = function (name, color) {
 	var style = document.createElement("style")
 	style.type = "text/css"

@@ -30,6 +30,18 @@ m_site.plots.point_box = (function() {
 
     self.selected_date = ko.observable()
 
+    self.formatted_selected_date = ko.computed(function() {
+        if(!self.selected_date()) {
+            return
+        }
+
+        return helpers.convertDate(
+            self.selected_date(),
+            "iso8601",
+            "jmask"
+        )
+    })
+
     self.left = ko.observable()
     self.top = ko.observable()
     self.is_visible = ko.observable(false)

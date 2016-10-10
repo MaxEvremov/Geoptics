@@ -19,7 +19,7 @@
     </li>
 
 	<li style="padding: 10px 20px;">
-		<p data-bind="html: helpers.formatDate(selected_date())"></p>
+		<p data-bind="text: formatted_selected_date"></p>
 	</li>
     <!-- ko ifnot: $parent.current_mode() === 'color' -->
 	<li>

@@ -36,6 +36,21 @@ m_site.plots.min_length = (function() {
                 }
             )
         },
+        reset: function() {
+            m_site.plots.current_well().setMinLength(
+                {
+                    min_length: 0
+                },
+                function(err, result) {
+                    if(err) {
+                        return console.error(err)
+                    }
+
+                    clear()
+                    m_site.plots.current_mode("normal")
+                }
+            )
+        },
         cancel: function() {
             clear()
             m_site.plots.current_mode("normal")

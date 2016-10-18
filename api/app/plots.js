@@ -36,7 +36,7 @@ let generatePlotQuery = (params) => {
                 : ""
             }
             SELECT
-                t.depth AS depth,
+                t.depth - ${params.well.min_length} AS depth,
                 ${has_reference_point
                     ? "avg(t.val) - (SELECT val FROM rdiff) AS val"
                     : "avg(t.val) AS val"
@@ -81,7 +81,7 @@ let generatePlotQuery = (params) => {
                 : ""
             }
             SELECT
-                t.depth AS depth,
+                t.depth - ${params.well.min_length} AS depth,
                 ${has_reference_point
                     ? "t.val - (SELECT val FROM rdiff) AS val"
                     : "t.val AS val"

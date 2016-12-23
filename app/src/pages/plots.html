@@ -19,8 +19,15 @@
     </li>
 
 	<li style="padding: 10px 20px;">
-		<p data-bind="text: formatted_selected_date"></p>
+        <input data-bind="textInput: selected_date, jmask: {
+            value: selected_date,
+            mask: '00/00/00 00:00',
+            options: {
+                placeholder: '__/__/__ __:__'
+            }
+        }" />
 	</li>
+
     <!-- ko ifnot: $parent.current_mode() === 'color' -->
 	<li>
         <a href="#" data-bind="click: getNearestTempPlot">Получить ближайший график</a>
@@ -38,6 +45,7 @@
 		<a href="#">Усреднить по видимому диапазону</a>
 	</li>
     <!-- /ko -->
+
     <li data-bind="click: openColorTempBox">
 		<a href="#">Построить усредненные графики с периодом</a>
 	</li>

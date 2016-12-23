@@ -44,3 +44,17 @@ ko.bindingHandlers.visibility = {
         element.style.visibility = value ? "visible" : "hidden"
     }
 }
+
+ko.bindingHandlers.onEnterPress = {
+    init: function(element, value_accessor) {
+        var handler = ko.unwrap(value_accessor())
+
+        element.addEventListener("keypress", function(e) {
+            if(e.keyCode != 13 && e.which != 13) {
+                return
+            }
+
+            handler(e)
+        })
+    }
+}

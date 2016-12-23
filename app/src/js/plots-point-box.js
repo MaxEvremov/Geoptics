@@ -30,16 +30,23 @@ m_site.plots.point_box = (function() {
 
     self.selected_date = ko.observable()
 
-    self.formatted_selected_date = ko.computed(function() {
-        if(!self.selected_date()) {
+    self.iso_selected_date = ko.computed(function() {
+        var date = self.selected_date()
+
+        if(!date) {
             return
         }
 
-        return helpers.convertDate(
-            self.selected_date(),
-            "iso8601",
-            "jmask"
-        )
+        var iso_date
+
+        try {
+            iso_date = helpers.convertDate(date, "jmask", "iso8601")
+        }
+        catch(e) {
+
+        }
+
+        return iso_date
     })
 
     self.left = ko.observable()
@@ -61,7 +68,7 @@ m_site.plots.point_box = (function() {
     }
 
     self.getNearestTempPlot = function() {
-        var date = self.selected_date()
+        var date = self.iso_selected_date()
 
         var plot = new Plot({
             type: "point",
@@ -101,7 +108,7 @@ m_site.plots.point_box = (function() {
     self.getAvgTempPlot = function(length, units) {
         var duration_ms = moment.duration(length, units).asMilliseconds()
 
-        var date_start = self.selected_date()
+        var date_start = self.iso_selected_date()
 
         var date_start_ms = helpers.convertDate(date_start, "iso8601", "ms")
         var date_end_ms = date_start_ms + duration_ms
@@ -149,9 +156,11 @@ m_site.plots.point_box = (function() {
 
         m_site.plots.is_loading_temp_data(true)
 
+        var date = self.iso_selected_date()
+
         Plot.getPlotsForColorTempRenderer(
             {
-                date: self.selected_date(),
+                date: date,
                 number: number,
                 interval: moment.duration(interval, interval_unit).asMilliseconds(),
                 period: moment.duration(period, period_unit).asMilliseconds(),

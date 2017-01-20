@@ -65,7 +65,7 @@ class Plot {
             var date_start = helpers.convertDate(this.date_start, "iso8601", "jmask")
             var date_end = helpers.convertDate(this.date_end, "iso8601", "jmask")
 
-            this.name(`Усреднение (${date_start} - ${date_end})`)
+            this.name(`${date_start} - ${date_end}`)
         }
     }
 
@@ -241,34 +241,7 @@ class Plot {
     }
 
     downloadLAS() {
-        var data = _.cloneDeep(this._data)
-
-        data.sort(function(a, b) {
-            if(a[0] > b[0]) {
-                return 1
-            }
-
-            if(a[0] < b[0]) {
-                return -1
-            }
-
-            return 0
-        })
-
-        helpers.downloadFileUsingAJAX(
-            "/api/app/las",
-            {
-                depth: data.map(function(v) {
-                    return v[0]
-                }),
-                plots: [{
-                    name: this.description,
-                    data: data.map(function(v) {
-                        return v[1]
-                    })
-                }]
-            }
-        )
+        Plot.downloadPlotsAsLAS([this])
     }
 
     showOnPlot(plot) {
@@ -346,9 +319,10 @@ class Plot {
                 depth: plots[0]._data.map(function(v) {
                     return v[0]
                 }),
-                plots: plots.map(function(plot) {
+                plots: plots.map(function(plot, idx) {
                     return {
-                        name: plot.description,
+                        num: (idx >= 10 ? "" : "0") + (idx + 1).toString(),
+                        description: plot.name(),
                         data: plot._data.map(function(v) {
                             return v[1]
                         })

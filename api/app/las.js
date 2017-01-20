@@ -32,10 +32,19 @@ api.post(
         res.setHeader("Content-Type", "application/octet-stream")
         res.setHeader("Content-Disposition", `attachment; filename="${file_name}"`)
 
-        las({
-            plots: plots,
-            depth: depth
-        }).pipe(res)
+        las(
+            {
+                plots: plots,
+                depth: depth
+            },
+            (err, result) => {
+                result = result.replace(/\n/g, "\r\n")
+                result = result.replace("~ASCII", `~ASCII ${plots.map((plot) => plot.num).join(" ")}`)
+
+                res.write(result)
+                res.end()
+            }
+        )
     }
 )
 

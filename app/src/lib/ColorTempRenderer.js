@@ -1,7 +1,7 @@
 "use strict"
 
-class ColorTempRenderer {
-    constructor(params) {
+window.ColorTempRenderer = (function() {
+    var self = function(params) {
         var prev_plot_idx = null
 
         var self = this
@@ -69,7 +69,7 @@ class ColorTempRenderer {
             self._legend_name.innerText = self.plots[plot_idx].name
 
             if(value_idx < self.length_scale.length) {
-                self._legend_length.innerText = `${self.length_scale[value_idx]} м`
+                self._legend_length.innerText = self.length_scale[value_idx] + " м"
 
                 self._legend_value.innerText = self.plots[plot_idx].data[value_idx].toFixed(3)
             }
@@ -87,7 +87,7 @@ class ColorTempRenderer {
         }
     }
 
-    _drawPlots() {
+    self.prototype._drawPlots = function() {
         if(this.plots.length === 0) {
             return
         }
@@ -120,24 +120,26 @@ class ColorTempRenderer {
             }
         }
 
-        this._canvas.style.width = `${this.element.clientWidth}px`
-        this._canvas.style.height = `${this.element.clientHeight}px`
+        this._canvas.style.width = this.element.clientWidth + "px"
+        this._canvas.style.height = this.element.clientHeight + "px"
     }
 
-    update(plots, length_scale) {
+    self.prototype.update = function(plots, length_scale) {
         this.plots = plots
         this.length_scale = length_scale
 
         this._drawPlots()
     }
 
-    clear() {
+    self.prototype.clear = function() {
         var ctx = this._canvas.getContext("2d")
 
         this.plots = []
         ctx.clearRect(0, 0, this._canvas.width, this._canvas.height)
     }
-}
+
+    return self
+})()
 
 ColorTempRenderer._COLOR_SCALE = [
     [0, [0, 0, 131]],
@@ -156,7 +158,7 @@ ColorTempRenderer._getColorFromScale = function(coeff) {
         var g = scale[0][1][1]
         var b = scale[0][1][2]
 
-        return `rgb(${r}, ${g}, ${b})`
+        return "rgb(" + r + "," + g + "," + b + ")"
     }
 
     if(coeff === 1) {
@@ -166,7 +168,7 @@ ColorTempRenderer._getColorFromScale = function(coeff) {
         var g = scale[last_i][1][1]
         var b = scale[last_i][1][2]
 
-        return `rgb(${r}, ${g}, ${b})`
+        return "rgb(" + r + "," + g + "," + b + ")"
     }
 
     for(var k = 0; k < scale.length; k++) {
@@ -180,7 +182,7 @@ ColorTempRenderer._getColorFromScale = function(coeff) {
             var g = Math.round(cur_s[1][1] + (next_s[1][1] - cur_s[1][1]) * rel_coeff)
             var b = Math.round(cur_s[1][2] + (next_s[1][2] - cur_s[1][2]) * rel_coeff)
 
-            return `rgb(${r}, ${g}, ${b})`
+            return "rgb(" + r + "," + g + "," + b + ")"
         }
     }
 }

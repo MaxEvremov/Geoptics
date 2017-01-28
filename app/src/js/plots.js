@@ -183,16 +183,14 @@ var init = function() {
             var selected_date = helpers.convertDate(points[0].xval, "ms", "jmask")
 
             if(vm.current_mode() === "timeline_event") {
-                var date = helpers.convertDate(selected_date, "iso8601", "jmask")
-
-                vm.timeline_events.current_event().jmask_date(date)
+                vm.timeline_events.current_event().jmask_date(selected_date)
                 return
             }
 
             vm.point_box.selected_date(selected_date)
 
-            vm.point_box.left(`${e.clientX}px`)
-            vm.point_box.top(`${e.clientY}px`)
+            vm.point_box.left(e.clientX + "px")
+            vm.point_box.top(e.clientY + "px")
 
             vm.point_box.is_visible(true)
         },
@@ -448,8 +446,8 @@ vm.hideBoxes = function() {
 vm.showPlotMenu = function(data, e) {
     vm.selected_plot(data)
 
-    vm.plot_menu_left(`${e.clientX - 200}px`)
-    vm.plot_menu_top(`${e.clientY}px`)
+    vm.plot_menu_left((e.clientX - 200).toString() + "px")
+    vm.plot_menu_top(e.clientY + "px")
 
     vm.is_plot_menu_visible(true)
 }
@@ -718,6 +716,7 @@ vm.cancelColorMode = function() {
 
 vm.selected_plots.subscribe(function(value) {
     value.forEach(function(plot, i) {
+        console.log(plot, i)
         plot.color(Plot.COLORS[i % Plot.COLORS.length])
     })
 })

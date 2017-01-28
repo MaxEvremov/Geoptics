@@ -190,7 +190,10 @@
             var dygraph_width = $(DYGRAPH_BOX_BODY_ID).height()
             var dygraph_height = $(DYGRAPH_BOX_BODY_ID).width() - 28
 
-            var dygraph_transform = `rotate(-90deg) rotateX(180deg) translateY(${ Math.round(((dygraph_width - dygraph_height) / 2) - Y_OFFSET)}px) translateX(${ Math.round(-((dygraph_width - dygraph_height) / 2))}px)`
+            var translate_y = Math.round(((dygraph_width - dygraph_height) / 2) - Y_OFFSET)
+            var translate_x = Math.round(-((dygraph_width - dygraph_height) / 2))
+
+            var dygraph_transform = "rotate(-90deg) rotateX(180deg) translateY(" + translate_y + "px) translateX(" + translate_x + "px)"
 
             $(DYGRAPH_CONTAINER_ID).css({
                 transform: dygraph_transform,

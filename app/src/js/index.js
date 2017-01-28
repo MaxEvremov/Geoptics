@@ -5,7 +5,7 @@ window.m_site = {}
 $(document).ready(function() {
     for(var i = 0; i < Plot.COLORS.length; i++) {
         helpers.createCSSClass(
-            `.dygraphDefaultAnnotation.dygraph-annotation-plot-${i + 1}`,
+            ".dygraphDefaultAnnotation.dygraph-annotation-plot-" + (i + 1).toString(),
             Plot.COLORS[i]
         )
     }

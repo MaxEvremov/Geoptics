@@ -1,7 +1,7 @@
 "use strict"
 
-class TimelineEvent {
-    constructor(params) {
+window.TimelineEvent = (function() {
+    var self = function(params) {
         if(!params) {
             params = {}
         }
@@ -18,7 +18,7 @@ class TimelineEvent {
         )
     }
 
-    getAnnotation(series) {
+    self.prototype.getAnnotation = function(series) {
         return {
             series: series,
             x: helpers.convertDate(this.ts, "iso8601", "ms"),
@@ -30,7 +30,7 @@ class TimelineEvent {
         }
     }
 
-    showOnPlot(plot) {
+    self.prototype.showOnPlot = function(plot) {
         var file = plot.file_
 
         var min_date = helpers.convertDate(file[0][0], "native", "ms")
@@ -53,4 +53,6 @@ class TimelineEvent {
 
         m_site.plots.drawAvgPlot()
     }
-}
+
+    return self
+})()

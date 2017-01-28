@@ -38,7 +38,7 @@ helpers.makeAJAXRequest = function (url, method, data, done) {
 	}
 
 	if (method === "get") {
-        params.url = `${params.url}?${$.param(data)}`
+        params.url = params.url + "?" + $.param(data)
 	}
     else {
         params.data = JSON.stringify(data)
@@ -51,7 +51,7 @@ helpers.makeAJAXRequest = function (url, method, data, done) {
 helpers.createCSSClass = function (name, color) {
 	var style = document.createElement("style")
 	style.type = "text/css"
-	style.innerHTML = `${name} { background-color: ${color} !important; }`
+	style.innerHTML = name + " { background-color: " + color + " !important; "
 	document.getElementsByTagName("head")[0].appendChild(style)
 }
 
@@ -83,7 +83,7 @@ helpers.convertDate = function(date, from, to) {
     // validate
 
     if(!from_moment.isValid()) {
-        throw new Error(`${date} is not a valid date for '${from}' format`)
+        throw new Error(date + " is not a valid date for " + from + " format")
     }
 
     // convert date

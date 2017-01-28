@@ -5,7 +5,7 @@
 
     vm.load = function(data, e) {
         m_site.plots.is_loading_favorite = true
-        pager.navigate(`wells/${data.well_id}`)
+        pager.navigate("wells/" + data.well_id)
 
         setTimeout(function() {
             data.load(function(err, result) {
@@ -37,7 +37,7 @@
 
     vm.remove = function(data, e) {
         helpers.makeAJAXRequest(
-            `/api/app/favorites/${data.id}`,
+            "/api/app/favorites/" + data.id,
             "delete",
             function(err, result) {
                 if(err) {

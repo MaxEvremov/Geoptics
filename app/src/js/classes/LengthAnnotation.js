@@ -1,7 +1,7 @@
 "use strict"
 
-class LengthAnnotation {
-    constructor(params) {
+window.LengthAnnotation = (function() {
+    var self = function(params) {
         if(!params) {
             params = {}
         }
@@ -43,7 +43,7 @@ class LengthAnnotation {
                 return null
             }
 
-            return `url(/data/${texture.img})`
+            return "url(/data/" + texture.img + ")"
         })
         this.style["background-image"] = this.texture_img
 
@@ -65,4 +65,6 @@ class LengthAnnotation {
             return texture.name
         })
     }
-}
+
+    return self
+})()

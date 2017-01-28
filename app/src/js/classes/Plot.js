@@ -3,8 +3,8 @@
 var AVG_Y_AXIS = "Pressure"
 var HOUR = 60 * 60 * 1000
 
-class Plot {
-    constructor(params) {
+window.Plot = (function() {
+    var self = function(params) {
         var self = this
 
         this.type = params.type || "point"
@@ -56,7 +56,7 @@ class Plot {
         this.is_loading = ko.observable(false)
     }
 
-    generateName() {
+    self.prototype.generateName = function() {
         if(this.type === "point") {
             this.name(helpers.convertDate(this.date, "iso8601", "jmask"))
         }
@@ -65,11 +65,11 @@ class Plot {
             var date_start = helpers.convertDate(this.date_start, "iso8601", "jmask")
             var date_end = helpers.convertDate(this.date_end, "iso8601", "jmask")
 
-            this.name(`${date_start} - ${date_end}`)
+            this.name(date_start + " - " + date_end)
         }
     }
 
-    load(params, done) {
+    self.prototype.load = function(params, done) {
         var self = this
 
         if(_.isFunction(params)) {
@@ -112,51 +112,14 @@ class Plot {
         )
     }
 
-    get fill_color() {
-        return this.color()
-            .replace("rgb", "rgba")
-            .replace(")", ", 0.2)")
-    }
-
-    get dygraph_color() {
-        return this.color()
-            .replace("rgb", "rgba")
-            .replace(")", `, ${this.opacity})`)
-    }
-
-    get data() {
-        var self = this
-        var data = _.cloneDeep(self._data)
-            .sort(function(a, b) {
-                if(a[0] > b[0]) {
-                    return -1
-                }
-
-                if(a[0] < b[0]) {
-                    return 1
-                }
-
-                return 0
-            })
-
-        if(self.offset === 0) {
-            return data
-        }
-
-        return _.map(data, function(value) {
-            value[1] += self.offset
-            return value
-        })
-    }
-
-    getAnnotation(series, idx) {
+    self.prototype.getAnnotation = function(series, idx) {
         if(this.type === "point") {
             return {
                 series: series,
                 x: this.date_ms,
                 shortText: idx + 1,
                 text: this.description,
-                cssClass: `dygraph-annotation-plot-${idx % Plot.COLORS.length + 1}`,
+                cssClass: "dygraph-annotation-plot-" + (idx % Plot.COLORS.length + 1).toString(),
                 color: this.color()
             }
         }
@@ -167,13 +130,13 @@ class Plot {
                 x: this.date_start_ms,
                 shortText: idx + 1,
                 text: this.description,
-                cssClass: `dygraph-annotation-plot-${idx % Plot.COLORS.length + 1}`,
+                cssClass: "dygraph-annotation-plot-" + (idx % Plot.COLORS.length + 1).toString(),
                 color: this.color()
             }
         }
     }
 
-    getColorPlotData(i, min_length, max_length) {
+    self.prototype.getColorPlotData = function(i, min_length, max_length) {
         var data = _.cloneDeep(this._data)
 
         if(_.isNumber(min_length) && _.isNumber(max_length)) {
@@ -208,7 +171,7 @@ class Plot {
         }
     }
 
-    getLengthScale(min_length, max_length) {
+    self.prototype.getLengthScale = function(min_length, max_length) {
         var data = _.cloneDeep(this._data)
 
         if(_.isNumber(min_length) && _.isNumber(max_length)) {
@@ -240,11 +203,11 @@ class Plot {
         })
     }
 
-    downloadLAS() {
+    self.prototype.downloadLAS = function() {
         Plot.downloadPlotsAsLAS([this])
     }
 
-    showOnPlot(plot) {
+    self.prototype.showOnPlot = function(plot) {
         var zoom_left
         var zoom_right
 
@@ -286,7 +249,7 @@ class Plot {
         m_site.plots.drawAvgPlot()
     }
 
-    rename() {
+    self.prototype.rename = function() {
         var name = this.name()
 
         var input = prompt("Переименовать график", name)
@@ -298,63 +261,7 @@ class Plot {
         this.name(input)
     }
 
-    static downloadPlotsAsLAS(plots) {
-        plots.forEach(function(plot) {
-            plot._data.sort(function(a, b) {
-                if(a[0] > b[0]) {
-                    return 1
-                }
-
-                if(a[0] < b[0]) {
-                    return -1
-                }
-
-                return 0
-            })
-        })
-
-        helpers.downloadFileUsingAJAX(
-            "/api/app/las",
-            {
-                depth: plots[0]._data.map(function(v) {
-                    return v[0]
-                }),
-                plots: plots.map(function(plot, idx) {
-                    return {
-                        num: (idx >= 10 ? "" : "0") + (idx + 1).toString(),
-                        description: plot.name(),
-                        data: plot._data.map(function(v) {
-                            return v[1]
-                        })
-                    }
-                })
-            }
-        )
-    }
-
-    static getPlotsForColorTempRenderer(params, done) {
-        helpers.makeAJAXRequest(
-            "/api/app/plots/color_temp",
-            "get",
-            {
-                date: params.date,
-                number: params.number,
-                interval: params.interval,
-                well_id: params.well_id,
-                sensor_id: params.sensor_id,
-                period: params.period
-            },
-            function(err, result) {
-                if(err) {
-                    return done(err)
-                }
-
-                return done(null, result.task_id)
-            }
-        )
-    }
-
-    toJSON() {
+    self.prototype.toJSON = function() {
         var self = this
 
         return _.pick(ko.mapping.toJS(self), [
@@ -370,9 +277,54 @@ class Plot {
             "name"
         ])
     }
-}
 
-Plot.COLORS = [
+    Object.defineProperty(self.prototype, "fill_color", {
+        get: function() {
+            return this.color()
+                .replace("rgb", "rgba")
+                .replace(")", ", 0.2)")
+        }
+    })
+
+    Object.defineProperty(self.prototype, "dygraph_color", {
+        get: function() {
+            return this.color()
+                .replace("rgb", "rgba")
+                .replace(")", ", " + this.opacity + ")")
+        }
+    })
+
+    Object.defineProperty(self.prototype, "data", {
+        get: function() {
+            var self = this
+            var data = _.cloneDeep(self._data)
+                .sort(function(a, b) {
+                    if(a[0] > b[0]) {
+                        return -1
+                    }
+
+                    if(a[0] < b[0]) {
+                        return 1
+                    }
+
+                    return 0
+                })
+
+            if(self.offset === 0) {
+                return data
+            }
+
+            return _.map(data, function(value) {
+                value[1] += self.offset
+                return value
+            })
+        }
+    })
+
+    return self
+})()
+
+window.Plot.COLORS = [
     "rgb(221,75,57)",
     "rgb(243,156,18)",
     "rgb(0,115,183)",
@@ -388,8 +340,64 @@ Plot.COLORS = [
     "rgb(216,27,96)"
 ]
 
-Plot.TIME_UNITS = [
+window.Plot.TIME_UNITS = [
     { name: "мин.", unit: "m" },
     { name: "ч.", unit: "h" },
     { name: "дн.", unit: "d" }
 ]
+
+window.Plot.getPlotsForColorTempRenderer = function(params, done) {
+    helpers.makeAJAXRequest(
+        "/api/app/plots/color_temp",
+        "get",
+        {
+            date: params.date,
+            number: params.number,
+            interval: params.interval,
+            well_id: params.well_id,
+            sensor_id: params.sensor_id,
+            period: params.period
+        },
+        function(err, result) {
+            if(err) {
+                return done(err)
+            }
+
+            return done(null, result.task_id)
+        }
+    )
+}
+
+window.Plot.downloadPlotsAsLAS = function(plots) {
+    plots.forEach(function(plot) {
+        plot._data.sort(function(a, b) {
+            if(a[0] > b[0]) {
+                return 1
+            }
+
+            if(a[0] < b[0]) {
+                return -1
+            }
+
+            return 0
+        })
+    })
+
+    helpers.downloadFileUsingAJAX(
+        "/api/app/las",
+        {
+            depth: plots[0]._data.map(function(v) {
+                return v[0]
+            }),
+            plots: plots.map(function(plot, idx) {
+                return {
+                    num: (idx >= 10 ? "" : "0") + (idx + 1).toString(),
+                    description: plot.name(),
+                    data: plot._data.map(function(v) {
+                        return v[1]
+                    })
+                }
+            })
+        }
+    )
+}

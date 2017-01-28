@@ -1,7 +1,7 @@
 "use strict"
 
-class Sensor {
-    constructor(params) {
+window.Sensor = (function() {
+    var self = function(params) {
         if(!params) {
             params = {}
         }
@@ -10,11 +10,13 @@ class Sensor {
         this.well_id = params.well_id || null
         this.name = params.name || ""
     }
-}
 
-class TimeSensor extends Sensor {
-    constructor(params) {
-        super(params)
+    return self
+})()
+
+window.TimeSensor = (function() {
+    var self = function(params) {
+        window.Sensor.call(this, params)
 
         this.is_active = ko.observable(_.isUndefined(params.is_active)
             ? true
@@ -22,7 +24,7 @@ class TimeSensor extends Sensor {
         )
     }
 
-    getMeasurements(params, done) {
+    self.prototype.getMeasurements = function(params, done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/time_measurements",
             "get",
@@ -44,4 +46,6 @@ class TimeSensor extends Sensor {
             }
         )
     }
-}
+
+    return self
+})()

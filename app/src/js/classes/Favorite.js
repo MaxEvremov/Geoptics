@@ -1,7 +1,7 @@
 "use strict"
 
-class Favorite {
-    constructor(params) {
+window.Favorite = (function() {
+    var self = function(params) {
         this.id = params.id || null
         this.name = params.name || "Favorite"
         this.well_id = params.well_id || null
@@ -9,7 +9,7 @@ class Favorite {
         this.state = params.state || {}
     }
 
-    save(done) {
+    self.prototype.save = function(done) {
         helpers.makeAJAXRequest(
             "/api/app/favorites",
             "post",
@@ -22,7 +22,7 @@ class Favorite {
         )
     }
 
-    load(done) {
+    self.prototype.load = function(done) {
         helpers.makeAJAXRequest(
             "/api/app/favorites/" + this.id,
             "get",
@@ -30,15 +30,19 @@ class Favorite {
         )
     }
 
-    get well_name() {
-        var self = this
+    Object.defineProperty(self.prototype, "well_name", {
+        get: function() {
+            var self = this
 
-        var well = _.find(m_site.state.wells(), function(well) {
-            return well.id === self.well_id
-        })
+            var well = _.find(m_site.state.wells(), function(well) {
+                return well.id === self.well_id
+            })
 
-        if(well) {
-            return well.name
+            if(well) {
+                return well.name
+            }
         }
-    }
-}
+    })
+
+    return self
+})()

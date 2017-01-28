@@ -1,7 +1,7 @@
 "use strict"
 
-class Well {
-    constructor(params) {
+window.Well = (function() {
+    var self = function(params) {
         if(_.isUndefined(params)) {
             params = {}
         }
@@ -27,7 +27,7 @@ class Well {
         })
     }
 
-    setReferencePoint(params, done) {
+    self.prototype.setReferencePoint = function(params, done) {
         helpers.makeAJAXRequest(
             "/api/app/wells/reference_point",
             "post",
@@ -41,7 +41,7 @@ class Well {
         )
     }
 
-    getReferencePoint(done) {
+    self.prototype.getReferencePoint = function(done) {
         helpers.makeAJAXRequest(
             "/api/app/wells/reference_point",
             "get",
@@ -58,7 +58,7 @@ class Well {
         )
     }
 
-    deleteReferencePoint(done) {
+    self.prototype.deleteReferencePoint = function(done) {
         helpers.makeAJAXRequest(
             "/api/app/wells/reference_point",
             "delete",
@@ -69,7 +69,7 @@ class Well {
         )
     }
 
-    getMinLength(done) {
+    self.prototype.getMinLength = function(done) {
         helpers.makeAJAXRequest(
             "/api/app/wells/min_length",
             "get",
@@ -80,7 +80,7 @@ class Well {
         )
     }
 
-    setMinLength(params, done) {
+    self.prototype.setMinLength = function(params, done) {
         helpers.makeAJAXRequest(
             "/api/app/wells/min_length",
             "post",
@@ -92,7 +92,7 @@ class Well {
         )
     }
 
-    addOrUpdateTimelineEvent(params, done) {
+    self.prototype.addOrUpdateTimelineEvent = function(params, done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/timeline_event",
             "post",
@@ -107,7 +107,7 @@ class Well {
         )
     }
 
-    getTimelineEvents(done) {
+    self.prototype.getTimelineEvents = function(done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/timeline_events",
             "post",
@@ -118,7 +118,7 @@ class Well {
         )
     }
 
-    removeTimelineEvent(params, done) {
+    self.prototype.removeTimelineEvent = function(params, done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/timeline_event",
             "delete",
@@ -130,11 +130,11 @@ class Well {
         )
     }
 
-    addOrUpdateLengthAnnotation(params, done) {
+    self.prototype.addOrUpdateLengthAnnotation = function(params, done) {
         var url = "/api/app/plots/length_annotation"
 
         if(params.id) {
-            url += `/${params.id}`
+            url += "/" + params.id
         }
 
         helpers.makeAJAXRequest(
@@ -151,9 +151,9 @@ class Well {
         )
     }
 
-    removeLengthAnnotation(params, done) {
+    self.prototype.removeLengthAnnotation = function(params, done) {
         helpers.makeAJAXRequest(
-            `/api/app/plots/length_annotation/${params.id}`,
+            "/api/app/plots/length_annotation/" + params.id,
             "delete",
             {
                 well_id: this.id
@@ -162,7 +162,7 @@ class Well {
         )
     }
 
-    getLengthAnnotations(done) {
+    self.prototype.getLengthAnnotations = function(done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/length_annotation",
             "get",
@@ -173,7 +173,7 @@ class Well {
         )
     }
 
-    init(done) {
+    self.prototype.init = function(done) {
         var self = this
 
         helpers.makeAJAXRequest(
@@ -206,7 +206,7 @@ class Well {
         )
     }
 
-    getPressureMeasurements(params, done) {
+    self.prototype.getPressureMeasurements = function(params, done) {
         helpers.makeAJAXRequest(
             "/api/app/plots/p_measurements",
             "get",
@@ -229,7 +229,7 @@ class Well {
         )
     }
 
-    loadTimeMeasurements(params, done) {
+    self.prototype.loadTimeMeasurements = function(params, done) {
         var active_time_sensors = this.time_sensors().filter(function(s) {
             return s.is_active()
         })
@@ -264,4 +264,6 @@ class Well {
             }
         )
     }
-}
+
+    return self
+})()

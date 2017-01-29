@@ -180,7 +180,10 @@ var init = function() {
 
     plot_avg.updateOptions({
         clickCallback: function(e, x, points) {
-            var selected_date = helpers.convertDate(points[0].xval, "ms", "jmask")
+            var x = e.layerX
+            var date = Math.round(plot_avg.toDataXCoord(x))
+
+            var selected_date = helpers.convertDate(date, "ms", "jmask")
 
             if(vm.current_mode() === "timeline_event") {
                 vm.timeline_events.current_event().jmask_date(selected_date)

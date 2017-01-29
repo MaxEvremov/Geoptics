@@ -716,7 +716,6 @@ vm.cancelColorMode = function() {
 
 vm.selected_plots.subscribe(function(value) {
     value.forEach(function(plot, i) {
-        console.log(plot, i)
         plot.color(Plot.COLORS[i % Plot.COLORS.length])
     })
 })

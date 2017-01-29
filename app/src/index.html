@@ -104,7 +104,7 @@
 
                     <!-- ko foreach: state.wells -->
 					<li data-bind="css: { active: $parent.state.current_page() === 'wells' && $parent.plots.well_id() == id }">
-						<a data-bind="'page-href': 'wells/' + id" style="white-space: normal;">
+						<a data-bind="'page-href': '/wells/' + id" style="white-space: normal;">
 							<i class="fa fa-industry"></i> <span data-bind="text: name"></span>
 						</a>
 

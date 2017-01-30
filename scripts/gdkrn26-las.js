@@ -14,7 +14,7 @@ const las = require(__base + "lib/las")
 
 // main
 
-let query = `SELECT depth FROM depth_measurements WHERE sensor_id = 8 AND depth >= 72.667 AND created_at = '2016-08-29 10:01:43+05' ORDER BY depth ASC`
+let query = `SELECT distinct(depth) FROM depth_measurements WHERE sensor_id = 8 AND depth >= 72.667 ORDER BY depth ASC`
 
 console.log("Querying depth scale...")
 helpers.makePGQuery(
@@ -29,7 +29,6 @@ helpers.makePGQuery(
             query,
             (err, result) => {
                 let dates = result.map((v) => v.created_at)
-
                 let total = dates.length
 
                 console.log(`Found ${total} dates`)

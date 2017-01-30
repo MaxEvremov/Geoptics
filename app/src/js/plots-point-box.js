@@ -19,6 +19,10 @@ m_site.plots.point_box = (function() {
             m_site.plots.is_loading_temp_data(false)
 
             if(err) {
+                if(err === "not_found") {
+                    return alert("У запрошенного графика отсутствуют данные")
+                }
+
                 return console.error(err)
             }
 
@@ -86,6 +90,10 @@ m_site.plots.point_box = (function() {
             m_site.plots.is_loading_temp_data(false)
 
             if(err) {
+                if(err === "not_found") {
+                    return alert("У запрошенного графика отсутствуют данные")
+                }
+
                 return console.error(err)
             }
 
@@ -95,10 +103,6 @@ m_site.plots.point_box = (function() {
                 if(_.find(m_site.plots.selected_plots(), { date: plot_ts })) {
                     return
                 }
-            }
-
-            if(result.data.length === 0) {
-                return
             }
 
             m_site.plots.selected_plots.push(plot)
@@ -206,9 +210,20 @@ m_site.plots.point_box = (function() {
                                 return new Plot(plot)
                             })
 
+                            var empty_count = 0
+
                             plots.forEach(function(plot) {
-                                m_site.plots.selected_plots.push(plot)
+                                if(plot._data.length === 0) {
+                                    empty_count++
+                                }
+                                else {
+                                    m_site.plots.selected_plots.push(plot)
+                                }
                             })
+
+                            if(empty_count > 0) {
+                                alert("У " + empty_count + " запрошенных графиков отсутствуют данные")
+                            }
 
                             m_site.plots.is_loading_temp_data(false)
                             m_site.plots.processed(null)

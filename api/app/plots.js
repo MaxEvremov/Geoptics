@@ -136,7 +136,7 @@ api.get(
                         }
 
                         if(result.length === 0) {
-                            return done(null, [])
+                            return done("not_found")
                         }
 
                         let plot_result = {

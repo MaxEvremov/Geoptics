@@ -8,8 +8,8 @@ if(window.location.hostname == "10.66.80.203") {
 
 window.helpers = {}
 
-helpers.makeAJAXRequest = function (url, method, data, done) {
-	if (_.isFunction(data) && _.isUndefined(done)) {
+helpers.makeAJAXRequest = function(url, method, data, done) {
+	if(_.isFunction(data) && _.isUndefined(done)) {
 		done = data
 		data = {}
 	}
@@ -19,7 +19,7 @@ helpers.makeAJAXRequest = function (url, method, data, done) {
 		type: method,
 		dataType: "JSON",
 		contentType: "application/json",
-		success: function (answer, code) {
+		success: function(answer, code) {
 			var err = answer.err
 			var result = answer.result
 
@@ -32,12 +32,12 @@ helpers.makeAJAXRequest = function (url, method, data, done) {
 		xhrFields: {
 			withCredentials: true
 		},
-		error: function () {
+		error: function() {
 			return done("network_err")
 		}
 	}
 
-	if (method === "get") {
+	if(method === "get") {
         params.url = params.url + "?" + $.param(data)
 	}
     else {
@@ -45,7 +45,6 @@ helpers.makeAJAXRequest = function (url, method, data, done) {
     }
 
 	$.ajax(params)
-
 }
 
 helpers.createCSSClass = function (name, color) {

@@ -10,6 +10,10 @@ const async = require("async")
 const helpers = require(__base + "lib/helpers")
 const validators = require(__base + "lib/validators")
 
+// const
+
+const POINTS_PER_PLOT = 1000
+
 // main
 
 let api = express()
@@ -125,7 +129,7 @@ api.get(
         date_end: validators.isISO8601DateValid
     }),
     (req, res) => {
-        const POINTS_PER_PLOT = 1000
+
         const LOAD_RAW_DATA_THRESHOLD = 6 * 60 * 60 * 1000
 
         let sensor_ids = req.query.sensor_ids.map((id) => id.toString())
@@ -209,7 +213,7 @@ api.get(
                 FROM timeframe t
                 LEFT JOIN time_measurements p ON p.created_at >= t.t_min
                                               AND p.created_at <  t.t_max
-                WHERE p.sensor_id = ${sensor_id}
+                                              AND p.sensor_id = ${sensor_id}
                 GROUP BY 1, 2
                 ORDER BY 1
             `

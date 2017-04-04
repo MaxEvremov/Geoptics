@@ -27,7 +27,7 @@ window.dygraph_pressure = (function() {
                 {
                     height: 150,
                     labels: ["Date", "Pressure"],
-                    connectSeparatedPoints: true,
+                    connectSeparatedPoints: false,
                     zoomCallback: function() {
                         drawPlot()
                     },

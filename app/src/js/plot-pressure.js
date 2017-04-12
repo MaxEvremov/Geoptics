@@ -21,6 +21,10 @@ window.dygraph_pressure = (function() {
                 Dygraph.Interaction.defaultModel.mousedown(event, g, context)
             }
 
+            plot_avg_interaction_model.touchstart = function() {}
+            plot_avg_interaction_model.touchmove = function() {}
+            plot_avg_interaction_model.touchend = function() {}
+
             return new Dygraph(
                 $("#dygraph_avg_container")[0],
                 [[0, 0]],

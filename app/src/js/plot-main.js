@@ -136,18 +136,9 @@
             }
         },
 
-        touchstart: function(event, g, context) {
-            event = swapEventAxis(event)
-            Dygraph.Interaction.startTouch(event, g, context);
-        },
-        touchmove: function(event, g, context) {
-            event = swapEventAxis(event)
-            Dygraph.Interaction.moveTouch(event, g, context);
-        },
-        touchend: function(event, g, context) {
-            event = swapEventAxis(event)
-            Dygraph.Interaction.endTouch(event, g, context);
-        },
+        touchstart: function() {},
+        touchmove: function() {},
+        touchend: function() {},
 
         mouseout: function(event, g, context) {
             event = swapEventAxis(event)
@@ -182,6 +173,10 @@
             var box_rect = $(DYGRAPH_BOX_ID)[0].getBoundingClientRect()
 
             var box_height = $(window).height() - box_rect.top
+
+            if(window.innerWidth <= 992) {
+                box_height /= 2
+            }
 
             $(DYGRAPH_BOX_ID).css({
                 height: box_height

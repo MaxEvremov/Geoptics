@@ -178,6 +178,72 @@ var updateTempPlotColors = function() {
 var init = function() {
     plot_avg = dygraph_pressure.init(drawAvgPlot)
 
+    var prev_evt = "touchstart"
+
+    var DELAY = 300
+    var clicks = 0
+    var timer = null
+
+    var simulateEvent = function(type, first) {
+        var simulatedEvent = document.createEvent("MouseEvent");
+        simulatedEvent.initMouseEvent(type, true, true, window, 1,
+            first.screenX, first.screenY,
+            first.clientX, first.clientY, false,
+            false, false, false, 0 /*left*/ , null);
+
+        first.target.dispatchEvent(simulatedEvent);
+    }
+
+    function touchHandler(event) {
+        event.preventDefault();
+        var touches = event.changedTouches
+        var first = touches[0]
+        var type = "";
+
+        switch (event.type) {
+            case "touchstart":
+                type = "mousedown";
+                break;
+            case "touchmove":
+                type = "mousemove";
+                break;
+            case "touchend":
+                type = "mouseup";
+                break;
+            default:
+                return;
+        }
+
+        simulateEvent(type, first)
+
+        if(event.type === "touchend" && prev_evt === "touchstart") {
+            clicks++
+
+            if(clicks === 1) {
+                timer = setTimeout(function() {
+                    console.log("click")
+                    simulateEvent("click", first)
+                    clicks = 0
+                }, DELAY)
+            }
+            else {
+                console.log("dblclick")
+                clearTimeout(timer)
+                simulateEvent("dblclick", first)
+                clicks = 0
+            }
+        }
+
+        prev_evt = event.type
+    }
+
+    if('ontouchstart' in window || navigator.maxTouchPoints) {
+        document.addEventListener("touchstart", touchHandler, { passive: false, capture: false });
+        document.addEventListener("touchmove", touchHandler, { passive: false, capture: false });
+        document.addEventListener("touchend", touchHandler, { passive: false, capture: false });
+        document.addEventListener("touchcancel", touchHandler, { passive: false, capture: false });
+    }
+
     plot_avg.updateOptions({
         clickCallback: function(e, x, points) {
             var x = e.layerX

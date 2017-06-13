@@ -22,7 +22,7 @@
     "csv": "^0.4.6",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
-    "fs-extra": "^0.26.5",
+    "fs-extra": "^3.0.1",
     "knex": "^0.10.0",
     "lodash": "^4.6.0",
     "minimist": "^1.2.0",

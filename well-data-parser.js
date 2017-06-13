@@ -269,7 +269,7 @@ let processArchive = (archive_path, done) => {
         },
         (done) => {
             let move_path = path.join(well_data_archive, archive_name)
-            fs.move(archive_path, move_path, done)
+            fs.move(archive_path, move_path, { overwrite: true }, done)
         },
         (done) => {
             fs.readdir(tmp_archive_dir, done)

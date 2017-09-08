@@ -18,8 +18,13 @@ const EPOCH_TICKS = 621355968000000000
 const TICKS_PER_MS = 10000
 
 const FILE_TAGS = {
-    ".gsd": "SingleConditionerDataFile_30",
-    ".gdd": "DistributeConditionerDataFile_30"
+    ".gsd": [
+        "SingleConditionerDataFile_30",
+        "SingleConditionerDataFile_31"
+    ],
+    ".gdd": [
+        "DistributeConditionerDataFile_30"
+    ]
 }
 
 const SENSOR_TYPES = {
@@ -34,7 +39,9 @@ let tmp_dir = os.tmpdir()
 
 fs.ensureDirSync(well_data_archive)
 
-let parseGSDFile = (params, done) => {
+let FILE_PARSERS = {}
+
+FILE_PARSERS.SingleConditionerDataFile_30 = (params, done) => {
     let data = params.data
     let sensors = params.sensors
 
@@ -95,7 +102,68 @@ let parseGSDFile = (params, done) => {
     )
 }
 
-let parseGDDFile = (params, done) => {
+FILE_PARSERS.SingleConditionerDataFile_31 = (params, done) => {
+    let data = params.data
+    let sensors = params.sensors
+
+    let measurements = []
+
+    let values = data.D[0].DT
+
+    let start_date = moment(data.StartDate, "YYYY-MM-DDTHH:mm:ss.SSSSSS")
+    let first_value_date = moment((values[0].Ticks - EPOCH_TICKS) / TICKS_PER_MS, "x")
+    let time_diff = first_value_date.diff(start_date)
+
+    let record_count = values.length
+
+    for(let i = 0; i < values.length; i++) {
+        let value = values[i]
+
+        let created_at = `${value.Y}-${value.M}-${value.D} ${value.H}:${value.MI}:${value.S}+00:00`
+
+        let SENSOR_KEYS = ['P', 'T', 'V', 'L']
+
+        for(let key in value) {
+            if(SENSOR_KEYS.indexOf(key) == -1) {
+                continue
+            }
+
+            let sensor_id = sensors[key]
+
+            if(!sensor_id) {
+                continue
+            }
+
+            measurements.push({
+                created_at: created_at,
+                val: parseFloat(value[key]).toFixed(3),
+                sensor_id: sensor_id
+            })
+        }
+    }
+
+    let rows = measurements
+        .map(v => `('${v.created_at}', ${v.val}, ${v.sensor_id})`)
+        .join(",\n")
+
+        let query = `INSERT INTO time_measurements
+            (created_at, val, sensor_id) VALUES
+            ${rows}
+            ON CONFLICT DO NOTHING`
+
+    helpers.makePGQuery(
+        query,
+        (err) => {
+            if(err) {
+                return done(err)
+            }
+
+            return done(null, record_count)
+        }
+    )
+}
+
+FILE_PARSERS.DistributeConditionerDataFile_30 = (params, done) => {
     let data = params.data
     let sensors = params.sensors
 
@@ -150,16 +218,13 @@ let parseGDDFile = (params, done) => {
     )
 }
 
-const FILE_PARSERS = {
-    ".gsd": parseGSDFile,
-    ".gdd": parseGDDFile
-}
-
 let parseXMLFile = (file_path, done) => {
     let ext = path.extname(file_path)
     let file_name = path.basename(file_path)
 
     let data
+    let xml_tag
+	let record_count
 
     async.waterfall(
         [
@@ -170,17 +235,14 @@ let parseXMLFile = (file_path, done) => {
                 xml2js.parseString(file_data, done)
             },
             (parsed_xml, done) => {
-                let file_tag = FILE_TAGS[ext]
+                let file_tags = FILE_TAGS[ext]
+                xml_tag = Object.keys(parsed_xml)[0]
 
-                if(!file_tag) {
+                if(!file_tags.includes(xml_tag)) {
                     return done("unknown_format")
                 }
 
-                data = parsed_xml[file_tag]
-
-                if(!data) {
-                    return done("wrong_file_format")
-                }
+                data = parsed_xml[xml_tag]
 
                 let well_xml_id = data.Well
                 let sensor_xml_id = data.Channel
@@ -204,18 +266,24 @@ let parseXMLFile = (file_path, done) => {
                     sensors_dict[sensor.xml_tag] = sensor.id
                 })
 
-                let fileParser = FILE_PARSERS[ext]
-
+                let fileParser = FILE_PARSERS[xml_tag]
                 return fileParser(
                     {
                         data: data,
-                        sensors: sensors_dict
+                        sensors: sensors_dict,
+                        xml_tag: xml_tag
                     },
                     done
                 )
-            }
+            },
+			(_record_count, done) => {
+				record_count = _record_count
+
+				let move_path = path.join(well_data_archive, file_name)
+				fs.move(file_path, move_path, { overwrite: true }, done)
+			}
         ],
-        (err, record_count) => {
+        (err) => {
             if(err) {
                 console.error(`An error occurred while processing ${file_name}: ${err}`)
                 return done(err)
@@ -227,23 +295,20 @@ let parseXMLFile = (file_path, done) => {
     )
 }
 
-let processArchive = (archive_path, done) => {
+let processRAR = (archive_path, done) => {
     let archive_name = path.basename(archive_path)
     let archive_name_no_ext = path.basename(archive_path, ".rar")
     let tmp_archive_dir = path.join(tmp_dir, archive_name_no_ext)
 
     async.waterfall([
         (done) => {
-            fs.ensureDir(tmp_archive_dir, done)
-        },
-        (dir, done) => {
             let unrar = spawn(
                 "unrar",
                 [
                     "e",
                     "-o+",
                     archive_path,
-                    tmp_archive_dir
+                    well_data_dir
                 ],
                 {
                     stdio: ["ignore", "ignore", "pipe"]
@@ -257,7 +322,7 @@ let processArchive = (archive_path, done) => {
             unrar.on("close", (code) => {
                 if(code !== 0) {
                     console.error(stderr)
-                    return done(`unrar exited with code ${code}`)
+                    return done(`unrar exitedd with code ${code}`)
                 }
 
                 if(stderr) {
@@ -270,23 +335,6 @@ let processArchive = (archive_path, done) => {
         (done) => {
             let move_path = path.join(well_data_archive, archive_name)
             fs.move(archive_path, move_path, { overwrite: true }, done)
-        },
-        (done) => {
-            fs.readdir(tmp_archive_dir, done)
-        },
-        (files, done) => {
-            async.eachSeries(
-                files,
-                (file, done) => {
-                    let absolute_file_path = path.join(tmp_archive_dir, file)
-
-                    return parseXMLFile(absolute_file_path, done)
-                },
-                done
-            )
-        },
-        (done) => {
-            fs.remove(tmp_archive_dir, done)
         }
     ], (err) => {
         if(err) {
@@ -299,8 +347,18 @@ let processArchive = (archive_path, done) => {
     })
 }
 
+let processFile = (file_path, done) => {
+	let ext = path.extname(file_path)
+
+	if(ext === ".rar") {
+		return processRAR(done)
+	}
+
+	return parseXMLFile(file_path, done)
+}
+
 let queue = async.queue(
-    processArchive,
+    processFile,
     1
 )
 

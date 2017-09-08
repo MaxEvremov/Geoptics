@@ -5,9 +5,9 @@ let configs = {
         port: 7777,
         session_secret: "geoptics secret",
 
-        postgres_con: "postgres://lwpss:1234@localhost/geoptics",
+        postgres_con: "postgres://ngrishanov:1234@localhost/geoptics",
         pg: {
-            user: "lwpss",
+            user: "ngrishanov",
             password: "1234",
             database: "geoptics",
             port: 5432,

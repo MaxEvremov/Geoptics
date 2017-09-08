@@ -351,7 +351,7 @@ let processFile = (file_path, done) => {
 	let ext = path.extname(file_path)
 
 	if(ext === ".rar") {
-		return processRAR(done)
+		return processRAR(file_path, done)
 	}
 
 	return parseXMLFile(file_path, done)

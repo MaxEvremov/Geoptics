@@ -169,7 +169,7 @@ FILE_PARSERS.DistributeConditionerDataFile_30 = (params, done) => {
 
     let measurements = []
 
-    let created_at = moment(data.GenerateDate, "YYYY-MM-DDTHH:mm:ss.SSSSSSSZ")
+    let created_at = moment(data.StartDate, "YYYY-MM-DDTHH:mm:ss.SSSSSSSZ")
         .format("YYYY-MM-DD HH:mm:ss.SSSSSSZ")
 
     let values = data.D

@@ -52,7 +52,6 @@ m_site.state = (function() {
 
                     m_site.state.textures.removeAll()
                     m_site.state.textures(result.textures)
-
                     if(done && _.isFunction(done)) {
                         return done()
                     }

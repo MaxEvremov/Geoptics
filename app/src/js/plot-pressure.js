@@ -35,7 +35,8 @@ window.dygraph_pressure = (function() {
                     zoomCallback: function() {
                         drawPlot()
                     },
-                    interactionModel: plot_avg_interaction_model
+                    interactionModel: plot_avg_interaction_model,
+                    digitsAfterDecimal: 5
                 }
             )
         }

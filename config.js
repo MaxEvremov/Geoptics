@@ -5,12 +5,12 @@ let configs = {
         port: 7777,
         session_secret: "geoptics secret",
 
-        postgres_con: "postgres://ngrishanov:1234@localhost/geoptics",
+        postgres_con: "postgres://artemkosarev:1234@localhost:5434/geoptics",
         pg: {
-            user: "ngrishanov",
+            user: "artemkosarev",
             password: "1234",
             database: "geoptics",
-            port: 5432,
+            port: 5434,
             max: 20,
             min: 20,
             idleTimeoutMillis: 30 * 1000
@@ -35,12 +35,12 @@ let configs = {
         port: 7777,
         session_secret: "geoptics secret",
 
-        postgres_con: "postgres://lwpss:1234@localhost/geoptics",
+        postgres_con: "postgres://artemkosarev:1234@localhost:5434/geoptics",
         pg: {
-            user: "lwpss",
+            user: "artemkosarev",
             password: "1234",
             database: "geoptics",
-            port: 5432,
+            port: 5434,
             max: 20,
             min: 20,
             idleTimeoutMillis: 30 * 1000

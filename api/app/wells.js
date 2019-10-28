@@ -12,7 +12,7 @@ const validators = require(__base + "lib/validators")
 
 // const
 
-const POINTS_PER_PLOT = 1000
+const POINTS_PER_PLOT = 200
 
 // main
 
@@ -48,7 +48,7 @@ api.get(
 
                     let queries = []
 
-                    if(depth_sensors.length > 0) {
+                    if (depth_sensors.length > 0) {
                         let depth_sensor_ids = depth_sensors
                             .map((s) => s.id)
                             .join(", ")
@@ -61,7 +61,7 @@ api.get(
                         queries.push((done) => helpers.makePGQuery(depth_query, done))
                     }
 
-                    if(time_sensors.length > 0) {
+                    if (time_sensors.length > 0) {
                         let time_sensor_ids = time_sensors
                             .map((s) => s.id)
                             .join(", ")
@@ -91,11 +91,11 @@ api.get(
                     let max_dates = []
 
                     result.forEach(v => {
-                        if(v[0] && v[0].created_at) {
+                        if (v[0] && v[0].created_at) {
                             min_dates.push(helpers.convertDate(v[0].created_at, "iso8601", "moment"))
                         }
 
-                        if(v[1] && v[1].created_at) {
+                        if (v[1] && v[1].created_at) {
                             max_dates.push(helpers.convertDate(v[1].created_at, "iso8601", "moment"))
                         }
                     })
@@ -107,8 +107,7 @@ api.get(
                     let max_date = helpers.convertDate(max_dates[0], "moment", "iso8601")
 
                     return done(
-                        null,
-                        {
+                        null, {
                             date_range: [min_date, max_date],
                             depth_sensors: depth_sensors,
                             time_sensors: time_sensors
@@ -136,10 +135,10 @@ api.get(
         let date_start = req.query.date_start
         let date_end = req.query.date_end
 
-        let date_diff = helpers.convertDate(date_end, "iso8601", "ms")
-            - helpers.convertDate(date_start, "iso8601", "ms")
+        let date_diff = helpers.convertDate(date_end, "iso8601", "ms") -
+            helpers.convertDate(date_start, "iso8601", "ms")
 
-        if(date_diff < LOAD_RAW_DATA_THRESHOLD) {
+        if (date_diff < LOAD_RAW_DATA_THRESHOLD) {
             let query = `SELECT created_at, val, sensor_id
                 FROM time_measurements
                 WHERE sensor_id IN (${sensor_ids.join(", ")})
@@ -150,14 +149,13 @@ api.get(
             return helpers.makePGQuery(
                 query,
                 (err, result) => {
-                    if(err) {
+                    if (err) {
                         return res.jsonCallback(err)
                     }
 
-                    if(sensor_ids.length === 1) {
+                    if (sensor_ids.length === 1) {
                         return res.jsonCallback(
-                            null,
-                            {
+                            null, {
                                 is_raw: true,
                                 data: result.map((row) => [row.created_at, parseFloat(row.val)])
                             }
@@ -165,7 +163,7 @@ api.get(
                     }
 
                     let nulls = []
-                    for(let i = 0; i < sensor_ids.length; i++) {
+                    for (let i = 0; i < sensor_ids.length; i++) {
                         nulls.push(null)
                     }
 
@@ -212,7 +210,7 @@ api.get(
                       ,avg(p.val) AS the_avg
                 FROM timeframe t
                 LEFT JOIN time_measurements p ON p.created_at >= t.t_min
-                                              AND p.created_at <  t.t_max
+                                              AND p.created_at < ${date_diff < 1000 * 60 * 30 ? "t.t_max" : "t.t_min + time '00:30'" }
                                               AND p.sensor_id = ${sensor_id}
                 GROUP BY 1, 2
                 ORDER BY 1
@@ -228,12 +226,12 @@ api.get(
             sensor_ids,
             processSensor,
             (err, result) => {
-                if(err) {
+                if (err) {
                     return res.jsonCallback(err)
                 }
 
                 let nulls = []
-                for(let i = 0; i < sensor_ids.length; i++) {
+                for (let i = 0; i < sensor_ids.length; i++) {
                     nulls.push(null)
                 }
 
@@ -262,11 +260,11 @@ api.get(
                     a = helpers.convertDate(a[0], "iso8601", "moment")
                     b = helpers.convertDate(b[0], "iso8601", "moment")
 
-                    return a.isAfter(b)
-                        ? 1
-                        : a.isBefore(b)
-                            ? -1
-                            : 0
+                    return a.isAfter(b) ?
+                        1 :
+                        a.isBefore(b) ?
+                        -1 :
+                        0
                 })
 
                 return res.jsonCallback(null, {
@@ -309,8 +307,8 @@ api.get(
 
         helpers.makePGQuery(
             query,
-            function(err, result) {
-                if(err) {
+            function (err, result) {
+                if (err) {
                     return res.jsonCallback(err)
                 }
 
@@ -331,8 +329,8 @@ api.get(
 
         helpers.makePGQuery(
             query,
-            function(err, result) {
-                if(err) {
+            function (err, result) {
+                if (err) {
                     return res.jsonCallback(err)
                 }
 

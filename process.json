@@ -10,7 +10,8 @@
             "name": "geoptics-data-parser",
             "script": "well-data-parser.js",
             "watch": ["well-data-parser.js"],
-            "log_date_format": "YYYY-MM-DD HH:mm:ss"
+            "log_date_format": "YYYY-MM-DD HH:mm:ss",
+            "interpreter": "/usr/local/bin/node"
         }
     ]
 }

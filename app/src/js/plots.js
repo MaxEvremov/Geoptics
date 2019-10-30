@@ -53,7 +53,7 @@ var loadPressureData = _.debounce(function(params) {
         vm.is_loading_pressure_data(false)
         redrawAnnotations()
 
-        var y_range = plot_avg.yAxisRange()
+        var y_range = plot_avg.yAxisRange().map(parseFloat)
 
         vm.min_zoom_y(y_range[0].toFixed(2))
         vm.max_zoom_y(y_range[1].toFixed(2))
@@ -97,8 +97,8 @@ var drawAvgPlot = function(is_history_action) {
 
     // обновление инпутов зума
 
-    var x_range = plot_avg.xAxisRange()
-    var y_range = plot_avg.yAxisRange()
+    var x_range = plot_avg.xAxisRange().map(parseFloat)
+    var y_range = plot_avg.yAxisRange().map(parseFloat)
 
     var min_date = x_range[0]
     var max_date = x_range[1]

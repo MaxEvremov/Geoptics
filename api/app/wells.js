@@ -25,6 +25,7 @@ api.get(
 
         let depth_sensors
         let time_sensors
+        const now = Date.now();
 
         async.waterfall(
             [
@@ -38,48 +39,23 @@ api.get(
                     )
                 },
                 (sensors, done) => {
-                    depth_sensors = sensors.filter(
-                        (s) => s.type === "distributed"
-                    )
+                    depth_sensors = sensors.filter(s => s.type === "distributed")
+                    time_sensors = sensors.filter(s => s.type === "point")
+                    const queries = [];
+                    const sensors_str = sensors.map(s => s.id).join(', ')
+                    const query = `SELECT min(range_min) AS created_at from sensors
+                        WHERE id IN (${sensors_str})
+                        UNION SELECT max(range_max) from sensors
+                        WHERE id IN (${sensors_str})`
 
-                    time_sensors = sensors.filter(
-                        (s) => s.type === "point"
-                    )
-
-                    let queries = []
-
-                    if (depth_sensors.length > 0) {
-                        let depth_sensor_ids = depth_sensors
-                            .map((s) => s.id)
-                            .join(", ")
-
-                        let depth_query = `SELECT min(created_at) AS created_at from depth_measurements
-                            WHERE sensor_id IN (${depth_sensor_ids})
-                            UNION SELECT max(created_at) from depth_measurements
-                            WHERE sensor_id IN (${depth_sensor_ids})`
-
-                        queries.push((done) => helpers.makePGQuery(depth_query, done))
-                    }
-
-                    if (time_sensors.length > 0) {
-                        let time_sensor_ids = time_sensors
-                            .map((s) => s.id)
-                            .join(", ")
-
-                        let time_query = `SELECT min(created_at) AS created_at from time_measurements
-                            WHERE sensor_id IN (${time_sensor_ids})
-                            UNION SELECT max(created_at) from time_measurements
-                            WHERE sensor_id IN (${time_sensor_ids})`
-
-                        queries.push((done) => helpers.makePGQuery(time_query, done))
-                    }
+                    queries.push(done => helpers.makePGQuery(query, done))
 
                     let events_query = `SELECT min(ts) AS created_at from timeline_events
                         WHERE well_id = ${well_id}
                         UNION SELECT max(ts) from timeline_events
                         WHERE well_id = ${well_id}`
 
-                    queries.push((done) => helpers.makePGQuery(events_query, done))
+                    queries.push(done => helpers.makePGQuery(events_query, done))
 
                     async.parallel(
                         queries,
@@ -87,6 +63,7 @@ api.get(
                     )
                 },
                 (result, done) => {
+                    console.log(Date.now() - now)
                     let min_dates = []
                     let max_dates = []
 
@@ -131,12 +108,79 @@ api.get(
 
         const LOAD_RAW_DATA_THRESHOLD = 6 * 60 * 60 * 1000
 
-        let sensor_ids = req.query.sensor_ids.map((id) => id.toString())
-        let date_start = req.query.date_start
-        let date_end = req.query.date_end
+        const sensor_ids = req.query.sensor_ids.map((id) => id.toString())
+        const date_start = req.query.date_start
+        const date_end = req.query.date_end
 
-        let date_diff = helpers.convertDate(date_end, "iso8601", "ms") -
+        const date_diff = helpers.convertDate(date_end, "iso8601", "ms") -
             helpers.convertDate(date_start, "iso8601", "ms")
+        const interval_sec = date_diff / 1000 / 200
+
+        const sql = []
+        for (const sensor_id of sensor_ids) {
+            sql.push(`
+                (SELECT
+                    time_bucket('${interval_sec} seconds', created_at) as time,
+                    avg(val) as value,
+                    max(sensor_id) as device_id
+                FROM time_measurements
+                WHERE created_at >= '${date_start}' AND created_at <= '${date_end}' AND sensor_id = ${sensor_id}
+                GROUP BY time
+                LIMIT 1000)
+            `, `
+                UNION
+            `)
+        }
+        sql.pop()
+
+        function handler(is_raw) {
+            return (err, result) => {
+                if (err) {
+                    return res.jsonCallback(err)
+                }
+
+                console.log(result)
+
+                if (sensor_ids.length === 1) {
+                    return res.jsonCallback(
+                        null, {
+                            is_raw,
+                            data: result.map((row) => [row.created_at, parseFloat(row.val)])
+                        }
+                    )
+                }
+
+                let nulls = []
+                for (let i = 0; i < sensor_ids.length; i++) {
+                    nulls.push(null)
+                }
+
+                let data = _.uniq(result.map((row) => row.created_at))
+                    .map((row) => {
+                        row = [row]
+                        return row.concat(nulls)
+                    })
+
+                result.forEach((row) => {
+                    let i = data.findIndex((r) => r[0] === row.created_at)
+                    let j = sensor_ids.indexOf(row.sensor_id.toString()) + 1
+
+                    data[i][j] = parseFloat(row.val)
+                })
+
+                return res.jsonCallback(null, {
+                    is_raw,
+                    data: data
+                })
+            }
+        }
+
+        const query = `SELECT time as created_at, value as val, device_id as sensor_id FROM (
+            ${sql.join('')}
+        ) as subselect ORDER BY created_at;`
+        console.log(query);
+
+        return helpers.makePGQuery(query, handler(true))
 
         if (date_diff < LOAD_RAW_DATA_THRESHOLD) {
             let query = `SELECT created_at, val, sensor_id
@@ -148,43 +192,7 @@ api.get(
 
             return helpers.makePGQuery(
                 query,
-                (err, result) => {
-                    if (err) {
-                        return res.jsonCallback(err)
-                    }
-
-                    if (sensor_ids.length === 1) {
-                        return res.jsonCallback(
-                            null, {
-                                is_raw: true,
-                                data: result.map((row) => [row.created_at, parseFloat(row.val)])
-                            }
-                        )
-                    }
-
-                    let nulls = []
-                    for (let i = 0; i < sensor_ids.length; i++) {
-                        nulls.push(null)
-                    }
-
-                    let data = _.uniq(result.map((row) => row.created_at))
-                        .map((row) => {
-                            row = [row]
-                            return row.concat(nulls)
-                        })
-
-                    result.forEach((row) => {
-                        let i = data.findIndex((r) => r[0] === row.created_at)
-                        let j = sensor_ids.indexOf(row.sensor_id.toString()) + 1
-
-                        data[i][j] = parseFloat(row.val)
-                    })
-
-                    return res.jsonCallback(null, {
-                        is_raw: true,
-                        data: data
-                    })
-                }
+                handler(true)
             )
         }
 

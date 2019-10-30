@@ -542,7 +542,7 @@ vm.resetPlotAvgState = function() {
 
 vm.afterShow = function() {
     if(!is_inited) {
-        setTimeout(function() { init() }, 0)
+        setTimeout(function() { init() }, 100)
     }
 
     setTimeout(function() {
@@ -626,7 +626,7 @@ vm.afterShow = function() {
                 })
             })
         })
-    }, 0)
+    }, 200)
 
     if(plot_avg) {
         setTimeout(function() { plot_avg.resize(), 0 })

@@ -147,10 +147,23 @@
 .axis-input-block-bottom {
 	left: 45px;
 	right: 5px;
-	bottom: 20px;
+	bottom: -30px;
 	height: 20px;
 }
-
+.axis-input-block-bottom input{
+position: absolute;
+    /* display: none; */
+    border-radius: 3px;
+    border: 1px inset #eee;
+    padding: 0px 3px;
+    /* border: 0; */
+    background: transparent;
+    /* font-size: .8em; */
+    /* opacity: .7; */
+    z-index: 12;
+    width: 8em;
+	text-align: center;
+}
 .axis-input-block-bottom-left {
 	left: 0;
 	bottom: 0;

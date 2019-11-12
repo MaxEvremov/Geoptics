@@ -38,6 +38,8 @@ let well_data_archive = config.well_data_archive
 let tmp_dir = os.tmpdir()
 
 fs.ensureDirSync(well_data_archive)
+fs.ensureDirSync(well_data_dir)
+
 
 function insert_query(table, rows) {
     const max_date_set = {};
@@ -46,6 +48,7 @@ function insert_query(table, rows) {
         const max_date = max_date_set[row.sensor_id];
         if (!max_date || max_date.isBefore(date)) max_date_set[row.sensor_id] = date;
     }
+    console.log(max_date_set);
     const sql = [];
     for (const sensor_id in max_date_set) {
         const date = max_date_set[sensor_id].format("YYYY-MM-DD HH:mm:ss.SSSSSSZ");
@@ -74,6 +77,7 @@ function insert_query(table, rows) {
     } else {
         throw new Error(`Unknown table '${table}'`);
     }
+    console.log(sql.join(''));
     return sql.join('');
 }
 
@@ -320,24 +324,15 @@ let processRAR = (archive_path, done) => {
                     "-o+",
                     archive_path,
                     well_data_dir
-                ],
-                {
-                    stdio: ["ignore", "ignore", "pipe"]
-                }
+                ]
             )
 
-            let stderr = ""
+            unrar.stderr.on("data", d => process.stderr.write(d))
+            unrar.stdout.on("data", d => process.stdout.write(d))
 
-            unrar.stderr.on("data", (data) => stderr += data)
-
-            unrar.on("close", (code) => {
+            unrar.on("close", code => {
                 if(code !== 0) {
-                    console.error(stderr)
-                    return done(`unrar exitedd with code ${code}`)
-                }
-
-                if(stderr) {
-                    return done(stderr)
+                    return done(`unrar exited with code ${code}`)
                 }
 
                 return done(null)
@@ -373,12 +368,25 @@ let queue = async.queue(
     1
 )
 
-chokidar.watch(
-    well_data_dir,
-    {
-        awaitWriteFinish: true
+const files = []
+for (const p of process.argv) {
+    if (p.endsWith('node')) continue
+    if (p.endsWith(__filename)) continue
+    if (fs.statSync(p).isFile()) {
+        files.push(p)
     }
-)
-.on("add", (archive_path) => queue.push(archive_path))
+}
+if (files.length !== 0) {
+    for (const p of files) queue.push(p)
+    console.log("file list:", files)
+} else {
+    chokidar.watch(
+        well_data_dir,
+        {
+            awaitWriteFinish: true
+        }
+    )
+    .on("add", (archive_path) => queue.push(archive_path))
 
-console.log("Well data parser is running")
+    console.log("Well data parser is running")
+}

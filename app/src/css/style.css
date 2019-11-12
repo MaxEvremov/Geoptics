@@ -184,3 +184,7 @@ body .dygraphDefaultAnnotation {
 #dygraph_container > div > input {
     transform: rotateY(180deg) rotate(-90deg);
 }
+
+.error {
+    color: red;
+}

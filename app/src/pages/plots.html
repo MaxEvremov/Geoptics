@@ -144,6 +144,7 @@
 						<input class="axis-input-block-bottom-left" data-bind="
                         textInput: min_zoom_x,
                         event: { keypress: updateZoomX },
+                        css: { error: !moment(min_zoom_x(), 'DD/MM/YY HH:mm', true).isValid() },
                         jmask: {
                             value: min_zoom_x,
                             mask: '00/00/00 00:00',
@@ -155,6 +156,7 @@
 						<input class="axis-input-block-bottom-right" data-bind="
                         textInput: max_zoom_x,
                         event: { keypress: updateZoomX },
+                        css: { error: !moment(max_zoom_x(), 'DD/MM/YY HH:mm', true).isValid() },
                         jmask: {
                             value: max_zoom_x,
                             mask: '00/00/00 00:00',

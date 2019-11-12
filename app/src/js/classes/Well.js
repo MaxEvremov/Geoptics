@@ -187,9 +187,10 @@ window.Well = (function() {
                     return done(err)
                 }
 
-                self.date_range = result.date_range.map(function(date) {
-                    return helpers.convertDate(date, "iso8601", "native")
-                })
+                // self.date_range = result.date_range.map(function(date) {
+                //     return helpers.convertDate(date, "iso8601", "native")
+                // })
+                self.date_range = [moment().subtract(1, 'month'), moment()];
 
                 self.depth_sensors.removeAll()
                 result.depth_sensors.forEach(function(s) {

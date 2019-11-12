@@ -26,8 +26,8 @@ let configs = {
             role: "owner"
         },
 
-        well_data_dir: "/Users/lwpss/well_data",
-        well_data_archive: "/Users/lwpss/well_data_archive",
+        well_data_dir: "/tmp/geoptics/well_data",
+        well_data_archive: "/tmp/geoptics/well_data_archive",
 
         serve_static: true
     },

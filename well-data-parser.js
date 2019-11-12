@@ -39,6 +39,44 @@ let tmp_dir = os.tmpdir()
 
 fs.ensureDirSync(well_data_archive)
 
+function insert_query(table, rows) {
+    const max_date_set = {};
+    for (const row of rows) {
+        const date = moment(row.created_at);
+        const max_date = max_date_set[row.sensor_id];
+        if (!max_date || max_date.isBefore(date)) max_date_set[row.sensor_id] = date;
+    }
+    const sql = [];
+    for (const sensor_id in max_date_set) {
+        const date = max_date_set[sensor_id].format("YYYY-MM-DD HH:mm:ss.SSSSSSZ");
+        sql.push(`
+            UPDATE sensors
+            SET range_max = '${date}'
+            WHERE id = ${sensor_id} AND range_max < '${date}';
+        `);
+    }
+    if (table === 'time_measurements') {
+        const rowsStr = rows.map(r => `('${r.created_at}', ${r.val}, ${r.sensor_id})`).join(",\n");
+        sql.push(`
+            INSERT INTO time_measurements
+            (created_at, val, sensor_id) VALUES
+            ${rowsStr}
+            ON CONFLICT DO NOTHING;
+        `);
+    } else if (table === 'depth_measurements') {
+        const rowsStr = rows.map(v => `('${r.created_at}', ${r.val}, ${r.depth}, ${r.sensor_id})`).join(",\n");
+        sql.push(`
+            INSERT INTO depth_measurements
+            (created_at, val, depth, sensor_id) VALUES
+            ${rowsStr}
+            ON CONFLICT DO NOTHING;
+        `);
+    } else {
+        throw new Error(`Unknown table '${table}'`);
+    }
+    return sql.join('');
+}
+
 let FILE_PARSERS = {}
 
 FILE_PARSERS.SingleConditionerDataFile_30 = (params, done) => {
@@ -81,17 +119,8 @@ FILE_PARSERS.SingleConditionerDataFile_30 = (params, done) => {
         }
     }
 
-    let rows = measurements
-        .map(v => `('${v.created_at}', ${v.val}, ${v.sensor_id})`)
-        .join(",\n")
-
-    let query = `INSERT INTO time_measurements
-        (created_at, val, sensor_id) VALUES
-        ${rows}
-        ON CONFLICT DO NOTHING`
-
     helpers.makePGQuery(
-        query,
+        insert_query('time_measurements', measurements),
         (err) => {
             if(err) {
                 return done(err)
@@ -142,17 +171,8 @@ FILE_PARSERS.SingleConditionerDataFile_31 = (params, done) => {
         }
     }
 
-    let rows = measurements
-        .map(v => `('${v.created_at}', ${v.val}, ${v.sensor_id})`)
-        .join(",\n")
-
-        let query = `INSERT INTO time_measurements
-            (created_at, val, sensor_id) VALUES
-            ${rows}
-            ON CONFLICT DO NOTHING`
-
     helpers.makePGQuery(
-        query,
+        insert_query('time_measurements', measurements),
         (err) => {
             if(err) {
                 return done(err)
@@ -197,17 +217,8 @@ FILE_PARSERS.DistributeConditionerDataFile_30 = (params, done) => {
         }
     }
 
-    let rows = measurements
-        .map(v => `('${v.created_at}', ${v.val}, ${v.depth}, ${v.sensor_id})`)
-        .join(",\n")
-
-    let query = `INSERT INTO depth_measurements
-        (created_at, val, depth, sensor_id) VALUES
-        ${rows}
-        ON CONFLICT DO NOTHING`
-
     helpers.makePGQuery(
-        query,
+        insert_query('depth_measurements', measurements),
         (err) => {
             if(err) {
                 return done(err)

@@ -1,6 +1,8 @@
 "use strict"
 
-let configs = {
+const path = require('path')
+
+const configs = {
     dev: {
         port: 7777,
         session_secret: "geoptics secret",
@@ -27,7 +29,7 @@ let configs = {
         },
 
         well_data_dir: "/tmp/geoptics/well_data",
-        well_data_archive: "/tmp/geoptics/well_data_archive",
+        well_data_archive: path.resolve(__dirname, 'data', 'archive'),
 
         serve_static: true
     },

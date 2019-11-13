@@ -44,12 +44,13 @@ fs.ensureDirSync(well_data_dir)
 function insert_query(table, rows) {
     const max_date_set = {};
     for (const row of rows) {
-        const date = moment(row.created_at);
+        const date = moment(row.created_at, "YYYY-MM-DD HH:mm:ss.SSSSSSZ");
         const max_date = max_date_set[row.sensor_id];
         if (!max_date || max_date.isBefore(date)) max_date_set[row.sensor_id] = date;
     }
-    console.log(max_date_set);
-    const sql = [];
+    const sql = [`
+        BEGIN TRANSACTION;
+    `];
     for (const sensor_id in max_date_set) {
         const date = max_date_set[sensor_id].format("YYYY-MM-DD HH:mm:ss.SSSSSSZ");
         sql.push(`
@@ -77,7 +78,9 @@ function insert_query(table, rows) {
     } else {
         throw new Error(`Unknown table '${table}'`);
     }
-    console.log(sql.join(''));
+    sql.push(`
+        COMMIT;
+    `);
     return sql.join('');
 }
 
@@ -377,6 +380,7 @@ for (const p of process.argv) {
     }
 }
 if (files.length !== 0) {
+    queue.drain(() => process.exit(0))
     for (const p of files) queue.push(p)
     console.log("file list:", files)
 } else {

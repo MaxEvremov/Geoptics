@@ -68,7 +68,7 @@ function insert_query(table, rows) {
             ON CONFLICT DO NOTHING;
         `);
     } else if (table === 'depth_measurements') {
-        const rowsStr = rows.map(v => `('${r.created_at}', ${r.val}, ${r.depth}, ${r.sensor_id})`).join(",\n");
+        const rowsStr = rows.map(r => `('${r.created_at}', ${r.val}, ${r.depth}, ${r.sensor_id})`).join(",\n");
         sql.push(`
             INSERT INTO depth_measurements
             (created_at, val, depth, sensor_id) VALUES

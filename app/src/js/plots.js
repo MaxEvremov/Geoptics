@@ -568,6 +568,7 @@ vm.afterShow = function() {
 
             vm.is_loading_pressure_data(true)
             vm.current_well().init(function(err, result) {
+                //console.log(result)
                 if(err) {
                     vm.is_loading_pressure_data(false)
                     return console.error(err)

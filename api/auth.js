@@ -33,6 +33,10 @@ let generateAPI = (roles) => {
         }),
         (req, res, next) => {
             passport.authenticate("local", (err, user, info) => {
+
+                console.log(req.body)
+                console.log(user)
+
                 if(err) {
                     console.error(err)
                     return res.json({

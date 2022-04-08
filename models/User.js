@@ -39,11 +39,9 @@ let User = bookshelf_client.Model.extend(
         verifyPassword: function(password) {
             let salt = this.get("salt")
             let hash = this.get("hash")
-
             let password_hash = crypto.createHash("sha256")
-
             password_hash.update(salt + password)
-
+            //console.log(password_hash.digest("hex"))
             return password_hash.digest("hex") === hash
         }
     },

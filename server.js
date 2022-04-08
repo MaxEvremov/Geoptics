@@ -74,6 +74,7 @@ passport.use(new LocalStrategy(
         passwordField: "password"
     },
     (login, password, done) => {
+        //console.log("login "+login+" password "+password)
         User.findOne({
             login: login
         })
@@ -81,7 +82,6 @@ passport.use(new LocalStrategy(
             if(err) {
                 return done("db_err")
             }
-
             if(!user) {
                 return done(null, false)
             }

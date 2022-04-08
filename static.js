@@ -74,10 +74,12 @@ passport.use(new LocalStrategy(
         passwordField: "password"
     },
     (login, password, done) => {
+        //console.log("login "+login+" password "+password)
         User.findOne({
             login: login
         })
         .asCallback((err, user) => {
+            //console.log(user)
             if(err) {
                 return done("db_err")
             }

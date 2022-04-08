@@ -7,6 +7,7 @@ const knex = require("knex")({ client: "pg" })
 const _ = require("lodash")
 const moment = require("moment")
 const async = require("async")
+const { identity } = require("lodash")
 
 const helpers = require(__base + "lib/helpers")
 const validators = require(__base + "lib/validators")
@@ -35,6 +36,7 @@ api.get("/update_time_range", (req, res) => {
             case 'distributed': table = "depth_measurements"; break;
             default: return res.jsonCallback(new Error(`Unknown sensor type '${result[0].type}' for sensor ${sensor_id}`));
         }
+        //console.log(table,sensor_id)
         const sql = `
             UPDATE sensors SET
                 range_min = (SELECT created_at

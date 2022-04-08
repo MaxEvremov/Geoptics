@@ -1,0 +1,65 @@
+# version: '3'
+# services:
+#   postgres:
+#     image: 'timescale/timescaledb:1.7.0-pg10'
+#     environment:
+#       - POSTGRES_PASSWORD=postgres_password
+  # nginx:
+  #   depends_on:
+  #     - api
+  #   restart: always
+  #   build:
+  #     dockerfile: Dockerfile.dev
+  #     context: ./
+  #   ports:
+  #   - "3050:80"
+
+
+  # api:
+  #   build:
+  #     dockerfile: Dockerfile.dev
+  #     context: './'
+  #   volumes:
+  #     - /app/node_modules
+  #     - ./app
+  #   environment:
+  #     - PGUSER=postgres
+  #     - PGHOST=postgres
+  #     - PGDATABASE=postgres
+  #     - PGPASSWORD=postgres_password
+  #     - PGPORT=postgre5432
+
+version: '3.7'
+services:
+  # postgres:
+  #   image: 'timescale/timescaledb:1.7.0-pg10'
+  #   environment:
+  #     - POSTGRES_PASSWORD=postgres_password
+  #   volumes:
+  #     - ./geoptics.dump:/docker-entrypoint-initdb.d/geoptics.dump
+  #     # - /media/maxevremov/data/geoptics_db:/var/lib/postgresql/data
+  #   expose:
+  #     - "5432"
+    # command: psql -U postgres -c "CREATE ROLE lwpss SUPERUSER"
+    # command: psql -U postgres -c "CREATE ROLE root SUPERUSER"
+    # command: psql -U postgres -c "CREATE DATABASE geoptics"
+    # command: psql -U postgres -c "ALTER USER postgres WITH PASSWORD '1234'"
+    # command: pg_restore -U postgres -d geoptics ./docker-entrypoint-initdb.d/geoptics.dump -v
+  nginx:
+    depends_on:
+      - webapp
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    ports:
+      - "3050:80"
+  webapp:
+    image: 'geoptics_app_ver2'
+    expose:
+      - "7777"
+
+networks:
+  default:
+    name: geoptics_network
+    driver: bridge

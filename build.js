@@ -24,7 +24,7 @@ let b_app = browserify({
     packageCache: {}
 })
 
-b_app.transform(babelify, { presets: ["es2015"] })
+b_app.transform(babelify, { presets: ["@babel/preset-es2015"] })
 .on("error", console.log)
 
 let bundle_app = () => {
@@ -68,7 +68,7 @@ let b_admin = browserify({
     packageCache: {}
 })
 
-b_admin.transform(babelify, { presets: ["es2015"] })
+b_admin.transform(babelify, { presets: ["@babel/preset-es2015"] })
 .on("error", console.log)
 
 let bundle_admin = () => {

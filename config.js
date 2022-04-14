@@ -69,6 +69,8 @@
 
 // module.exports = env ? configs[env] : configs.dev
 
+
+
 "use strict"
 
 const path = require('path')
@@ -78,12 +80,14 @@ const configs = {
         port: 7777,
         session_secret: "geoptics secret",
 
-        postgres_con: "postgres://postgres:1234@timescaledb/geoptics",
+        // postgres_con: "postgres://postgres:1234@timescaledb/geoptics",
+        postgres_con: "postgres://postgres:1234@geoptics_data/geoptics",
         pg: {
             user: "postgres",
             password: "1234",
             database: "geoptics",
-            host: "timescaledb",
+            host: "geoptics_data",
+            // port: 5434,
             max: 20,
             min: 20,
             idleTimeoutMillis: 30 * 1000
@@ -113,12 +117,13 @@ const configs = {
         port: 7777,
         session_secret: "geoptics secret",
 
-        postgres_con: "postgres://postgres:1234@timescaledb/geoptics",
+        postgres_con: "postgres://postgres:1234@geoptics_data/geoptics",
         pg: {
             user: "postgres",
             password: "1234",
             database: "geoptics",
-            host: "timescaledb",
+            host: "geoptics_data",
+            // port: 5434,
             max: 20,
             min: 20,
             idleTimeoutMillis: 30 * 1000

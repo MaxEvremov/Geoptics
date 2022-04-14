@@ -31,23 +31,31 @@
 
 version: '3.7'
 services:
-  # postgres:
-  #   image: 'timescale/timescaledb:1.7.0-pg10'
-  #   environment:
-  #     - POSTGRES_PASSWORD=postgres_password
-  #   volumes:
-  #     - ./geoptics.dump:/docker-entrypoint-initdb.d/geoptics.dump
-  #     # - /media/maxevremov/data/geoptics_db:/var/lib/postgresql/data
-  #   expose:
-  #     - "5432"
+  postgres:
+    image: timescale/timescaledb:latest-pg12
+    container_name: geoptics_data
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - /media/maxevremov/data/geoptics_full.dump:/docker-entrypoint-initdb.d/geoptics_full.dump
+      - /media/maxevremov/data/geoptics_db:/var/lib/postgresql/data
+      # - /media/maxevremov/data/serverbackup/var/lib/postgresql/9.6/secondary:/var/lib/postgresql/data
+      # image: 'timescale/timescaledb:1.7.0-pg10'
+    # volumes:
+    #   - ./geoptics.dump:/docker-entrypoint-initdb.d/geoptics.dump
+      # - /media/maxevremov/data/geoptics_db:/var/lib/postgresql/data
+    expose:
+      - "5432"
     # command: psql -U postgres -c "CREATE ROLE lwpss SUPERUSER"
     # command: psql -U postgres -c "CREATE ROLE root SUPERUSER"
     # command: psql -U postgres -c "CREATE DATABASE geoptics"
     # command: psql -U postgres -c "ALTER USER postgres WITH PASSWORD '1234'"
     # command: pg_restore -U postgres -d geoptics ./docker-entrypoint-initdb.d/geoptics.dump -v
   nginx:
+    container_name: geoptics_nginx
     depends_on:
       - webapp
+      # - postgres
     restart: always
     build:
       dockerfile: Dockerfile.dev
@@ -55,7 +63,15 @@ services:
     ports:
       - "3050:80"
   webapp:
-    image: 'geoptics_app_ver2'
+    build:
+      dockerfile: Dockerfile.dev
+      context: './'
+    # image: postgres:10
+    container_name: geoptics_webapp
+    environment:
+      - POSTGRES_PASSWORD=password
+    # image: timescale/timescaledb:latest-pg14
+    # image: 'geoptics_app_ver2'
     expose:
       - "7777"
 
@@ -63,3 +79,7 @@ networks:
   default:
     name: geoptics_network
     driver: bridge
+
+
+
+    docker run -d --name timescaledb -p 5432:5432 -e POSTGRES_PASSWORD=password -v /home/maxevremov/var/lib/postgresql/14/main:/var/lib/postgresql/data timescale/timescaledb:latest-pg14
